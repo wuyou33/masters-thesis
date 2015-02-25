@@ -1,5 +1,7 @@
 \input{src/doc_head}
 
+\input{custom_functions}
+
 \begin{document}
 
 %%
@@ -20,16 +22,16 @@
 
 %%
 %% dát pryč před tiskem!!!
-%~\vfill
-%\includegraphics[width=1\textwidth]{prohlaseni.jpg}
-%\cleardoublepage
+%%~\vfill
+%%\includegraphics[width=1\textwidth]{prohlaseni.jpg}
+%%\cleardoublepage
 %%
 
 %% dát pryč před tiskem!!!
-%\includepdf[pages={1}]{zadani_cesky.pdf}
-%\cleardoublepage
-%\includepdf[pages={1}]{zadani_anglicky.pdf}
-%\cleardoublepage
+%%\includepdf[pages={1}]{zadani_cesky.pdf}
+%%\cleardoublepage
+%%\includepdf[pages={1}]{zadani_anglicky.pdf}
+%%\cleardoublepage
 %%
 
 % Podekování
@@ -60,18 +62,38 @@
 \cfoot{}								%%% zruší čísla stránek uprostřed
 \rfoot{\thepage$/$\pageref{LastPage}}	%%% čísla stránek vpravo
 \setlength{\parskip}{0.35cm}
-\lhead{\emph{\leftmark}}	%%%	Zapne nadpis v hlavičce na všech stránkách
+\lhead{\emph{\leftmark}}				%%%	Zapne nadpis v hlavičce na všech stránkách
 
 % Úvod
 \input{src/introduction}
 \clearpage
 
-% State of the art
-\input{src/related_work}
+% Dosavadní práce
+\input{src/previous_work}
 \clearpage
 
-% UAV system dynamics
+% Dynamický systém helikopter
 \input{src/uav_dynamics}
+\clearpage
+
+% System identification
+\input{src/system_identification}
+\clearpage
+
+% Kalman
+\input{src/state_observer}
+\clearpage
+
+% Vše o MPC
+\input{src/model_predictive_control}
+\clearpage
+
+% Hardware platform
+\input{src/platform}
+\clearpage
+
+% State of the art
+\input{src/related_work}
 \clearpage
 
 % Závěr
