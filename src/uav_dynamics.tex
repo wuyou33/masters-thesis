@@ -1,4 +1,5 @@
 \section{UAV dynamics}
+\label{chap:uav_dynamics}
 
 Modeling a system dynamics has always been a great part of a control design process. One with a good understanding of a system's behavior can design a well suited controller using various approaches taught in the field of control theory. Such controller can reflect known characteristics of the system and can appropriately react to evolution of system states. There are two fundamental approaches to the system modeling. One is based on the knowledge about the physics involved in the system. This knowledge can be used to derive a mathematical model using known principles, e.g. Hamiltonian mechanics. Control design a well known system is usually called WhiteBox, or GreyBox, depending on how much of the physical process we are able to describe. On the other hand, when the system is unknown, one can create a mathematical model which sufficiently represents observed behavior of the system. Such method is usually called BlackBox.
 
@@ -13,7 +14,7 @@ When modeling a classical helicopter, a complex model including phenomena as aer
 \label{fig:coordinate_system}
 \end{figure}
 
-\subsection{Lateral dynamics}
+\subsection{Attitude dynamics}
 
 There are several coordinate systems in which states of the UAV~(Figure~\ref{fig:coordinate_system}) are expressed. There is a world coordinate system \textit{W} with a fixed position in the world. Then there is a rotating world coordinate system \textit{R}. It is rotated from $W$ by the angle $\phi$. Following is an inertial frame \textit{I} in which the attitude angles $\theta$ and $\psi$ are measured. It is translated into the geometric center of the UAV. At last there is a body frame \textit{B} which axis are aligned with the mechanical frame of the UAV.
 
@@ -57,7 +58,7 @@ The altitude dynamics is described by following equation
 
 where $g^W$ is a gravitational acceleration. This system is also non-linear, but we need to be more cautious with a potential linearization in this case. If we try to build an altitude controller which is supposed to work not only around a hovering point, but also during take-off and landing. Unlike in~(\ref{eq:attitude_first_lin}), the force $U$ should not be treated as constant. The pull force of a propeller can be simplified to a quadratic function of its angular speed [\strong{REFERENCE}], which is one of the controlled inputs.
 
-\subsection{Dynamics of integrated stabilization}
+\subsection{Dynamics of the integrated stabilization}
 
 Current UAVs are usually equipped with an attitude stabilization system. When building a custom multirotor, such system can be a cheap and affordable item on a list. If properly tuned and the feedback loop is closed it transforms the system to be controlled by $\theta_D$, $\psi_D$, $U_D$, $\dot{\phi_D}$, instead of desired thrust of each motor. For purposes of this thesis, all four model systems are modeled using first order transfer function (\ref{eq:first_order_stab}). Furthermore it is shown (chapter~\ref{cap:system_identification}) that these models are satisfactory and can be well fitted on a measured data. It is assumed that there is not present any altitude feedback loop\footnote{which would require e.g. barometer, GPS, ...}. In that case, the first order system would encapsulate also one of system's integrators ($\ddot{z} \rightarrow \dot{z}$) considering an altitude speed controller which is common in some systems \citep{pixhawk}\cite{ardupilot}.
 

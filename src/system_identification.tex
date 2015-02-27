@@ -1,2 +1,38 @@
 \section{System identification}
 \label{cap:system_identification}
+
+In order to identify parameters $P_1 \hdots P_6$, introduced in chapter \ref{chap:uav_dynamics}, a test flight needed to be made. There are several methods of system identification for both time and frequency domain. Despite theirs advantages, one have to excite system poles and zeros in a way that could lead to damage of the system and its surroundings. In case of highly unstable UAV, testing by a step response or frequency response mostly unwanted. Instead the model can be fitted on arbitrary data using a mathematical optimization approach. The test flight, which was conducted by a human operator, consisted mainly of a hover above one place with small oscillations in all axis. All data used for following identification were gathered from an onboard \textbf{px4flow} optical flow sensor (inc. ultrasonic rangefinder). They were received and logged in constant rate of $88\jed{Hz}$ and coupled with appropriate control action of the operator. Since all searched parameters are part of a first order system, we can write down its discrete differential equation
+
+\begin{equation}
+q[n+1] = P_Aq[n] + P_Bu[n]
+\end{equation}
+
+where $P_A$, $P_B$ are desired constants of the transfer function. Supposing this is the correct description, all sensors are perfect and there are no other effects on the system, this equation should hold for all measured samples. When considering all samples, the set of equations can be written as follows
+
+\begin{equation}
+\textbf{B} = \textbf{A}\textbf{P}
+\label{eq:bap}
+\end{equation}
+
+where \textbf{A} is the main matrix of the set, \textbf{B} is the left side of the equation and \textbf{P} is the vector of parameters we are looking for.
+
+\begin{equation}
+\textbf{A} = \begin{bmatrix}
+q[1] & u[1] \\
+q[2] & u[2] \\
+\vdots & \vdots \\
+q[m-1] & u[m-1] \\
+\end{bmatrix},
+\textbf{B} = \begin{bmatrix}
+q[2] \\
+q[3] \\
+\vdots\\
+q[m]
+\end{bmatrix},
+\textbf{P} = \begin{bmatrix}
+P_A \\
+P_B
+\end{bmatrix}
+\end{equation}
+
+Due to the fact that the system description does not cover all phenomena and the measured data are noisy, the equation (\ref{eq:bap}) does not need to hold. But we can still estimate values of \textbf{P} in a way that $\norm{\textbf{AP-B}}_2^2$ is minimal. To provide a good chance of estimating all parameters well, such data should be supplied that the set of equations is overdetermined. The solution is then optimal in terms of least squares of \textbf{r}, where $\textbf{r} = \textbf{AP-B}$ is a vector of residuals of the equation system. This optimization problem can be solved e.g. manually using QR decomposition or using Matlab's '\textit{\textbackslash}' operator.
