@@ -36,3 +36,46 @@ P_B
 \end{equation}
 
 Due to the fact that the system description does not cover all phenomena and the measured data are noisy, the equation (\ref{eq:bap}) does not need to hold. But we can still estimate values of \textbf{P} in a way that $\norm{\textbf{AP-B}}_2^2$ is minimal. To provide a good chance of estimating all parameters well, such data should be supplied that the set of equations is overdetermined. The solution is then optimal in terms of least squares of \textbf{r}, where $\textbf{r} = \textbf{AP-B}$ is a vector of residuals of the equation system. This optimization problem can be solved e.g. manually using QR decomposition or using Matlab's '\textit{\textbackslash}' operator.
+
+\subsection{Identifying Attitude axis}
+
+There are four parameters, $P_1$, $P_2$ for \texttt{x} axis and $P_3$, $P_4$ for \texttt{y} axis. Assuming the system is decoupled and the low-level stabilization drive both subsystems identically\footnote{Further experiments show that both axis can be driven by the same controller utilizing a single model.} we can identify a model using only one of them. Following experiment was conducted using a manually controlled UAV equipped with a px4flow optical flow sensor. Data seen in fig. \ref{fig:iden1} are both unfiltered and captured onboard using a dedicated logging device. One could ask what are the units of the input signal. Values shown in the plot are fundamentally a time difference from a mean PPM signal pulse, measured using a hardware timer. They are directly proportional to the desired attitude angle of the UAV.
+
+\begin{figure}[h!]
+\includegraphics[width=1\textwidth]{fig/iden1.eps} 
+\caption{Identification data - attitude}
+\label{fig:iden1}
+\end{figure}
+
+To identify a first order transfer function from the input to the acceleration, one have to derive the velocity signal. Due to its large noise component, differentiating it discreetly was found impractical. Instead fitting a smooth function leads to computing the derivation analytically. The polynomial function was chosen to fit the data since it can be easily derived and can fit them well. Using the approach described above, constants $P_1$ and $P_2$ were obtained.
+
+\begin{equation}
+P_1 = 0.9799, P_2 = 5.0719 \times 10^{-5} 
+\label{eq:constants1}
+\end{equation}
+
+Having these constants, the attitude system can be completed with particular values. 
+
+\begin{equation}
+\begin{split}
+\mathbf{A}_{x, y} = \begin{bmatrix}
+1 & 0.0114 & 0 \\
+0 & 1 & 0.0114 \\
+0 & 0 & 0.9799
+\end{bmatrix}, \mathbf{B}_{x, y} = \begin{bmatrix}
+0\\
+0\\
+5.0719 \times 10^{-5}
+\end{bmatrix}
+\end{split}
+\end{equation}
+
+The system can be further tested by estimating all states in open-loop from the measured input. We can evaluate its performance empirically by comparing estimates with measured data.
+
+\begin{figure}[h!]
+\includegraphics[width=1\textwidth]{fig/iden2.eps} 
+\caption{Identification - open loop estimation}
+\label{fig:iden2}
+\end{figure}
+
+As it can be seen in fig. \ref{fig:iden2} states estimated in open-loop are tracking the genuine values without much error. Some drift can be seen in the position, after the second integrator.
