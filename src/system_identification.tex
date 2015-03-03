@@ -10,11 +10,11 @@ q[n+1] = P_Aq[n] + P_Bu[n]
 where $P_A$, $P_B$ are desired constants of the transfer function. Supposing this is the correct description, all sensors are perfect and there are no other effects on the system, this equation should hold for all measured samples. When considering all samples, the set of equations can be written as follows
 
 \begin{equation}
-\textbf{B} = \textbf{A}\textbf{P}
+\textbf{b} = \textbf{A}\textbf{p}
 \label{eq:bap}
 \end{equation}
 
-where \textbf{A} is the main matrix of the set, \textbf{B} is the left side of the equation and \textbf{P} is the vector of parameters we are looking for.
+where \textbf{A} is the main matrix of the set, \textbf{b} is the left side of the equation and \textbf{p} is the vector of parameters we are looking for.
 
 \begin{equation}
 \textbf{A} = \begin{bmatrix}
@@ -23,19 +23,19 @@ q[2] & u[2] \\
 \vdots & \vdots \\
 q[m-1] & u[m-1] \\
 \end{bmatrix},
-\textbf{B} = \begin{bmatrix}
+\textbf{b} = \begin{bmatrix}
 q[2] \\
 q[3] \\
 \vdots\\
 q[m]
 \end{bmatrix},
-\textbf{P} = \begin{bmatrix}
+\textbf{p} = \begin{bmatrix}
 P_A \\
 P_B
 \end{bmatrix}
 \end{equation}
 
-Due to the fact that the system description does not cover all phenomena and the measured data are noisy, the equation (\ref{eq:bap}) does not need to hold. But we can still estimate values of \textbf{P} in a way that $\norm{\textbf{AP-B}}_2^2$ is minimal. To provide a good chance of estimating all parameters well, such data should be supplied that the set of equations is overdetermined. The solution is then optimal in terms of least squares of \textbf{r}, where $\textbf{r} = \textbf{AP-B}$ is a vector of residuals of the equation system. This optimization problem can be solved e.g. manually using QR decomposition or using Matlab's '\textit{\textbackslash}' operator.
+Due to the fact that the system description does not cover all phenomena and the measured data are noisy, the equation (\ref{eq:bap}) does not need to hold. But we can still estimate values of \textbf{p} in a way that $\norm{\textbf{Ap-b}}_2^2$ is minimal. To provide a good chance of estimating all parameters well, such data should be supplied that the set of equations is overdetermined. The solution is then optimal in terms of least squares of \textbf{r}, where $\textbf{r} = \textbf{Ap-b}$ is a vector of residuals of the equation system. This optimization problem can be solved e.g. manually using QR decomposition or using Matlab's '\textit{\textbackslash}' operator.
 
 \subsection{Identifying Attitude axis}
 
@@ -78,4 +78,8 @@ The system can be further tested by estimating all states in open-loop from the 
 \label{fig:iden2}
 \end{figure}
 
-As it can be seen in fig. \ref{fig:iden2} states estimated in open-loop are tracking the genuine values without much error. Some drift can be seen in the position, after the second integrator.
+As it can be seen in Fig. \ref{fig:iden2}, states estimated in open-loop are tracking the genuine values without much error. Some drift can be seen in the position, after the second integrator. But overall, it can be said the model fit measured data well, at least for purposes of control design. 
+
+\subsection{Identifying altitude axis}
+
+There was a dedicated flight preceding the altitude identification. Again, with an intention to excite the important system properties.
