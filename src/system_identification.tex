@@ -37,11 +37,11 @@ P_B
 
 Due to the fact that the system description does not cover all phenomena and the measured data are noisy, the equation (\ref{eq:bap}) does not need to hold. But we can still estimate values of \textbf{p} in a way that $\norm{\textbf{Ap-b}}_2^2$ is minimal. To provide a good chance of estimating all parameters well, such data should be supplied that the set of equations is overdetermined. The solution is then optimal in terms of least squares of \textbf{r}, where $\textbf{r} = \textbf{Ap-b}$ is a vector of residuals of the equation system. This optimization problem can be solved e.g. manually using QR decomposition or using Matlab's '\textit{\textbackslash}' operator.
 
-\subsection{Identifying Attitude axis}
+\subsection{Identifying attitude subsystem}
 
 There are four parameters, $P_1$, $P_2$ for \texttt{x} axis and $P_3$, $P_4$ for \texttt{y} axis. Assuming the system is decoupled and the low-level stabilization drive both subsystems identically\footnote{Further experiments show that both axis can be driven by the same controller utilizing a single model.} we can identify a model using only one of them. Following experiment was conducted using a manually controlled UAV equipped with a px4flow optical flow sensor. Data seen in fig. \ref{fig:iden1} are both unfiltered and captured onboard using a dedicated logging device. One could ask what are the units of the input signal. Values shown in the plot are fundamentally a time difference from a mean PPM signal pulse, measured using a hardware timer. They are directly proportional to the desired attitude angle of the UAV.
 
-\begin{figure}[h!]
+\begin{figure}[h]
 \includegraphics[width=1\textwidth]{fig/iden1.eps} 
 \caption{Identification data - attitude}
 \label{fig:iden1}
@@ -72,14 +72,60 @@ Having these constants, the attitude system can be completed with particular val
 
 The system can be further tested by estimating all states in open-loop from the measured input. We can evaluate its performance empirically by comparing estimates with measured data.
 
-\begin{figure}[h!]
+\begin{figure}[h]
 \includegraphics[width=1\textwidth]{fig/iden2.eps} 
-\caption{Identification - open loop estimation}
+\caption{Identification - open loop estimation of attitude system states}
 \label{fig:iden2}
 \end{figure}
 
 As it can be seen in Fig. \ref{fig:iden2}, states estimated in open-loop are tracking the genuine values without much error. Some drift can be seen in the position, after the second integrator. But overall, it can be said the model fit measured data well, at least for purposes of control design. 
 
-\subsection{Identifying altitude axis}
+\subsection{Identifying altitude subsystem}
 
-There was a dedicated flight preceding the altitude identification. Again, with an intention to excite the important system properties.
+There was another dedicated flight conducted for the purpose of altitude identification. Again, with an intention to excite the system's dynamics. In this case, the measured state is an altitude. It is supplied by an ultrasonic rangefinder which works in a range from $0.3$\jed{m} to $4$\jed{m}. The sensor is implemented on the px4flow unit and although the data are sent together with the optical flow, its actual rate is about $20$\jed{Hz}. Data were again fitted with polynomial and further derived into other states. Figure \ref{fig:iden3} shows data on which parameters $P_5$, $P_6$ were found. In this particular situation, input signal had to be shifted to cancel the DC component which countered the gravitational acceleration. The offset was found by the LSM.
+
+\begin{figure}[h]
+\includegraphics[width=1\textwidth]{fig/iden3.eps} 
+\caption{Identification data - altitude}
+\label{fig:iden3}
+\end{figure}
+
+Following constants were found using the same method as used before. 
+
+\begin{equation}
+P_5 = 0.9519, P_6 = 0.0012 \times 10^{-5} 
+\label{eq:constants1}
+\end{equation}
+
+Having these constants, the attitude system can be completed with particular values
+
+\begin{equation}
+\begin{split}
+\mathbf{A}_{z} = \begin{bmatrix}
+1 & 0.0114 & 0 & 0\\
+0 & 1 & 0.0114 & 0\\
+0 & 0 & 0 & 1 \\
+0 & 0 & 0 & 0.9519
+\end{bmatrix}, \mathbf{B}_{z} = \begin{bmatrix}
+0 & 0\\
+0 & 0\\
+0 & -g\\
+0.0012 & 0
+\end{bmatrix},
+\end{split}
+\label{eq:altitude_LTI}
+\end{equation}
+
+where $g \approx 9.8 ms^{-2}$ is the gravitational acceleartion.
+
+\begin{figure}[h]
+\includegraphics[width=1\textwidth]{fig/iden4.eps} 
+\caption{Identification - open loop estimation of altitude system states}
+\label{fig:iden4}
+\end{figure}
+
+As can be seen in Fig. \ref{fig:iden4} the open-loop estimation holds fairly up to the velocity state. The altitude drifts heavily in a window of seconds.
+
+\subsection{Identifying the yaw subsystem}
+
+The system could be identified by exactly the same procedure as the previous subsystems. But in our case, the UAV is not equipped with any device to measure it's yaw angle. It's stabilized by dead-reckoning from IMU (yaw rate measured by a gyro).
