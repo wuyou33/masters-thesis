@@ -124,8 +124,8 @@ where $g \approx 9.8 ms^{-2}$ is the gravitational acceleartion.
 \label{fig:iden4}
 \end{figure}
 
-As can be seen in Fig. \ref{fig:iden4} the open-loop estimation holds fairly up to the velocity state. The altitude drifts heavily in a window of seconds.
+As can be seen in Fig. \ref{fig:iden4} the open-loop estimation holds fairly up to the velocity state. The altitude drifts heavily in a horizon of seconds. 
 
 \subsection{Identifying the yaw subsystem}
 
-The system could be identified by exactly the same procedure as the previous subsystems. But in our case, the UAV is not equipped with any device to measure it's yaw angle. It's stabilized by dead-reckoning from IMU (yaw rate measured by a gyro).
+The system could be identified by exactly the same procedure as the previous subsystems. But in our case, the UAV is not equipped with any device to measure its yaw angle. It's stabilized by dead-reckoning from IMU (yaw rate measured by a gyro). The actual data from IMU are present only in integrated stabilization and are not sent to the custom control board. This would require a modification of the used stabilization board.
