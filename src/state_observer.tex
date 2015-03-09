@@ -1,1 +1,39 @@
 \section{State observer}
+
+Implementing an advanced control mechanism such as \textit{linear quadratic controller}, \textit{full state feedback} or in our case, \textit{model predictive controller}, requires a knowledge of all system states. This is a different situation then in a case of previously used PID controller, when only the controlled state needs to be known. There are some situations and corresponding systems, where the knowledge of all states is relatively easy to reach, respectively it might be already measured for another reason. For instance space, aerials or another vehicles, where the typical states are position and its derivatives. But in the case where not all states can be measured or we do not want to measure them, the state observer needs to be implemented. The state observer is a dynamical system which is simulated concurrently with the controlled system. It has the same number of inputs and it is controlled by the same actions as the real system. The order of the observer is the same as the order of the system. Its states are supposed to be observable and should correspond to the real system's states.
+
+\subsection{Open-loop observer}
+
+Let us have an LTI system that needs to be observed (considering $\textbf{C} = \mathbb{I}$, $\textbf{D} = \mathbf{0}$)
+
+\begin{equation}
+\textbf{x} = \textbf{A}\textbf{x} + \textbf{B}\textbf{u}
+\end{equation}
+
+The Open-loop observer can be constructed by setting up a system
+
+\begin{equation}
+\textbf{\^x} = \textbf{A}\textbf{\^x} + \textbf{B}\textbf{u}
+\end{equation}
+
+Following situations can be expected during the execution
+
+\begin{itemize}
+\item Estimated states track well corresponding system states. In this situation the system was identified perfectly and there is no need for feedback control.
+\item Estimated states track well system sates, but there is some drift during the time frame of the experiment.
+\item States estimated by the observer are completely out of scope of the system states which may suggest that the observer's model is wrong.
+\end{itemize}
+
+Open-loop estimations in chapter \ref{cap:system_identification} indicate that the model is in our case satisfactory but the Open-loop estimator would not probably lead to precise control results.
+
+\subsection{Closed-loop observe}
+
+The open-loop observer can be basically corrected by closing a feedback loop around the system.
+
+\begin{equation}
+\textbf{\^x} = \textbf{A}\textbf{\^x} + \textbf{B}\textbf{u} - \textbf{L}\left(\textbf{x} - \textbf{\^x}\right)
+\end{equation}
+
+There are several methods of finding $\textbf{L}$ such that poles of the observer are properly placed\footnote{Assuming the system can be converted to the \textit{controlled canonical form}}. One can utilize that placing poles of a state feedback is a dual problem for placing poles of the observer.
+
+\subsection{Kalman filter}
