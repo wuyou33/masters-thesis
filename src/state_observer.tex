@@ -7,7 +7,7 @@ Implementing an advanced control mechanism such as \textit{linear quadratic cont
 Let us have an LTI system that needs to be observed (considering $\textbf{C} = \mathbb{I}$, $\textbf{D} = \mathbf{0}$)
 
 \begin{equation}
-\textbf{x} = \textbf{A}\textbf{x} + \textbf{B}\textbf{u}
+\textbf{x} = \textbf{A}\textbf{x} + \textbf{B}\textbf{u} + \textbf{w}
 \end{equation}
 
 The Open-loop observer can be constructed by setting up a system
@@ -26,7 +26,7 @@ Following situations can be expected during the execution
 
 Open-loop estimations in chapter \ref{cap:system_identification} indicate that the model is in our case satisfactory but the Open-loop estimator would not probably lead to precise control results.
 
-\subsection{Closed-loop observe}
+\subsection{Closed-loop observer}
 
 The open-loop observer can be basically corrected by closing a feedback loop around the system.
 
@@ -34,6 +34,41 @@ The open-loop observer can be basically corrected by closing a feedback loop aro
 \textbf{\^x} = \textbf{A}\textbf{\^x} + \textbf{B}\textbf{u} - \textbf{L}\left(\textbf{x} - \textbf{\^x}\right)
 \end{equation}
 
-There are several methods of finding $\textbf{L}$ such that poles of the observer are properly placed\footnote{Assuming the system can be converted to the \textit{controlled canonical form}}. One can utilize that placing poles of a state feedback is a dual problem for placing poles of the observer.
+There are methods of finding $\textbf{L}$ such that poles of the observer are properly placed\footnote{Assuming the system can be converted to the \textit{controlled canonical form}}. One can utilize that placing poles of a state feedback is a dual problem for placing poles of the observer.
 
 \subsection{Kalman filter}
+
+For the purpose of this Thesis, the Kalman filter was implemented to estimate all states of the helicopter and to filter the measured data from sensors. The Kalman filter is a closed-loop iterative estimator. A hypothesis about estimated states takes form of a normal distribution with mean vector $\hat{\textbf{x}}$ and covariance matrix $\hat{\boldsymbol{\Sigma}}$. It presumes a model in a following form
+
+\begin{equation}
+\textbf{x}[t+1] = \textbf{A}\textbf{x}[t] + \textbf{B}\textbf{u}[t] + \textbf{w}[t]
+\end{equation}
+
+where \textbf{w} is a process noise vector. The noise is supposed to be drawn from a zero-mean normal distribution with a covariance matrix \textbf{R}. Further due there is a sensor model
+
+\begin{equation}
+\textbf{z}[t] = \textbf{H}\textbf{x}[t] + \textbf{v}[t]
+\end{equation}
+
+where \textbf{z}[t] is a measurement, \textbf{H} is a matrix that maps the state vector to the measurement and \textbf{v}[t] is the measurement noise vector. The noise is again drawn from a normal distribution with a covariance matrix \textbf{Q}. The filter holds a state vector $\textbf{\^x}$ and its covariance matrix $\boldsymbol{\Omega}$ between iterations. There are two phases of the Kalman filter's algorithm. The first one is the \textit{prediction phase}, where new state vector is estimated using a model. Its covariance $\boldsymbol{\Omega}$ is modified using a process noise covariance $\textbf{R}$. The second phase is the \textit{correction phase} when the state vector is updated using a measured data and $\boldsymbol{\Sigma}$ is again modified using the noise measurement covariance \textbf{P}.      
+
+\subsubsection*{Prediction phase}
+
+\begin{equation}
+\begin{split}
+\hat{\textbf{x}}[t] &\leftarrow \textbf{A}\hat{\textbf{x}}[t-1] + \textbf{B}\textbf{u}[t] \\
+\hat{\boldsymbol{\Sigma}}[t] &\leftarrow \textbf{A}\hat{\boldsymbol{\Sigma}}[t-1]\textbf{A}^{T} + \textbf{R}
+\end{split}
+\end{equation}
+
+\subsubsection*{Correction phase}
+
+\begin{equation}
+\begin{split}
+\textbf{K}[t] &\leftarrow \hat{\boldsymbol{\Sigma}}[t]\textbf{C}^{T}\left(\textbf{C}\hat{\boldsymbol{\Sigma}}[t]\textbf{C}^{T} + \textbf{Q}\right)^{-1} \\
+\hat{\textbf{x}}[t] &\leftarrow \hat{\textbf{x}}[t] + \textbf{K}[t]\left(\textbf{z}[t] - \textbf{C}\hat{\textbf{x}}[t]\right) \\
+\hat{\boldsymbol{\Sigma}}[t] &\leftarrow \left(\mathbb{I} - \textbf{K}[t]\textbf{C}\right)\hat{\boldsymbol{\Sigma}}
+\end{split}
+\end{equation}
+
+The prediction phase can be easily compared to the open-loop observer. 
