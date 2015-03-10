@@ -41,13 +41,13 @@ There are methods of finding $\textbf{L}$ such that poles of the observer are pr
 For the purpose of this Thesis, the Kalman filter was implemented to estimate all states of the helicopter and to filter the measured data from sensors. The Kalman filter is a closed-loop iterative estimator. A hypothesis about estimated states takes form of a normal distribution with mean vector $\hat{\textbf{x}}$ and covariance matrix $\hat{\boldsymbol{\Sigma}}$. It presumes a model in a following form
 
 \begin{equation}
-\textbf{x}[t+1] = \textbf{A}\textbf{x}[t] + \textbf{B}\textbf{u}[t] + \textbf{w}[t]
+\textbf{x}_{t+1} = \textbf{A}\textbf{x}_t + \textbf{B}\textbf{u}_t + \textbf{w}_t
 \end{equation}
 
 where \textbf{w} is a process noise vector. The noise is supposed to be drawn from a zero-mean normal distribution with a covariance matrix \textbf{R}. Further due there is a sensor model
 
 \begin{equation}
-\textbf{z}[t] = \textbf{H}\textbf{x}[t] + \textbf{v}[t]
+\textbf{z}_t = \textbf{H}\textbf{x}_t + \textbf{v}_t
 \end{equation}
 
 where \textbf{z}[t] is a measurement, \textbf{H} is a matrix that maps the state vector to the measurement and \textbf{v}[t] is the measurement noise vector. The noise is again drawn from a normal distribution with a covariance matrix \textbf{Q}. The filter holds a state vector $\textbf{\^x}$ and its covariance matrix $\boldsymbol{\Omega}$ between iterations. There are two phases of the Kalman filter's algorithm. The first one is the \textit{prediction phase}, where new state vector is estimated using a model. Its covariance $\boldsymbol{\Omega}$ is modified using a process noise covariance $\textbf{R}$. The second phase is the \textit{correction phase} when the state vector is updated using a measured data and $\boldsymbol{\Sigma}$ is again modified using the noise measurement covariance \textbf{P}.      
@@ -56,8 +56,8 @@ where \textbf{z}[t] is a measurement, \textbf{H} is a matrix that maps the state
 
 \begin{equation}
 \begin{split}
-\hat{\textbf{x}}[t] &\leftarrow \textbf{A}\hat{\textbf{x}}[t-1] + \textbf{B}\textbf{u}[t] \\
-\hat{\boldsymbol{\Sigma}}[t] &\leftarrow \textbf{A}\hat{\boldsymbol{\Sigma}}[t-1]\textbf{A}^{T} + \textbf{R}
+\hat{\textbf{x}}_t &\leftarrow \textbf{A}\hat{\textbf{x}}_{t-1} + \textbf{B}\textbf{u}_t \\
+\hat{\boldsymbol{\Sigma}}_t &\leftarrow \textbf{A}\hat{\boldsymbol{\Sigma}}_{t-1}\textbf{A}^{T} + \textbf{R}
 \end{split}
 \end{equation}
 
@@ -65,9 +65,9 @@ where \textbf{z}[t] is a measurement, \textbf{H} is a matrix that maps the state
 
 \begin{equation}
 \begin{split}
-\textbf{K}[t] &\leftarrow \hat{\boldsymbol{\Sigma}}[t]\textbf{C}^{T}\left(\textbf{C}\hat{\boldsymbol{\Sigma}}[t]\textbf{C}^{T} + \textbf{Q}\right)^{-1} \\
-\hat{\textbf{x}}[t] &\leftarrow \hat{\textbf{x}}[t] + \textbf{K}[t]\left(\textbf{z}[t] - \textbf{C}\hat{\textbf{x}}[t]\right) \\
-\hat{\boldsymbol{\Sigma}}[t] &\leftarrow \left(\mathbb{I} - \textbf{K}[t]\textbf{C}\right)\hat{\boldsymbol{\Sigma}}
+\textbf{K}_t &\leftarrow \hat{\boldsymbol{\Sigma}}_t\textbf{C}^{T}\left(\textbf{C}\hat{\boldsymbol{\Sigma}}_t\textbf{C}^{T} + \textbf{Q}\right)^{-1} \\
+\hat{\textbf{x}}_t &\leftarrow \hat{\textbf{x}}_t + \textbf{K}_t\left(\textbf{z}_t - \textbf{C}\hat{\textbf{x}}_t\right) \\
+\hat{\boldsymbol{\Sigma}}_t &\leftarrow \left(\mathbb{I} - \textbf{K}_t\textbf{C}\right)\hat{\boldsymbol{\Sigma}}_t
 \end{split}
 \end{equation}
 

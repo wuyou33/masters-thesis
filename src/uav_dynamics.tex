@@ -74,10 +74,10 @@ Current UAVs are usually equipped with an attitude stabilization system. When bu
 For the purpose of this thesis the discrete formulation of the dynamical system will be used. It allows to formulate proper filtration method and the MPC controller itself. Since now, all differential equations and state space formulation are written in a discrete form with a constant sampling rate $1/\Delta t$. Following form describes a discrete time-invariant system with a main matrix $\mathbf{A}$, and input matrix $\mathbf{B}$
 
 \begin{equation}
-\mathbf{q}[n] = \mathbf{A}\mathbf{q}[n-1]+ \mathbf{B}\mathbf{u}[n-1],
+\mathbf{q}_{t+1} = \mathbf{A}\mathbf{q}_{t}+ \mathbf{B}\mathbf{u}_{t},
 \end{equation}
 
-where $\mathbf{x}$[n] is the state vector in the sample $n$. Following matrices describe the pitch and roll systems given the state vectors $\mathbf{q}_{x} = \left(x, \dot{x}, \ddot{x}\right)$, $\mathbf{q}_{y} = \left(y, \dot{y}, \ddot{y}\right)$ and inputs $\mathbf{u}_x = \theta_D$, $\mathbf{u}_y = \psi_D$
+where $\mathbf{x}_{t}$ is the state vector in the sample time $t$. Following matrices describe the pitch and roll systems given the state vectors $\mathbf{q}_{x} = \left(x, \dot{x}, \ddot{x}\right)$, $\mathbf{q}_{y} = \left(y, \dot{y}, \ddot{y}\right)$ and inputs $\mathbf{u}_x = \theta_D$, $\mathbf{u}_y = \psi_D$
 
 \begin{equation}
 \begin{split}
