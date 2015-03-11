@@ -32,6 +32,7 @@ The open-loop observer can be basically corrected by closing a feedback loop aro
 
 \begin{equation}
 \textbf{\^x} = \textbf{A}\textbf{\^x} + \textbf{B}\textbf{u} - \textbf{L}\left(\textbf{x} - \textbf{\^x}\right)
+\label{eq:closed_loop_observer}
 \end{equation}
 
 There are methods of finding $\textbf{L}$ such that poles of the observer are properly placed\footnote{Assuming the system can be converted to the \textit{controlled canonical form}}. One can utilize that placing poles of a state feedback is a dual problem for placing poles of the observer.
@@ -50,16 +51,18 @@ where \textbf{w} is a process noise vector. The noise is supposed to be drawn fr
 \textbf{z}_t = \textbf{H}\textbf{x}_t + \textbf{v}_t
 \end{equation}
 
-where \textbf{z}[t] is a measurement, \textbf{H} is a matrix that maps the state vector to the measurement and \textbf{v}[t] is the measurement noise vector. The noise is again drawn from a normal distribution with a covariance matrix \textbf{Q}. The filter holds a state vector $\textbf{\^x}$ and its covariance matrix $\boldsymbol{\Omega}$ between iterations. There are two phases of the Kalman filter's algorithm. The first one is the \textit{prediction phase}, where new state vector is estimated using a model. Its covariance $\boldsymbol{\Omega}$ is modified using a process noise covariance $\textbf{R}$. The second phase is the \textit{correction phase} when the state vector is updated using a measured data and $\boldsymbol{\Sigma}$ is again modified using the noise measurement covariance \textbf{P}.      
+where $\textbf{z}_t$ is a measurement, \textbf{H} is a matrix that maps the state vector to the measurement and $\textbf{v}_t$ is the measurement noise vector. The noise is again drawn from a normal distribution with a covariance matrix \textbf{Q}. The filter holds a state vector $\textbf{\^x}$ and its covariance matrix $\boldsymbol{\Omega}$ between iterations. There are two phases of the Kalman filter algorithm. The first one is the \textit{prediction phase}, where new state vector is estimated using only the model. Its covariance $\boldsymbol{\Omega}$ is modified using a process noise covariance $\textbf{R}$. The second phase is the \textit{correction phase} when the state vector is updated using a measured data and $\boldsymbol{\Sigma}$ is again modified using the noise measurement covariance \textbf{P}.      
 
 \subsubsection*{Prediction phase}
 
 \begin{equation}
 \begin{split}
-\hat{\textbf{x}}_t &\leftarrow \textbf{A}\hat{\textbf{x}}_{t-1} + \textbf{B}\textbf{u}_t \\
+\hat{\textbf{x}}_t &\leftarrow \textbf{A}\hat{\textbf{x}}_{t-1} + \textbf{B}\textbf{u}_{t-1} \\
 \hat{\boldsymbol{\Sigma}}_t &\leftarrow \textbf{A}\hat{\boldsymbol{\Sigma}}_{t-1}\textbf{A}^{T} + \textbf{R}
 \end{split}
 \end{equation}
+
+The prediction phase can be easily compared to the open-loop observer. 
 
 \subsubsection*{Correction phase}
 
@@ -71,4 +74,7 @@ where \textbf{z}[t] is a measurement, \textbf{H} is a matrix that maps the state
 \end{split}
 \end{equation}
 
-The prediction phase can be easily compared to the open-loop observer. 
+where $\textbf{K}_t$ is the Kalman gain, $\mathbb{I}$ is the identity matrix, \textbf{C} is the matrix that maps estimated states to the measurement vector $\textbf{z}_t$.
+
+The first part of the correction phase consists of computing a Kalman gain $\textbf{K}_t$. It has a direct correspondence to the matrix \textbf{L} in (\ref{eq:closed_loop_observer}) thus it determines the feedback effect in the observer. The gain can be fine tuned by carefully setting \textbf{R} and \textbf{P}. The \textbf{P} can be determined by observing the noise parameters of measurements. That means the process noise is left for us to set. Practically there is a trade-off between trusting fully to the model and trusting fully to sensors. When setting \textbf{R} the filtered values have to be observed and the Kalman filter should be set basically by tuning the ratio between elements of \textbf{R} and \textbf{P}. The desired outcome is usually to eliminate the measurement noise while still preserving the zero-offset tracking (with sufficient transient response) of all estimated quantities.
+

@@ -4,7 +4,7 @@
 In order to identify parameters $P_1 \hdots P_6$, introduced in chapter \ref{chap:uav_dynamics}, a test flight needed to be made. There are several methods of system identification for both time and frequency domain. Despite theirs advantages, one have to excite system poles and zeros in a way that could lead to damage of the system and its surroundings. In case of highly unstable UAV, testing by a step response or frequency response mostly unwanted. Instead the model can be fitted on arbitrary data using a mathematical optimization approach. The test flight, which was conducted by a human operator, consisted mainly of a hover above one place with small oscillations in all axis. All data used for following identification were gathered from an onboard \textbf{px4flow} optical flow sensor (inc. ultrasonic rangefinder). They were received and logged in constant rate of $88\jed{Hz}$ and coupled with appropriate control action of the operator. Since all searched parameters are part of a first order system, we can write down its discrete differential equation
 
 \begin{equation}
-q[n+1] = P_Aq[n] + P_Bu[n]
+q_n = P_Aq_{n-1} + P_Bu_n
 \end{equation}
 
 where $P_A$, $P_B$ are desired constants of the transfer function. Supposing this is the correct description, all sensors are perfect and there are no other effects on the system, this equation should hold for all measured samples. When considering all samples, the set of equations can be written as follows
@@ -18,16 +18,16 @@ where \textbf{A} is the main matrix of the set, \textbf{b} is the left side of t
 
 \begin{equation}
 \textbf{A} = \begin{bmatrix}
-q[1] & u[1] \\
-q[2] & u[2] \\
+q_1 & u_1 \\
+q_2 & u_2 \\
 \vdots & \vdots \\
-q[m-1] & u[m-1] \\
+q_{m-1} & u_{m-1} \\
 \end{bmatrix},
 \textbf{b} = \begin{bmatrix}
-q[2] \\
-q[3] \\
+q_2 \\
+q_3 \\
 \vdots\\
-q[m]
+q_m
 \end{bmatrix},
 \textbf{p} = \begin{bmatrix}
 P_A \\
