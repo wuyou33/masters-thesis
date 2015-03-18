@@ -1,1 +1,11 @@
 \section{Model predictive control}
+
+Model predictive controller, also known as \textit{receding horizon controller}, is a common technique from a field of control theory. Though it is a challenging task to implement it into an embedded hardware, unlike other feedback loop controllers usually used on UAVs, namely PID and full-state feedback. The origins of MPC controllers can be found around chemical plants where the time constants of such dynamical processes are relatively high (up to order of hours) thus the computational demand is not so limiting. Also the constrain handling, an inherent property of MPC, is widely used while driving chemical processes. Since then the MPC started to spread on faster systems as the hardware become more powerful. Nowadays it is used to drive systems with sampling in order of milliseconds and tens of hertz loop rate.
+
+The control loop itself is built upon optimizing a cost function with decision variables that represent a desired input action. The cost function is usually a function of all states, desired trajectory and inputs. It penalizes (has higher values) the difference between predicted and desired state trajectory. Its order determines the class of a the mathematical optimization problem - linear or quadratic programming in dependence on a distance norm used. The control design problem is then basically reduced to solving a QP or LP program. Such controller is able to produce control actions optimal with respect to the cost function and supplied state and input constrains.
+
+\subsection{Problem formulation - QMPC}
+
+Predictive control 
+
+The MPC is formulated as a \textit{Quadratic Programming} (QP) problem, which is a well known mathematical 
