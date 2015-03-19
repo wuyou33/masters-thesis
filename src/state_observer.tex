@@ -1,54 +1,54 @@
 \section{State observer}
 
-Implementing an advanced control mechanism such as \textit{linear quadratic controller}, \textit{full state feedback} or in our case, \textit{model predictive controller}, requires a knowledge of all system states. This is a different situation then in a case of previously used PID controller, when only the controlled state needs to be known. There are some situations and corresponding systems, where the knowledge of all states is relatively easy to reach, respectively it might be already measured for another reason. For instance space, aerials or another vehicles, where the typical states are position and its derivatives. But in the case where not all states can be measured or we do not want to measure them, the state observer needs to be implemented. The state observer is a dynamical system which is simulated concurrently with the controlled system. It has the same number of inputs and it is controlled by the same actions as the real system. The order of the observer is the same as the order of the system. Its states are supposed to be observable and should correspond to the real system's states.
+Implementing an advanced control mechanism such as \textit{linear quadratic controller}, \textit{full state feedback} or in our case, \textit{model predictive controller}, requires a knowledge of all system states values. This is a different situation then in the case of previously used PID controller, when only the controlled state needs to be known. There are some situations and corresponding systems, where the knowledge of all states values is relatively easy to obtain, respectively it might be already measured for another reason. For instance space, aerials or another vehicles, where the typical states are position and its derivatives. But in the case where not all states can be measured or we do not want to measure them, the state observer needs to be implemented. The state observer is a dynamical system which is simulated concurrently with the controlled system. It has the same number of inputs and it is controlled by the same actions as the real system. The order of the observer is the same as the order of the system. Its states are supposed to be observable and should correspond to the real system's states.
 
 \subsection{Open-loop observer}
 
-Let us have an LTI system that needs to be observed (considering $\textbf{C} = \mathbb{I}$, $\textbf{D} = \mathbf{0}$)
+Let us have an LTI system that needs to be observed (assuming $\textbf{C} = \textbf{I}$, $\textbf{D} = \mathbf{0}$ i.e. the output consists directly of all states and there is no direct transfer from the input to the output). The uncertainty in the model or some external disturbance is covered by the vector $\textbf{w}$ which is unknown and usually called a \emph{process noise}.
 
 \begin{equation}
-\textbf{x} = \textbf{A}\textbf{x} + \textbf{B}\textbf{u} + \textbf{w}
+\textbf{x}_{[t+1]} = \textbf{A}\textbf{x}_{[t]} + \textbf{B}\textbf{u}_{[t]} + \textbf{w}_{[t]}
 \end{equation}
 
-The Open-loop observer can be constructed by setting up a system
+The open-loop observer can be constructed by setting up following system where $\textbf{\^x}$ denotes a vector of estimated state values. When $\textbf{w}$ has non zero-mean $\textbf{\^x}$ is going to drift from $\textbf{x}$ since the process noise is integrated over time.
 
 \begin{equation}
-\textbf{\^x} = \textbf{A}\textbf{\^x} + \textbf{B}\textbf{u}
+\textbf{\^x}_{[t+1]} = \textbf{A}\textbf{\^x}_{[t]} + \textbf{B}\textbf{u}_{[t]}
 \end{equation}
 
-Following situations can be expected during the execution
+Three distinct situations can be expected to happen during the execution:
 
 \begin{itemize}
-\item Estimated states track well corresponding system states. In this situation the system was identified perfectly and there is no need for feedback control.
-\item Estimated states track well system sates, but there is some drift during the time frame of the experiment.
-\item States estimated by the observer are completely out of scope of the system states which may suggest that the observer's model is wrong.
+\item Estimated states track well corresponding system states. The system was identified perfectly and there is no need for feedback control in this situation.
+\item Estimated states track well system sates, but there is some drift during the time frame of the experiment. The feedback loop is required to provide zero-offset observation.
+\item States estimated by the observer are completely out of scope of real system states which may suggest that the observer's model is wrong.
 \end{itemize}
 
-Open-loop estimations in chapter \ref{cap:system_identification} indicate that the model is in our case satisfactory but the Open-loop estimator would not probably lead to precise control results.
+Open-loop estimations in the chapter \ref{cap:system_identification} indicate that out model is in our case satisfactory but the open-loop estimator would not probably lead to precise control results.
 
 \subsection{Closed-loop observer}
 
-The open-loop observer can be basically corrected by closing a feedback loop around the system.
+The open-loop observer can be basically corrected by closing a feedback loop around the system as follows.
 
 \begin{equation}
-\textbf{\^x} = \textbf{A}\textbf{\^x} + \textbf{B}\textbf{u} - \textbf{L}\left(\textbf{x} - \textbf{\^x}\right)
+\textbf{\^x}_{[t+1]} = \textbf{A}\textbf{\^x}_{[t]} + \textbf{B}\textbf{u}_{[t]} - \textbf{L}\left(\textbf{x}_{[t]} - \textbf{\^x}_{[t]}\right)
 \label{eq:closed_loop_observer}
 \end{equation}
 
-There are methods of finding $\textbf{L}$ such that poles of the observer are properly placed\footnote{Assuming the system can be converted to the \textit{controlled canonical form}}. One can utilize that placing poles of a state feedback is a dual problem for placing poles of the observer.
+There are methods of finding $\textbf{L}$ such that poles of the observer are desirably placed\footnote{Assuming the system can be converted to the \textit{controlled canonical form}}. One can utilize that placing poles of a state feedback is a dual problem for placing poles of the observer. Practically one can tune a state feedback controller using matrices $\textbf{A}^T, \textbf{B}^T$ to get $\textbf{L}^T$ for the observer.
 
 \subsection{Kalman filter}
 
-For the purpose of this Thesis, the Kalman filter was implemented to estimate all states of the helicopter and to filter the measured data from sensors. The Kalman filter is a closed-loop iterative estimator. A hypothesis about estimated states takes form of a normal distribution with mean vector $\hat{\textbf{x}}$ and covariance matrix $\hat{\boldsymbol{\Sigma}}$. It presumes a model in a following form
+For the purpose of this thesis, the Kalman filter was implemented to estimate all states of the helicopter and to filter the measured data from sensors. The Kalman filter is a closed-loop iterative estimator. A hypothesis about estimated states takes form of a normal distribution with mean vector $\hat{\textbf{x}}$ and covariance matrix $\hat{\boldsymbol{\Sigma}}$. It presumes a model in a following form
 
 \begin{equation}
-\textbf{x}_{t+1} = \textbf{A}\textbf{x}_t + \textbf{B}\textbf{u}_t + \textbf{w}_t
+\textbf{x}_{[t+1]} = \textbf{A}\textbf{x}_{[t]} + \textbf{B}\textbf{u}_{[t]} + \textbf{w}_{[t+1]}
 \end{equation}
 
 where \textbf{w} is a process noise vector. The noise is supposed to be drawn from a zero-mean normal distribution with a covariance matrix \textbf{R}. Further due there is a sensor model
 
 \begin{equation}
-\textbf{z}_t = \textbf{H}\textbf{x}_t + \textbf{v}_t
+\textbf{z}_{[t]} = \textbf{H}\textbf{x}_{[t]} + \textbf{v}_{[t]}
 \end{equation}
 
 where $\textbf{z}$ is a measurement vector, \textbf{H} is a matrix that maps the state vector to the measurement and $\textbf{v}$ is the measurement noise vector. The noise is again drawn from a normal distribution with a covariance matrix \textbf{Q}. The filter holds a state vector $\textbf{\^x}$ and its covariance matrix $\boldsymbol{\Omega}$ between iterations. There are two phases of the Kalman filter algorithm. The first one is the \textit{prediction phase}, where the new state vector is estimated using only the model. Its covariance $\boldsymbol{\Omega}$ is modified using a process noise covariance $\textbf{R}$. The second phase is the \textit{correction phase} when the state vector is updated using a measured data and $\boldsymbol{\Sigma}$ is again modified using the noise measurement covariance \textbf{P}.      
