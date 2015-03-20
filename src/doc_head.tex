@@ -28,6 +28,31 @@
 \usepackage{natbib}
 \usepackage{url}
 \usepackage{pgfplots}
+\usepackage{tabularx}% http://ctan.org/pkg/tabularx
+\usepackage{pgf}
+\usepackage{tikz}
+\usepackage[utf8]{inputenc}
+\usetikzlibrary{arrows,automata}
+\usetikzlibrary{positioning}
+
+\tikzset{
+    state/.style={
+           rectangle,
+           rounded corners,
+           draw=black, very thick,
+           minimum height=2em,
+           inner sep=2pt,
+           text centered,
+           },
+    nothing/.style={
+           rectangle,
+           rounded corners,
+           draw=white, very thick,
+           minimum height=2em,
+           inner sep=2pt,
+           text centered,
+           },
+}
 
 \newcommand{\Author}{Tomáš Báča}
 \newcommand{\Title}{Model predictive control of micro aerial vehicle using onboard microcontroller}

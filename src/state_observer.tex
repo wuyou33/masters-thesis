@@ -14,6 +14,7 @@ The open-loop observer can be constructed by setting up following system where $
 
 \begin{equation}
 \textbf{\^x}_{[t+1]} = \textbf{A}\textbf{\^x}_{[t]} + \textbf{B}\textbf{u}_{[t]}
+\label{eq:openloop_observer}
 \end{equation}
 
 Three distinct situations can be expected to happen during the execution:
@@ -42,38 +43,126 @@ There are methods of finding $\textbf{L}$ such that poles of the observer are de
 For the purpose of this thesis, the Kalman filter was implemented to estimate all states of the helicopter and to filter the measured data from sensors. The Kalman filter is a closed-loop iterative estimator. A hypothesis about estimated states takes form of a normal distribution with mean vector $\hat{\textbf{x}}$ and covariance matrix $\hat{\boldsymbol{\Sigma}}$. It presumes a model in a following form
 
 \begin{equation}
-\textbf{x}_{[t+1]} = \textbf{A}\textbf{x}_{[t]} + \textbf{B}\textbf{u}_{[t]} + \textbf{w}_{[t+1]}
+\textbf{x}_{[t+1]} = \textbf{A}\textbf{x}_{[t]} + \textbf{B}\textbf{u}_{[t]} + \textbf{w}_{[t]}
+\label{eq:kalman_model}
 \end{equation}
 
-where \textbf{w} is a process noise vector. The noise is supposed to be drawn from a zero-mean normal distribution with a covariance matrix \textbf{R}. Further due there is a sensor model
+where \textbf{w} is the process noise which is supposed to be drawn from normal distribution $\mathcal{N}(\textbf{0}, \textbf{R})$. Furthermore there is a sensor model
 
 \begin{equation}
 \textbf{z}_{[t]} = \textbf{H}\textbf{x}_{[t]} + \textbf{v}_{[t]}
 \end{equation}
 
-where $\textbf{z}$ is a measurement vector, \textbf{H} is a matrix that maps the state vector to the measurement and $\textbf{v}$ is the measurement noise vector. The noise is again drawn from a normal distribution with a covariance matrix \textbf{Q}. The filter holds a state vector $\textbf{\^x}$ and its covariance matrix $\boldsymbol{\Omega}$ between iterations. There are two phases of the Kalman filter algorithm. The first one is the \textit{prediction phase}, where the new state vector is estimated using only the model. Its covariance $\boldsymbol{\Omega}$ is modified using a process noise covariance $\textbf{R}$. The second phase is the \textit{correction phase} when the state vector is updated using a measured data and $\boldsymbol{\Sigma}$ is again modified using the noise measurement covariance \textbf{P}.      
+where $\textbf{z}$ is a measurement vector, \textbf{H} is a matrix that maps the state vector to the measurement and $\textbf{v}$ is the measurement noise which is supposed to be drawn from $\mathcal{N}(\textbf{0}, \textbf{Q})$. A real measurement is modeled using the sensor model by adding a sample of the measurement noise to all states and transforming it by \textbf{H} to a measurement vector. The filter holds a state vector $\textbf{\^x}$ and its covariance matrix $\hat{\boldsymbol{\Sigma}}$ between iterations.
 
-\subsubsection*{Prediction phase}
+\begin{table}[h]
+\centering
+\begin{tabular}{ccccc}
+\hline
+& vector & covariance & mapping to \textbf{\^x} & mapping to \textbf{z}\\
+\hline
+estimated states & \textbf{\^x} & $\hat{\boldsymbol{\Sigma}}$ & \textbf{I} & \textbf{P}\\
+measurement & \textbf{z} & \textbf{Q} & \textbf{H} & \textbf{I}\\
+model (process) & \textbf{x} & \textbf{R} & & \\
+\hline
+\end{tabular}
+\caption{Overview of vectors and matrices used in Kalman filter.}
+\label{tab:matrices_in_kalman}
+\end{table}
+
+\subsubsection{Prediction phase}
+
+There are two phases of the Kalman filter algorithm. Figure \ref{fig:kalman_diagram} shows the block diagram for better clarity. The first one is the \textit{prediction phase} (\ref{eq:kalman_prediction}) which can be easily compared to the open-loop observer (\ref{eq:openloop_observer}). Here the new state vector is estimated using the model (\ref{eq:kalman_model}), previous state $\textbf{\^x}_{[t-1]}$ and the input $\textbf{u}_{[t-1]}$. Its covariance $\hat{\boldsymbol{\Sigma}}_{[t]}$ is modified using the model and the process noise covariance $\textbf{R}$.
 
 \begin{equation}
 \begin{split}
-\hat{\textbf{x}}_t &\leftarrow \textbf{A}\hat{\textbf{x}}_{t-1} + \textbf{B}\textbf{u}_{t-1} \\
-\hat{\boldsymbol{\Sigma}}_t &\leftarrow \textbf{A}\hat{\boldsymbol{\Sigma}}_{t-1}\textbf{A}^{T} + \textbf{R}
+\hat{\textbf{x}}_{[t]} &\leftarrow \textbf{A}\hat{\textbf{x}}_{[t-1]} + \textbf{B}\textbf{u}_{[t-1]} \\
+\hat{\boldsymbol{\Sigma}}_{[t]} &\leftarrow \textbf{A}\hat{\boldsymbol{\Sigma}}_{[t-1]}\textbf{A}^{T} + \textbf{R}
 \end{split}
-\end{equation}
+\label{eq:kalman_prediction}
+\end{equation}    
 
-The prediction phase can be easily compared to the open-loop observer. 
-
-\subsubsection*{Correction phase}
+\subsubsection{Correction phase}
+The second phase is the \textit{correction phase} (\ref{eq:kalman_correction}) where the state vector is updated using a measurement $\textbf{z}_{[t]}$. The covariance $\hat{\boldsymbol{\Sigma}}_{[t]}$ is modified again but this time using the noise measurement covariance \textbf{Q}. Following assignment statements denote the correction phase of the Kalman filter
 
 \begin{equation}
 \begin{split}
-\textbf{K}_t &\leftarrow \hat{\boldsymbol{\Sigma}}_t\textbf{C}^{T}\left(\textbf{C}\hat{\boldsymbol{\Sigma}}_t\textbf{C}^{T} + \textbf{Q}\right)^{-1} \\
-\hat{\textbf{x}}_t &\leftarrow \hat{\textbf{x}}_t + \textbf{K}_t\left(\textbf{z}_t - \textbf{C}\hat{\textbf{x}}_t\right) \\
-\hat{\boldsymbol{\Sigma}}_t &\leftarrow \left(\mathbb{I} - \textbf{K}_t\textbf{C}\right)\hat{\boldsymbol{\Sigma}}_t
+\textbf{K}_{[t]} &\leftarrow \hat{\boldsymbol{\Sigma}}_{[t]}\textbf{P}^{T}\left(\textbf{P}\hat{\boldsymbol{\Sigma}}_{[t]}\textbf{P}^{T} + \textbf{Q}\right)^{-1} \\
+\hat{\textbf{x}}_{[t]} &\leftarrow \hat{\textbf{x}}_{[t]} + \textbf{K}_{[t]}\left(\textbf{z}_{[t]} - \textbf{P}\hat{\textbf{x}}_{[t]}\right) \\
+\hat{\boldsymbol{\Sigma}}_{[t]} &\leftarrow \left(\mathbf{I} - \textbf{K}_{[t]}\textbf{P}\right)\hat{\boldsymbol{\Sigma}}_{[t]}
 \end{split}
+\label{eq:kalman_correction}
 \end{equation}
 
-where $\textbf{K}_t$ is the Kalman gain, $\mathbb{I}$ is the identity matrix, \textbf{C} is the matrix that maps estimated states to the measurement.
+where $\textbf{K}_t$ is the Kalman gain, $\mathbf{I}$ is the identity matrix, \textbf{P} is the matrix that maps estimated states to the measurement. The first part consists of computing a Kalman gain $\textbf{K}_t$. It has a direct correspondence to the matrix \textbf{L} in (\ref{eq:closed_loop_observer}) thus it determines the feedback effect in the observer. The gain can be fine tuned by carefully setting \textbf{R} and \textbf{Q}. The \textbf{Q} can be found by observing the noise parameters of measurements. That means the process noise is left for us to set. The table \ref{tab:matrices_in_kalman} denotes the important vectors and matrices that are used in the filter. Practically there is a trade-off between trusting fully to the model and trusting fully to sensors. When setting \textbf{R} the filtered values have to be observed and the Kalman filter should be set basically by tuning the ratio between elements of \textbf{R} and \textbf{Q}. The desired outcome usually is to eliminate the measurement noise while still preserving the zero-offset tracking (with sufficient transient response) of all estimated states.
 
-The first part of the correction phase consists of computing a Kalman gain $\textbf{K}_t$. It has a direct correspondence to the matrix \textbf{L} in (\ref{eq:closed_loop_observer}) thus it determines the feedback effect in the observer. The gain can be fine tuned by carefully setting \textbf{R} and \textbf{P}. The \textbf{P} can be found by observing the noise parameters of measurements. That means the process noise is left for us to set. Practically there is a trade-off between trusting fully to the model and trusting fully to sensors. When setting \textbf{R} the filtered values have to be observed and the Kalman filter should be set basically by tuning the ratio between elements of \textbf{R} and \textbf{P}. The desired outcome usually is to eliminate the measurement noise while still preserving the zero-offset tracking (with sufficient transient response) of all estimated quantities.
+\begin{figure}
+\centering
+\begin{tikzpicture}[->,>=stealth']
+
+ % Position of PREDICTION 
+ % Use previously defined 'state' as layout (see above)
+ % use tabular for content to get columns/rows
+ % parbox to limit width of the listing
+ \node[state] (PREDICTION) 
+ {
+ \begin{tabular}{c}
+  	\textbf{Prediction} \\
+  	\begin{tabular}{rcl}
+	$\hat{\textbf{x}}_{[t]}$ & $\leftarrow$ & $\textbf{A}\hat{\textbf{x}}_{[t-1]} + \textbf{B}\textbf{u}_{[t-1]}$ \\
+	$\hat{\boldsymbol{\Sigma}}_{[t]}$ & $\leftarrow$ & $\textbf{A}\hat{\boldsymbol{\Sigma}}_{[t-1]}\textbf{A}^{T} + \textbf{R}$
+ 	\end{tabular}
+ \end{tabular}
+ };
+  
+ % State: CORRECTION with different content
+ \node[state,    	% layout (defined above)
+  below of=PREDICTION, 	% Position is to the right of PREDICTION
+  node distance=4cm, 	% distance to PREDICTION
+  anchor=center] (CORRECTION) 	% posistion relative to the center of the 'box'
+ {%
+ \begin{tabular}{c}
+  	\textbf{Correction} \\
+  	\begin{tabular}{rcl}
+		$\textbf{K}_{[t]}$ & $\leftarrow$ & $\hat{\boldsymbol{\Sigma}}_{[t]}\textbf{P}^{T}\left(\textbf{P}\hat{\boldsymbol{\Sigma}}_{[t]}\textbf{P}^{T} + \textbf{Q}\right)^{-1}$ \\
+		$\hat{\textbf{x}}_{[t]}$ & $\leftarrow$ & $\hat{\textbf{x}}_{[t]} + \textbf{K}_{[t]}\left(\textbf{z}_{[t]} - \textbf{P}\hat{\textbf{x}}_{[t]}\right)$ \\
+		$\hat{\boldsymbol{\Sigma}}_{[t]}$ & $\leftarrow$ & $\left(\mathbf{I} - \textbf{K}_{[t]}\textbf{P}\right)\hat{\boldsymbol{\Sigma}}_{[t]}$ \\
+ 	\end{tabular}
+ \end{tabular}
+ };
+ 
+ \node[nothing,    	% layout (defined above)
+  left of=PREDICTION, 	% Position is to the right of QUERY
+  node distance=5cm, 	% distance to QUERY
+  anchor=center] (PRED_IN) 	% posistion relative to the center of the 'box'
+ {};
+ 
+ \node[nothing,    	% layout (defined above)
+  left of=CORRECTION, 	% Position is to the right of QUERY
+  node distance=7cm, 	% distance to QUERY
+  anchor=center] (CORR_IN) 	% posistion relative to the center of the 'box'
+ {};
+
+ % draw the paths and and print some Text below/above the graph
+ \path (PREDICTION) 	edge[bend left=30]  node[anchor=west]
+ 	   {
+ 		$\hat{\textbf{x}}_{[t]}$, $\hat{\boldsymbol{\Sigma}}_{[t]}$
+       } (CORRECTION)
+       (CORRECTION) 	edge[bend left=30]  node[anchor=east]
+ 	   {
+ 	   	\begin{tabular}{c}
+ 	   	$\hat{\textbf{x}}_{[t]}$, $\hat{\boldsymbol{\Sigma}}_{[t]}$ \\
+ 	   	$t \leftarrow t + 1$	
+ 	   	\end{tabular}
+       } (PREDICTION)
+       
+       (PRED_IN) edge[] node[anchor=south] {\textbf{Input}} node[anchor=north] {\textbf{u}} (PREDICTION)
+       
+       (CORR_IN) edge[] node[anchor=south] {\textbf{Measurement}} node[anchor=north] {$\textbf{z}, \textbf{Q}, \textbf{P}$} (CORRECTION);
+
+\end{tikzpicture}
+\caption{Bock diagram of the Kalman filter}
+\label{fig:kalman_diagram}
+\end{figure}
+
+\subsection{Filtering real data}
