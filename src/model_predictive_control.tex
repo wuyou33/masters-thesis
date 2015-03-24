@@ -10,7 +10,7 @@ For purpose of this thesis, we consider only the linear MPC i.e. controlling an 
 
 \subsection{System prediction}
 
-It is essential, for the purpose of MPC, to be able to predict system's states $\textbf{\underline{x}} = \left\lbrace \textbf{x}_i \in \mathbb{R}, \forall i = 0, ..., M-1 \right\rbrace$ based on the initial state $\textbf{x}_0$ and a series of inputs $\textbf{\underline{u}} = \left\lbrace \textbf{u}_i \in \mathbb{R}, \forall i = 0, ..., M-1 \right\rbrace$ where $M$ is the length of the prediction horizon. Let us consider a discrete, linear, time-invariant system with $n$ states and $k$ inputs, assuming $\textbf{C} = \textbf{I}$ and $\textbf{D} = \textbf{0}$.
+It is essential, for the purpose of MPC, to be able to predict a series of system's states $\textbf{\underline{x}} = \left\lbrace \textbf{x}_{[i]} \in \mathbb{R}, \forall i \in 0, ..., M-1 \right\rbrace$ based on the initial state $\textbf{x}_{[0]}$ and a series of inputs $\textbf{\underline{u}} = \left\lbrace \textbf{u}_{[i]} \in \mathbb{R}, \forall i = 0, ..., M-1 \right\rbrace$ where $M$ is the length of the prediction horizon. Let us consider a discrete, linear, time-invariant system with $n$ states and $k$ inputs, assuming $\textbf{C} = \textbf{I}$ and $\textbf{D} = \textbf{0}$.
 
 \begin{equation}
 \textbf{x}_{[t+1]} = \textbf{A}\textbf{x}_{[t]} + \textbf{B}\textbf{u}_{[t]}
