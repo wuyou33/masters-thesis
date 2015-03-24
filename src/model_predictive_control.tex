@@ -1,11 +1,80 @@
 \section{Model predictive control}
 
-Model predictive controller, also known as \textit{receding horizon controller}, is a common technique from a field of control theory. Though it is a challenging task to implement it into an embedded hardware, unlike other feedback loop controllers usually used on UAVs, namely PID and full-state feedback. The origins of MPC controllers can be found around chemical plants where the time constants of such dynamical processes are relatively high (up to order of hours) thus the computational demand is not so limiting. Also the constrain handling, an inherent property of MPC, is widely used while driving chemical processes. Since then the MPC started to spread on faster systems as the hardware become more powerful. Nowadays it is used to drive systems with sampling in order of milliseconds and tens of hertz loop rate.
+Model predictive controller (MPC), also known as \textit{receding horizon controller}, is a common technique of controlling unmanned aircraft. Though it is a challenging task to implement it into an embedded hardware, unlike other feedback loop controllers usually used on UAVs, namely PID (proportional-integral-derivative controller) and full-state feedback. The origins of MPC can be found around chemical plants where the time constants of such dynamical processes are relatively high (up to order of hours) thus the computational demand is not so limiting. Also the constrain handling, an inherent property of MPC, is widely used while driving chemical processes. Since then the MPC started to spread on faster systems as the hardware become more powerful. Nowadays it is used to drive systems with sampling in order of milliseconds and tens of hertz loop rate.
 
-The control loop itself is built upon optimizing a cost function with decision variables that represent a desired input action. The cost function is usually a function of all states, desired trajectory and inputs. It penalizes (has higher values) the difference between predicted and desired state trajectory. Its order determines the class of a the mathematical optimization problem - linear or quadratic programming in dependence on a distance norm used. The control design problem is then basically reduced to solving a QP or LP program. Such controller is able to produce control actions optimal with respect to the cost function and supplied state and input constrains.
+The control loop itself is built upon optimizing a cost function (usually called \textbf{objective function}) with decision variables that represent a desired input action. It is usually a function of all states, desired trajectory and system inputs over a certain time horizon, often called \textbf{prediction horizon}. It penalizes (has higher values) the difference between predicted and desired state trajectory. It also penalizes the control action itself which can be interpreted as penalizing the energy used for controlling the system. In other words, the objective function returns a scalar value that quantifies whether the controller drove the system well. Such function can have extrema. Our goal is to find its minimum which follows that the states are changing according to our desired trajectory. The minimum can be local or global, depending on the function itself. It is usually desirable to find the global minimum since that is where the optimal control action is found with respect to the constructed objective function.
+
+There are several classes of continuous optimization problems depending on the type of the objective function. Mathematicians favor usually linear or quadratic objective function subjected to linear inequality constrains. These are historically well studied cases with known methods of solving them. The problem is usually called \textit{Linear Programming} (LP) when optimizing linear function, or \textit{Quadratic Programming} (QP) when optimizing a quadratic function. Since the MPC can be formulated as LP or QP, the control design problem is then basically reduced to solving a QP or LP program and the main focus is left on system modeling and fine-tuning of free parameters of the objective function. The optimization task itself is usually left on dedicated solver that it specialized on the particular function type. 
+
+For purpose of this thesis, we consider only the linear MPC i.e. controlling an LTI system proposed in chapter \ref{cap:system_identification}. The MPC can be formulated as LP or QP, depending on what type of distance norm is used for computing the distance between two states. When using the \mbox{\emph{1-norm}} or \mbox{\emph{$\infty$-norm}} distance, the formulation leads to a linear program. One can formulate the LP in a way that minimizes the maximal deviation from desired trajectory - this formulation is usually called a \emph{robust MPC} (RMPC). But for purpose of this work, the focus will be on the QP formulation of MPC (QMPC). The quadratic formulation leads to smoother control actions the linear one.
+
+\subsection{System prediction}
+
+It is essential, for the purpose of MPC, to be able to predict system's states $\textbf{\underline{x}} = \left\lbrace \textbf{x}_i \in \mathbb{R}, \forall i = 0, ..., M-1 \right\rbrace$ based on the initial state $\textbf{x}_0$ and a series of inputs $\textbf{\underline{u}} = \left\lbrace \textbf{u}_i \in \mathbb{R}, \forall i = 0, ..., M-1 \right\rbrace$ where $M$ is the length of the prediction horizon. Let us consider a discrete, linear, time-invariant system with $n$ states and $k$ inputs, assuming $\textbf{C} = \textbf{I}$ and $\textbf{D} = \textbf{0}$.
+
+\begin{equation}
+\textbf{x}_{[t+1]} = \textbf{A}\textbf{x}_{[t]} + \textbf{B}\textbf{u}_{[t]}
+\label{eq:mpc_lti_system}
+\end{equation}
+
+where $\textbf{x}_{[t]} \in \mathbb{R}^{n}$ is the state vector in some sample time $t$, $\textbf{u}_{[t]} \in \mathbb{R}^k$ is the input vector in some sample time $t$, $\textbf{A} \in \mathbb{R}^{n\times n}$ is the system matrix and $\textbf{B} \in \mathbb{B}^{n\times k}$ is the input matrix. First two prediction steps from $\textbf{x}_0$ can be formulated as
+
+\begin{equation}
+\begin{split}
+\textbf{x}_{[1]} &= \textbf{A}\textbf{x}_{[0]} + \textbf{B}\textbf{u}_{[0]} \\
+\textbf{x}_{[2]} &= \textbf{A}\textbf{x}_{[1]} + \textbf{B}\textbf{u}_{[1]} = \textbf{A}^2\textbf{x}_{[0]} + \textbf{A}\textbf{B}\textbf{u}_{[0]} + \textbf{B}\textbf{u}_{[1]}
+\end{split}
+\end{equation}
+
+The prediction can be further generalized to a form
+
+\begin{equation}
+\begin{split}
+\textbf{x}_{[t+2]} &= \textbf{A}^2\textbf{x}_{[t]} + \textbf{A}\textbf{B}\textbf{u}_{[t]} + \textbf{B}\textbf{u}_{[t+1]}
+\end{split}
+\end{equation}
+
+The expansion can be used to get the prediction in any future time step. It can be put in the matrix form for all future time steps within the prediction horizon.
+
+\begin{equation}
+\begin{bmatrix}
+\textbf{x}_{[0]} \\
+\textbf{x}_{[0]} \\
+\vdots \\
+\textbf{x}_{[M-1]} \\
+\end{bmatrix}
+=
+\end{equation}
 
 \subsection{Problem formulation - QMPC}
 
-Predictive control 
 
-The MPC is formulated as a \textit{Quadratic Programming} (QP) problem, which is a well known mathematical 
+The objective function for QMPC is formulated as follows
+
+\begin{equation}
+V\left(\textbf{x}, \textbf{u}\right) = \frac{1}{2}\sum_{i=0}^{M-2}\left(\textbf{x}^T_i\textbf{Q}\textbf{x}_i + \textbf{u}^T_i\textbf{P}\textbf{u}_i\right) + \frac{1}{2}\textbf{x}^T_{M-1}\textbf{S}\textbf{x}_M
+\end{equation}
+
+where $M \in \mathbb{N}$ is the length of the prediction horizon, $\textbf{Q} \in \textbf{R}^{n\times n}$ is a state weighting matrix, $\textbf{P} \in \mathbb{R}^{k\times k}$ is a input weighting matrix and $\textbf{S} \in \mathbb{R}^{n \times n}$ is a matrix weighting the final state values. As for this formulation, elements of \textbf{x} and \textbf{u} need to satisfy the system dynamics (\ref{eq:mpc_lti_system}).
+
+Before formalizing the linear QMPC, some terms need to be introduced together with their meanings and ... 
+
+\begin{table}[h]
+\begin{tabular}{ccl}
+\hline
+& Term & Description \\
+\hline
+$M$ & Prediction horizon length & \parbox[t]{9.65cm} {How many iterations of the LTI system is computed with in the optimization.} \\
+\hline
+\end{tabular}
+\end{table}
+
+
+
+\subsection{Solving QMPC - unconstrained}
+
+\subsection{Solving QMPC - constrained}
+
+\subsection{Move blocking - reducing complexity}
+
+\subsection{Summary}
