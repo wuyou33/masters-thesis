@@ -156,15 +156,19 @@ The ability to constrain a particular state's values is one of the main benefits
 
 \subsubsection{Other constraints}
 
+There are many other types of constraints that can be declared to improve or change the behavior of the system. One particularly useful example is limiting the rate of change of input within the prediction horizon. This leads to smoother input signals and can prevent some stress on actuators of the system. Another possibility is to restrict the monotonicity of a particular state's values over the horizon. This can lead to restricting overshoots and limiting reactions of unstable zeros of the system (initially, the system tends to move in the opposite direction then intended). Finally, one can create constraints that force the control signal to lie out of a deadzone of an actuator. Deadzones are inconvenient actuator nonlinearities that can make the control design otherwise very painful.
+
+\subsection{Move blocking - reducing complexity of MPC}
+
 
 
 \subsection{Solving QMPC - unconstrained}
 \label{cap:qmpc_unconstrained}
 
+
 \subsection{Solving QMPC - constrained}
 \label{cap:qmpc_constrained}
 
-\subsection{Move blocking - reducing complexity of MPC}
 
 \subsection{The MPC control loop}
 
