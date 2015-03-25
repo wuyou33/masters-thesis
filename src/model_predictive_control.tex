@@ -1,16 +1,16 @@
 \section{Model predictive control}
 
-Model predictive controller (MPC), also known as \textit{receding horizon controller}, is a common technique of controlling unmanned aircraft. Though it is a challenging task to implement it into an embedded hardware, unlike other feedback loop controllers usually used on UAVs, namely PID (proportional-integral-derivative controller) and full-state feedback. The origins of MPC can be found around chemical plants where the time constants of such dynamical processes are relatively high (up to order of hours) thus the computational demand is not so limiting. Also the constrain handling, an inherent property of MPC, is widely used while driving chemical processes. Since then the MPC started to spread on faster systems as the hardware become more powerful. Nowadays it is used to drive systems with sampling in order of milliseconds and tens of hertz loop rate.
+Model predictive controller (MPC), also known as \textit{receding horizon controller}, is a common technique of controlling unmanned aircraft. Though it is a challenging task to implement it into an embedded hardware, unlike other feedback loop controllers usually used on UAVs, namely PID (proportional-integral-derivative controller) and full-state feedback. The origins of MPC can be found around chemical plants where the time constants of such dynamical processes are relatively high (up to order of hours) thus the computational demand is not so limiting. Also the constraint handling, an inherent property of MPC, is widely used while driving chemical processes. Since then the MPC started to spread on faster systems as the hardware become more powerful. Nowadays it is used to drive systems with sampling in order of milliseconds and tens of hertz loop rate.
 
 The control loop itself is built upon optimizing a cost function (usually called \textbf{objective function}) with decision variables that represent a desired input action. It is usually a function of all states, desired trajectory and system inputs over a certain time horizon, often called \textbf{prediction horizon}. It penalizes (has higher values) the difference between predicted and desired state trajectory. It also penalizes the control action itself which can be interpreted as penalizing the energy used for controlling the system. In other words, the objective function returns a scalar value that quantifies whether the controller drove the system well. Such function can have extrema. Our goal is to find its minimum which follows that the states are changing according to our desired trajectory. The minimum can be local or global, depending on the function itself. It is usually desirable to find the global minimum since that is where the optimal control action is found with respect to the constructed objective function.
 
-There are several classes of continuous optimization problems depending on the type of the objective function. Mathematicians favor usually linear or quadratic objective function subjected to linear inequality constrains. These are historically well studied cases with known methods of solving them. The problem is usually called \textit{Linear Programming} (LP) when optimizing linear function, or \textit{Quadratic Programming} (QP) when optimizing a quadratic function. Since the MPC can be formulated as LP or QP, the control design problem is then basically reduced to solving a QP or LP program and the main focus is left on system modeling and fine-tuning of free parameters of the objective function. The optimization task itself is usually left on dedicated solver that it specialized on the particular function type. 
+There are several classes of continuous optimization problems depending on the type of the objective function. Mathematicians favor usually linear or quadratic objective function subjected to linear inequality constraints. These are historically well studied cases with known methods of solving them. The problem is usually called \textit{Linear Programming} (LP) when optimizing linear function, or \textit{Quadratic Programming} (QP) when optimizing a quadratic function. Since the MPC can be formulated as LP or QP, the control design problem is then basically reduced to solving a QP or LP program and the main focus is left on system modeling and fine-tuning of free parameters of the objective function. The optimization task itself is usually left on dedicated solver that it specialized on the particular function type. 
 
 For purpose of this thesis, we consider only the linear MPC i.e. controlling an LTI system proposed in chapter \ref{cap:system_identification}. The MPC can be formulated as LP or QP, depending on what type of distance norm is used for computing the distance between two states. When using the \mbox{\emph{1-norm}} or \mbox{\emph{$\infty$-norm}} distance, the formulation leads to a linear program. One can formulate the LP in a way that minimizes the maximal deviation from desired trajectory - this formulation is usually called a \emph{robust MPC} (RMPC). But for purpose of this work, the focus will be on the QP formulation of MPC (QMPC). The quadratic formulation leads to smoother control actions the linear one.
 
 \subsection{System prediction}
 
-It is essential, for the purpose of MPC, to be able to predict a series of system's states $\textbf{\underline{x}} = \left\lbrace \textbf{x}_{[i]} \in \mathbb{R}, \forall i \in 0, ..., M-1 \right\rbrace$ based on the initial state $\textbf{x}_{[0]}$ and a series of inputs $\textbf{\underline{u}} = \left\lbrace \textbf{u}_{[i]} \in \mathbb{R}, \forall i = 0, ..., M-1 \right\rbrace$ where $M$ is the length of the prediction horizon. Let us consider a discrete, linear, time-invariant system with $n$ states and $k$ inputs, assuming $\textbf{C} = \textbf{I}$ and $\textbf{D} = \textbf{0}$.
+It is essential, for the purpose of MPC, to be able to predict a series of system's states $\textbf{\underline{x}} = \left\lbrace \textbf{x}_{[i]} \in \mathbb{R}^{n}, \forall i \in 0, ..., M-1 \right\rbrace$ based on the initial state $\textbf{x}_{[0]}$ and a series of inputs $\textbf{\underline{u}} = \left\lbrace \textbf{u}_{[i]} \in \mathbb{R}^{k}, \forall i = 0, ..., M-1 \right\rbrace$ where $M$ is the length of the prediction horizon. Let us consider a discrete, linear, time-invariant system with $n$ states and $k$ inputs, assuming $\textbf{C} = \textbf{I}$ and $\textbf{D} = \textbf{0}$ (again, assuming there is no direct transfer from the input to the output and the output consist directly of all states).
 
 \begin{equation}
 \textbf{x}_{[t+1]} = \textbf{A}\textbf{x}_{[t]} + \textbf{B}\textbf{u}_{[t]}
@@ -26,7 +26,7 @@ where $\textbf{x}_{[t]} \in \mathbb{R}^{n}$ is the state vector in some sample t
 \end{split}
 \end{equation}
 
-The prediction can be further generalized to a form
+The prediction can be further generalized for any time step as follows
 
 \begin{equation}
 \begin{split}
@@ -34,47 +34,138 @@ The prediction can be further generalized to a form
 \end{split}
 \end{equation}
 
-The expansion can be used to get the prediction in any future time step. It can be put in the matrix form for all future time steps within the prediction horizon.
+The expansion can be used to get the prediction in any future time step.  Moreover it can be put in the matrix form for all future time steps within the prediction horizon. Matrices denoted in (\ref{eq:prediction_big}) are basic building blocks of QMPC formulation presented on following page.
 
 \begin{equation}
+\label{eq:prediction_big}
+\underbrace{
 \begin{bmatrix}
-\textbf{x}_{[0]} \\
-\textbf{x}_{[0]} \\
+\textbf{x}_{[1]} \\
+\textbf{x}_{[2]} \\
 \vdots \\
 \textbf{x}_{[M-1]} \\
-\end{bmatrix}
+\end{bmatrix}}_{\textbf{\underline{x}}}
 =
+\underbrace{
+\begin{bmatrix}
+\textbf{A} \\
+\textbf{A}^2 \\
+\vdots \\
+\textbf{A}^{M-1} \\
+\end{bmatrix}}_{\textbf{\^A}}
+\textbf{x}_{[0]}
++
+\underbrace{
+\begin{bmatrix}
+\textbf{B} & \textbf{0} & \textbf{0} & \textbf{0} \\
+\textbf{AB} & \textbf{B} & \textbf{0} & \textbf{0} \\
+\vdots & \vdots & \ddots & \vdots \\
+\textbf{A}^{M-1}\textbf{B} & \textbf{A}^{M-2}\textbf{B} & \hdots & \textbf{B}
+\end{bmatrix}
+}_{\textbf{\^B}}\underline{\textbf{u}}
+\end{equation}
+
+Thus it can be finally simplified into form using matrices $\textbf{\^A}$ and $\textbf{\^B}$
+
+\begin{equation}
+\textbf{\underline{x}} = \textbf{\^A}\textbf{x}_{[0]} + \textbf{\^B}\textbf{\underline{u}}
+\label{eq:prediction_final}
 \end{equation}
 
 \subsection{Problem formulation - QMPC}
 
 
-The objective function for QMPC is formulated as follows
+The objective function for QMPC is formulated as sum of squares of weighted control errors combined with weighted control actions. In our case the weight of the last control error is weighted differently then all the previous errors which is denoted by the second summand in (\ref{eq:qmpc_basic_formulation}).
 
 \begin{equation}
-V\left(\textbf{x}, \textbf{u}\right) = \frac{1}{2}\sum_{i=0}^{M-2}\left(\textbf{x}^T_i\textbf{Q}\textbf{x}_i + \textbf{u}^T_i\textbf{P}\textbf{u}_i\right) + \frac{1}{2}\textbf{x}^T_{M-1}\textbf{S}\textbf{x}_M
+\label{eq:qmpc_basic_formulation}
+V\left(\textbf{\underline{x}}, \textbf{\underline{u}}\right) = \frac{1}{2}\sum_{i=0}^{M-2}\left(\textbf{e}^T_{[i]}\textbf{Q}\textbf{e}_{[i]} + \textbf{u}^T_{[i]}\textbf{P}\textbf{u}_{[i]}\right) + \frac{1}{2}\textbf{e}_{[M-1]}\textbf{S}\textbf{e}_{[M-1]}
 \end{equation}
 
-where $M \in \mathbb{N}$ is the length of the prediction horizon, $\textbf{Q} \in \textbf{R}^{n\times n}$ is a state weighting matrix, $\textbf{P} \in \mathbb{R}^{k\times k}$ is a input weighting matrix and $\textbf{S} \in \mathbb{R}^{n \times n}$ is a matrix weighting the final state values. As for this formulation, elements of \textbf{x} and \textbf{u} need to satisfy the system dynamics (\ref{eq:mpc_lti_system}).
+The control error is denoted by $\textbf{e}_{[t]} = \textbf{x}_{[t]} - \textbf{\~x}_{[t]}$ in some time t, $\textbf{Q} \in \textbf{R}^{n\times n}$ is the state weighting matrix, $\textbf{P} \in \mathbb{R}^{k\times k}$ is the input weighting matrix and $\textbf{S} \in \mathbb{R}^{n \times n}$ is the matrix weighting the final state values. Matrices $\textbf{Q}$, $\textbf{S}$ need to be positive semi-definite ($\textbf{Q}, \textbf{S} \succeq 0$) and matrix $\textbf{P}$ need to be positive definite ($\textbf{P} \succ 0$) to ensure that quadratic form $V\left(\textbf{\underline{x}}, \textbf{\underline{u}}\right)$ is convex. And moreover, elements of \textbf{\underline{x}} and \textbf{\underline{u}} need to satisfy the system's dynamics (\ref{eq:mpc_lti_system}). Furthermore by inducing (\ref{eq:prediction_final}) into (\ref{eq:qmpc_basic_formulation}) the objective function can be rewritten into matrix form
 
-Before formalizing the linear QMPC, some terms need to be introduced together with their meanings and ... 
 
-\begin{table}[h]
-\begin{tabular}{ccl}
-\hline
-& Term & Description \\
-\hline
-$M$ & Prediction horizon length & \parbox[t]{9.65cm} {How many iterations of the LTI system is computed with in the optimization.} \\
-\hline
-\end{tabular}
-\end{table}
+\begin{equation}
+J(\underline{\textbf{u}}) = \frac{1}{2}\textbf{\underline{u}}^T\underbrace{\left(\textbf{\^B}^T\textbf{\^Q}\textbf{\^B} + \textbf{\^P}\right)}_{\textbf{\^H}}\textbf{\underline{u}} + \textbf{\underline{u}}^T\underbrace{\left(\textbf{\^Q}\textbf{\^B}\right)^T\left(\textbf{\^A}\textbf{x}_{[0]} - \textbf{\underline{\~x}}\right)}_{\textbf{\^F}}
+\end{equation}
+
+where $\textbf{\underline{\~x}} = \left\lbrace \textbf{\~x}_{[i]} \in \mathbb{R}^n, \forall i \in 0, ..., M-1 \right\rbrace$ is the reference trajectory for all states consisting of a state vector for each step of the prediction horizon, \mbox{$\textbf{\^Q} \in \mathbb{R}^{nM \times nM}$} and $\textbf{\^P} \in \mathbb{R}^{kM\times kM}$ are weighting matrices denoted in (\ref{eq:qmpc_weighting_matrices}). Matrices $\textbf{\^H} \in \mathbb{R}^{kM\times kM}$ and $\textbf{\^F} \in \mathbb{R}^{kM}$ then define the quadratic form.
+
+\begin{equation}
+\label{eq:qmpc_weighting_matrices}
+\textbf{\^Q} = \begin{bmatrix}
+\textbf{Q} & \textbf{0} & \hdots & \textbf{0} \\
+\textbf{0} & \textbf{Q} & \hdots & \vdots \\
+\textbf{0} & \hdots & \ddots & \vdots \\
+\textbf{0} & \hdots & \hdots & \textbf{S}
+\end{bmatrix},
+\textbf{\^P} = \begin{bmatrix}
+\textbf{P} & \textbf{0} & \hdots & \textbf{0} \\
+\textbf{0} & \textbf{P} & \hdots & \vdots \\
+\textbf{0} & \hdots & \ddots & \vdots \\
+\textbf{0} & \hdots & \hdots & \textbf{P}
+\end{bmatrix}.
+\end{equation}
+
+Finally the optimization task can be formulated as minimizing the objective function $J(\textbf{\underline{u}})$ subject to constraints on \textbf{\underline{u}} (which will be discussed in the following paragraphs). This optimization is solved repeatedly for new $\textbf{x}_{[0]}$ as the time comes.
+
+\begin{equation}
+\label{eq:qmpc_main_quadratic_form}
+\begin{aligned}
+& \min_{\textbf{\underline{u}} \in \mathbb{R}^{kM}}
+& & J(\underline{\textbf{u}}) = \frac{1}{2}\textbf{\underline{u}}^T\textbf{\^H}\textbf{\underline{u}} + \textbf{\underline{u}}^T\textbf{\^F}\\
+& \text{s.t.}
+& & \text{constrains on \textbf{u}}
+\end{aligned}
+\end{equation}
+
+%Before formalizing the linear QMPC, some terms need to be introduced together with their meanings %and ... 
+%\begin{table}[h]
+%\begin{tabular}{ccl}
+%\hline
+%& Term & Description \\
+%\hline
+%$M$ & Prediction horizon length & \parbox[t]{9.65cm} {How many iterations of the LTI system is %computed with in the optimization.} \\
+%\hline
+%\end{tabular}
+%\end{table}
+
+\subsection{Constraints}
+
+When optimizing the quadratic form (\ref{eq:qmpc_main_quadratic_form}) there are usually two types of constraints imposed on the searched solution. The first type is often related to the physical limitations of the controlled system. System's actuators (particularly the physical ones) are not probably designed to accept an arbitrary input signal. As for example a servo-motor has a maximum allowed current and rotational speed or control surface of an airplane operates within a certain angles of freedom. Let us focus on this type of input constraints defined as \textit{box constraints} i.e. decision variables need to lie within a closed, convex set.
+
+\subsubsection{Input constraints}
+
+Input box constraints allow the controller to find a solution (control actions) that satisfies the input limitations of system's actuators. We can find an analogy in adding a saturation on control outputs of e.g. PID controller. They can be modeled by set of inequalities taking following form
+
+\begin{equation}
+\begin{split}
+\textbf{\underline{b}} \leq \textbf{\underline{u}} \leq \textbf{\underline{g}}
+\end{split}
+\end{equation}
+
+where $\textbf{\underline{b}} \in \mathbb{R}^{kM}$ and $\textbf{\underline{g}} \in \mathbb{R}^{kM}$ are constraint vectors denoting the lower and upper bound on inputs. Such constrained optimization task can be easily solved as it can be seen in chapter \ref{cap:qmpc_unconstrained}. Though it seems more practical to tune parameters of MPC (matrices \textbf{\^Q} and \textbf{\^P}) in a way, that the controller won't naturally produce such control action even when starting from improbable initial conditions. This approach leads to proper control actions anyway so the input constraints can server as a protection mechanism.
+
+\subsubsection{State constraints}
+ 
+The ability to constrain a particular state's values is one of the main benefits of the MPC. It can be used to drive the system within some safety region of state variables and to find a control action that won't push the system into unwanted states (sometime irreversibly, e.g. in chemical plants for which the MPC was born). A convenient example can be found also in a field of unmanned vehicles which can usually operate only within a certain region of velocities and accelerations. By inducing state constraints to the optimization task, it suddenly becomes more difficult to solve. These constraints can be also modeled as a set of linear inequalities using the prediction equation (\ref{eq:prediction_final}). Vectors $\textbf{\underline{v}} \in \mathbb{R}^{nM}$ and $\textbf{\underline{w}} \in \mathbb{R}^{nM}$ denote the lover and upper bounds on states.
+ 
+\begin{equation}
+\textbf{\underline{v}} \leq \textbf{\^A}\textbf{x}_{[0]} + \textbf{\^B}\textbf{\underline{u}} \leq \textbf{\underline{w}}
+\end{equation}
+
+\subsubsection{Other constraints}
 
 
 
 \subsection{Solving QMPC - unconstrained}
+\label{cap:qmpc_unconstrained}
 
 \subsection{Solving QMPC - constrained}
+\label{cap:qmpc_constrained}
 
-\subsection{Move blocking - reducing complexity}
+\subsection{Move blocking - reducing complexity of MPC}
+
+\subsection{The MPC control loop}
 
 \subsection{Summary}
