@@ -107,7 +107,7 @@ where $\textbf{K}_t$ is the Kalman gain, $\mathbf{I}$ is the identity matrix, \t
  \node[state] (PREDICTION) 
  {
  \begin{tabular}{c}
-  	\textbf{Prediction} \\
+  	Prediction \\
   	\begin{tabular}{rcl}
 	$\hat{\textbf{x}}_{[t]}$ & $\leftarrow$ & $\textbf{A}\hat{\textbf{x}}_{[t-1]} + \textbf{B}\textbf{u}_{[t-1]}$ \\
 	$\hat{\boldsymbol{\Sigma}}_{[t]}$ & $\leftarrow$ & $\textbf{A}\hat{\boldsymbol{\Sigma}}_{[t-1]}\textbf{A}^{T} + \textbf{R}$
@@ -122,7 +122,7 @@ where $\textbf{K}_t$ is the Kalman gain, $\mathbf{I}$ is the identity matrix, \t
   anchor=center] (CORRECTION) 	% posistion relative to the center of the 'box'
  {%
  \begin{tabular}{c}
-  	\textbf{Correction} \\
+  	Correction \\
   	\begin{tabular}{rcl}
 		$\textbf{K}_{[t]}$ & $\leftarrow$ & $\hat{\boldsymbol{\Sigma}}_{[t]}\textbf{P}^{T}\left(\textbf{P}\hat{\boldsymbol{\Sigma}}_{[t]}\textbf{P}^{T} + \textbf{Q}\right)^{-1}$ \\
 		$\hat{\textbf{x}}_{[t]}$ & $\leftarrow$ & $\hat{\textbf{x}}_{[t]} + \textbf{K}_{[t]}\left(\textbf{z}_{[t]} - \textbf{P}\hat{\textbf{x}}_{[t]}\right)$ \\
@@ -156,9 +156,9 @@ where $\textbf{K}_t$ is the Kalman gain, $\mathbf{I}$ is the identity matrix, \t
  	   	\end{tabular}
        } (PREDICTION)
        
-       (PRED_IN) edge[] node[anchor=south] {\textbf{Input}} node[anchor=north] {\textbf{u}} (PREDICTION)
+       (PRED_IN) edge[] node[anchor=south] {Input} node[anchor=north] {\textbf{u}} (PREDICTION)
        
-       (CORR_IN) edge[] node[anchor=south] {\textbf{Measurement}} node[anchor=north] {$\textbf{z}, \textbf{Q}, \textbf{P}$} (CORRECTION);
+       (CORR_IN) edge[] node[anchor=south] {Measurement} node[anchor=north] {$\textbf{z}, \textbf{Q}, \textbf{P}$} (CORRECTION);
 
 \end{tikzpicture}
 \caption{Bock diagram of the Kalman filter}
