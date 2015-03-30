@@ -233,7 +233,7 @@ Input box constrains are a special case of general linear inequalities of QP. Th
 {(#1) ellipse (#2 and #3)
 }
 
-One could ask why this process leads to the optimal solution on a feasibility set. A simple proof can be constructed. The figure \ref{fig:qmpc_constrained_analogy} shows an analogous example for two dimensions. It is assumed that the function $\mathrm{J}(\textbf{\underline{u}})$ is convex. When the global optimum $\textbf{\underline{u}}^*$ is found using the closed form solution and it satisfies all constraints, the task is finished. Otherwise there is a constrained optimum $\textbf{\underline{\~u}}^*$ located in the feasibility set which can be found by (\ref{eq:qmpc_saturating}). If there would be another, different, better solution on the feasible set, we could get to it by following facets of the feasibility set polyhedron [!!!]. That means the step from $\textbf{\underline{\~u}}^*$ would lower the objective value of $\mathrm{J}(\textbf{\underline{u}})$ thus there would be a negative gradient in the direction. But when using (\ref{eq:qmpc_saturating}), every step of projecting variables violating constraints is a step over a positive gradient (as any step from the global optimum of a convex function). This would lead to claim that there is a local maximum in $\textbf{\underline{\~u}}^*$ which is contradictory to the assumption.
+One could ask why this process leads to the optimal solution on a feasibility set. A simple proof can be constructed. The figure \ref{fig:qmpc_constrained_analogy} shows an analogous example for two dimensions. It is assumed that the function $\mathrm{J}(\textbf{\underline{u}})$ is convex. When the global optimum $\textbf{\underline{u}}^*$ is found using the closed form solution and it satisfies all constraints, the task is finished. Otherwise there is a constrained optimum $\textbf{\underline{\~u}}^*$ located in the feasibility set which can be found by (\ref{eq:qmpc_saturating}). If there would be another, different, better solution on the feasible set, we could get to it by following facets of the feasibility set polyhedron \citep{boyd2004convex}. That means the step from $\textbf{\underline{\~u}}^*$ would lower the objective value of $\mathrm{J}(\textbf{\underline{u}})$ thus there would be a negative gradient in the direction. But when using (\ref{eq:qmpc_saturating}), every step of projecting variables violating constraints is a step over a positive gradient (as any step from the global optimum of a convex function). This would lead to claim that there is a local maximum in $\textbf{\underline{\~u}}^*$ which is contradictory to the assumption.
 
 \begin{figure}[h]
 \centering
@@ -250,8 +250,8 @@ One could ask why this process leads to the optimal solution on a feasibility se
 \draw[color=gray, rotate around={45:(0,0)}] \boundellipse{0,0}{0.55}{0.38};
 \draw[color=c2, rotate around={45:(0,0)}] \boundellipse{0,0}{1.05}{0.72};
 \draw[color=c2, rotate around={45:(0,0)}] \boundellipse{0,0}{1.8}{1.25};
-\draw[color=c1, rotate around={45:(0,0)}] \boundellipse{0,0}{2.8}{2.8/1.44};
-\draw[color=c1, rotate around={45:(0,0)}] \boundellipse{0,0}{3.9}{3.9/1.44};
+\draw[color=c1, rotate around={45:(0,0)}] \boundellipse{0,0}{2.7}{2.7/1.44};
+\draw[color=c1, rotate around={45:(0,0)}] \boundellipse{0,0}{3.7}{3.7/1.44};
 
 \draw [-latex, dashed] (2.5,-1.75) -- (-3.7,-1.75);
 \draw [-latex, dashed] (2.5,-1.75) -- (2.5,3.2);
@@ -285,9 +285,9 @@ One could ask why this process leads to the optimal solution on a feasibility se
 
 As it was mentioned previously, the state constraints are the most general of linear inequalities. Solving such quadratic program is a difficult task, compared to the one constrained only by input constraints. The author of \citep{mikulas2013} compares several iterative methods for solving constrained model predictive control. The first one mentioned is the \textbf{Active set method}. It uses the fact that the optimum is attained on the boundary of the feasible set. Throughout the iterations, the algorithm walks along the facets of the convex polyhedron in a similar way that the \textit{simplex algorithm} for linear programming does. The QP with equality constraints (or unconstrained) is solved every step. The number of iterations depends on the number of constraints active in the optimum.
 
-Another method presented in \citep{mikulas2013} and used in [!!!] is the \textbf{Fast gradient method}. It is a modification of the classical gradient descend. But instead of moving against the gradient vector, it rather projects it to the feasible set. Its computational demands strongly depends on the projection itself which means it is usually used when only a certain type of constraints is used e.g. box, simplex or Euclidean norm ball. It also suffers when the quadratic form is not well conditioned.
+Another method presented in \citep{mikulas2013} and used in \citep{zometa2012segway} is the \textbf{Fast gradient method}. It is a modification of the classical gradient descend. But instead of moving against the gradient vector, it rather projects it to the feasible set. Its computational demands strongly depends on the projection itself which means it is usually used when only a certain type of constraints is used e.g. box, simplex or Euclidean norm ball. It also suffers when the quadratic form is not well conditioned.
 
-The last method discussed in [!!!] is the \textbf{Interior point method} using logarithmic barrier function. It constructs a new unconstrained optimization problem based on the original one which can be solved by e.g. Newton's method. The new task is only an approximation which precision can be controlled. It requires to be started from a feasible solution and the computational complexity strongly depends on the conditionality of the quadratic form.
+The last method discussed in \citep{mikulas2013} is the \textbf{Interior point method} using logarithmic barrier function. It constructs a new unconstrained optimization problem based on the original one which can be solved by e.g. Newton's method. The new task is only an approximation which precision can be controlled. It requires to be started from a feasible solution and the computational complexity strongly depends on the conditionality of the quadratic form.
 
 \subsection{The MPC control loop}
 \label{cap:qmpc_control_loop}
