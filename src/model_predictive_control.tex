@@ -10,7 +10,7 @@ For purpose of this thesis, we consider only the linear MPC i.e. controlling an 
 
 \subsection{System prediction}
 
-It is essential, for the purpose of MPC, to be able to predict a series of system's states $\textbf{\underline{x}} = \left\lbrace \textbf{x}_{[i]} \in \mathbb{R}^{n}, \forall i \in 0, ..., M-1 \right\rbrace$ based on the initial state $\textbf{x}_{[0]}$ and a series of inputs $\textbf{\underline{u}} = \left\lbrace \textbf{u}_{[i]} \in \mathbb{R}^{k}, \forall i = 0, ..., M-1 \right\rbrace$ where $M$ is the length of the prediction horizon. Let us consider a discrete, linear, time-invariant system with $n$ states and $k$ inputs, assuming $\textbf{C} = \textbf{I}$ and $\textbf{D} = \textbf{0}$ (again, assuming there is no direct transfer from the input to the output and the output consist directly of all states).
+It is essential, for the purpose of MPC, to be able to predict a series of system's states $\textbf{\underline{x}} = (\textbf{x}_{[0]}^T, \textbf{x}_{[1]}^T, ..., \textbf{x}_{[M-1]}^T)^T$ based on the initial state $\textbf{x}_{[0]}$ and inputs $\textbf{\underline{u}} = (\textbf{u}_{[0]}^T, \textbf{u}_{[1]}^T, ..., \textbf{u}_{[M-1]}^T)^T$ where $M$ is the length of the prediction horizon. Let us consider a discrete, linear, time-invariant system with $n$ states and $k$ inputs, assuming $\textbf{C} = \textbf{I}$ and $\textbf{D} = \textbf{0}$ (again, assuming there is no direct transfer from the input to the output and the output consist directly of all states).
 
 \begin{equation}
 \textbf{x}_{[t+1]} = \textbf{A}\textbf{x}_{[t]} + \textbf{B}\textbf{u}_{[t]}
@@ -82,14 +82,14 @@ The objective function for QMPC is formulated as sum of squares of weighted cont
 V\left(\textbf{\underline{x}}, \textbf{\underline{u}}\right) = \frac{1}{2}\sum_{i=0}^{M-2}\left(\textbf{e}^T_{[i]}\textbf{Q}\textbf{e}_{[i]} + \textbf{u}^T_{[i]}\textbf{P}\textbf{u}_{[i]}\right) + \frac{1}{2}\textbf{e}_{[M-1]}\textbf{S}\textbf{e}_{[M-1]}
 \end{equation}
 
-The control error is denoted by $\textbf{e}_{[t]} = \textbf{x}_{[t]} - \textbf{\~x}_{[t]}$ in some time t, $\textbf{Q} \in \textbf{R}^{n\times n}$ is the state weighting matrix, $\textbf{P} \in \mathbb{R}^{k\times k}$ is the input weighting matrix and $\textbf{S} \in \mathbb{R}^{n \times n}$ is the matrix weighting the final state values. Matrices $\textbf{Q}$, $\textbf{S}$ need to be positive semi-definite ($\textbf{Q}, \textbf{S} \succeq 0$) and matrix $\textbf{P}$ need to be positive definite ($\textbf{P} \succ 0$) to ensure that quadratic form $V\left(\textbf{\underline{x}}, \textbf{\underline{u}}\right)$ is convex. And moreover, elements of \textbf{\underline{x}} and \textbf{\underline{u}} need to satisfy the system's dynamics (\ref{eq:mpc_lti_system}). Furthermore by inducing (\ref{eq:prediction_final}) into (\ref{eq:qmpc_basic_formulation}) the objective function can be rewritten into matrix form
+The control error is denoted by $\textbf{e}_{[t]} = \textbf{x}_{[t]} - \textbf{\~x}_{[t]}$ in some time t, $\textbf{Q} \in \textbf{R}^{n\times n}$ is the state weighting matrix, $\textbf{P} \in \mathbb{R}^{k\times k}$ is the input weighting matrix and $\textbf{S} \in \mathbb{R}^{n \times n}$ is the matrix weighting the final state values. Matrices $\textbf{Q}$, $\textbf{S}$ need to be positive semi-definite ($\textbf{Q}, \textbf{S} \succeq 0$) and matrix $\textbf{P}$ need to be positive definite ($\textbf{P} \succ 0$) to ensure that the function $V\left(\textbf{\underline{x}}, \textbf{\underline{u}}\right)$ is convex. And moreover, elements of \textbf{\underline{x}} and \textbf{\underline{u}} need to satisfy the system's dynamics (\ref{eq:mpc_lti_system}). Furthermore by inducing (\ref{eq:prediction_final}) into (\ref{eq:qmpc_basic_formulation}) the objective function can be rewritten into matrix form
 
 
 \begin{equation}
 J(\underline{\textbf{u}}) = \frac{1}{2}\textbf{\underline{u}}^T\underbrace{\left(\textbf{\^B}^T\textbf{\^Q}\textbf{\^B} + \textbf{\^P}\right)}_{\textbf{\^H}}\textbf{\underline{u}} + \textbf{\underline{u}}^T\underbrace{\left(\textbf{\^Q}\textbf{\^B}\right)^T\left(\textbf{\^A}\textbf{x}_{[0]} - \textbf{\underline{\~x}}\right)}_{\textbf{\^F}}
 \end{equation}
 
-where $\textbf{\underline{\~x}} = \left\lbrace \textbf{\~x}_{[i]} \in \mathbb{R}^n, \forall i \in 0, ..., M-1 \right\rbrace$ is the reference trajectory for all states consisting of a state vector for each step of the prediction horizon, \mbox{$\textbf{\^Q} \in \mathbb{R}^{nM \times nM}$} and $\textbf{\^P} \in \mathbb{R}^{kM\times kM}$ are weighting matrices denoted in (\ref{eq:qmpc_weighting_matrices}). Matrices $\textbf{\^H} \in \mathbb{R}^{kM\times kM}$ and $\textbf{\^F} \in \mathbb{R}^{kM}$ then define the quadratic form.
+where $\textbf{\underline{\~x}} = (\textbf{\underline{\~x}}_{[0]}^T, \textbf{\underline{\~x}}_{[1]}^T, ..., \textbf{\underline{\~x}}_{[M-1]}^T)^T$ is the reference trajectory for all states consisting of a state vector for each step of the prediction horizon, \mbox{$\textbf{\^Q} \in \mathbb{R}^{nM \times nM}$} and $\textbf{\^P} \in \mathbb{R}^{kM\times kM}$ are weighting matrices denoted in (\ref{eq:qmpc_weighting_matrices}). Matrices $\textbf{\^H} \in \mathbb{R}^{kM\times kM}$ and $\textbf{\^F} \in \mathbb{R}^{kM}$ then define the quadratic form. 
 
 \begin{equation}
 \label{eq:qmpc_weighting_matrices}
@@ -142,6 +142,7 @@ Input box constraints allow the controller to find a solution (control actions) 
 \begin{split}
 \textbf{\underline{b}} \leq \textbf{\underline{u}} \leq \textbf{\underline{g}}
 \end{split}
+\label{eq:qmpc_input_constraints}
 \end{equation}
 
 where $\textbf{\underline{b}} \in \mathbb{R}^{kM}$ and $\textbf{\underline{g}} \in \mathbb{R}^{kM}$ are constraint vectors denoting the lower and upper bound on inputs. Such constrained optimization task can be easily solved as it can be seen in chapter \ref{cap:qmpc_unconstrained}. Though it seems more practical to tune parameters of MPC (matrices \textbf{\^Q} and \textbf{\^P}) in a way, that the controller won't naturally produce such control action even when starting from improbable initial conditions. This approach leads to proper control actions anyway so the input constraints can server as a protection mechanism.
@@ -152,6 +153,7 @@ The ability to constrain a particular state's values is one of the main benefits
  
 \begin{equation}
 \textbf{\underline{v}} \leq \textbf{\^A}\textbf{x}_{[0]} + \textbf{\^B}\textbf{\underline{u}} \leq \textbf{\underline{w}}
+\label{eq:qmpc_state_constraints}
 \end{equation}
 
 \subsubsection{Other constraints}
@@ -189,10 +191,94 @@ where $\textbf{U} \in \left\lbrace 0, 1 \right\rbrace ^{kM \times kN}$, $N \in \
 \subsection{Solving QMPC - unconstrained}
 \label{cap:qmpc_unconstrained}
 
+The quadratic function in our task is a convex function thanks to matrices $\textbf{Q}$, $\textbf{S}$ and $\textbf{P}$ which are designed to be positive semi-definite ($\textbf{Q}, \textbf{S} \succeq 0$) and positive definite ($\textbf{P} \succ 0$) respectively. Using this assumption we can find a global minimum by translating it (by a vector $\textbf{\underline{u}}_{0}$) to the origin and thus changing it to a \textit{quadratic form}. The quadratic form with a semi-definite matrix has a minimum in the origin. The translation can be found by completing the function to the square
 
+\begin{equation}
+\begin{split}
+\frac{1}{2}\textbf{\underline{u}}^T\textbf{\^H}\textbf{\underline{u}} + \textbf{\underline{u}}^T\textbf{\^F} &= \frac{1}{2}(\textbf{\underline{u}} - \textbf{\underline{u}}^*)^T\textbf{\^H}(\textbf{\underline{u}} - \textbf{\underline{u}}^*) + c\\
+&= \frac{1}{2}\textbf{\underline{u}}^T\textbf{\^H}\textbf{\underline{u}} - \frac{1}{2}\textbf{\underline{u}}^T\textbf{\^H}\textbf{\underline{u}}^* - \frac{1}{2}\textbf{\underline{u}}^{*T}\textbf{\^H}\textbf{\underline{u}} + \frac{1}{2}\textbf{\underline{u}}^{*T}\textbf{\^H}\textbf{\underline{u}}^* \\
+&= \frac{1}{2}\textbf{\underline{u}}^T\textbf{\^H}\textbf{\underline{u}} -
+\textbf{\underline{u}}^T\textbf{\^H}\textbf{\underline{u}}^* + \frac{1}{2}\textbf{\underline{u}}^{*T}\textbf{\^H}\textbf{\underline{u}}^*
+\end{split}
+\end{equation}
+
+and by comparing parts of the same degree we get following equations
+
+\begin{equation}
+\begin{split}
+\textbf{\^F} &= -\textbf{\^H}\textbf{\underline{u}}^* \\
+0 &= \frac{1}{2}\textbf{\underline{u}}^{*T}\textbf{\^H}\textbf{\underline{u}}^*
+\end{split}
+\end{equation}
+
+and finally the solution can be found in a closed-form as $\textbf{\underline{u}}^* = -\textbf{\^H}^{-1}\textbf{\^F}$
 
 \subsection{Solving QMPC - constrained}
 \label{cap:qmpc_constrained}
+
+Firstly we will see how to optimally solve QMPC constrained only by the input constraints (\ref{eq:qmpc_input_constraints}). Secondly we will shortly discuss a few QP algorithms for solving QMPC constrained by general linear inequalities (produced by (\ref{eq:qmpc_state_constraints})). Since the work done in this thesis focuses on implementing the first case, only a short survey of QP algorithms is presented.
+
+\subsubsection{QMPC with input constraints}
+
+Input box constrains are a special case of general linear inequalities of QP. Thus they create a convex set of feasible solutions. When the global optimum of a convex quadratic form is not a feasible solution, the actual optimum satisfying the constraints is located on the facet of the convex polyhedron of the feasible set. One can find it by projecting the unconstrained optimum orthogonally on the feasible set. In the case of box constrains imposed on decision variables this can be done by using $\mathrm{median}$ function. It is possible to project variables independently on each other because box constrains are orthogonal and perpendicular to their corresponding axis.
+
+\begin{equation}
+\begin{split}
+\label{eq:qmpc_saturating}
+\textbf{\underline{\~u}}^*_i \leftarrow \mathrm{med}\left(\textbf{\underline{b}}_i, \textbf{\underline{u}}^*_i, \textbf{\underline{g}}_i\right),  \forall i=0,...,kN
+\end{split}
+\end{equation}
+
+\newcommand{\boundellipse}[3]% center, xdim, ydim
+{(#1) ellipse (#2 and #3)
+}
+
+One could ask why this process leads to the optimal solution on a feasibility set. A simple proof can be constructed. The figure \ref{fig:qmpc_constrained_analogy} shows an analogous example for two dimensions. It is assumed that the function $\mathrm{J}(\textbf{\underline{u}})$ is convex. When the global optimum $\textbf{\underline{u}}^*$ is found using the closed form solution and it satisfies all constraints, the task is finished. Otherwise there is a constrained optimum $\textbf{\underline{\~u}}^*$ located in the feasibility set which can be found by (\ref{eq:qmpc_saturating}). If there would be another, different, better solution on the feasible set, we could get to it by following facets of the feasibility set polyhedron [!!!]. That means the step from $\textbf{\underline{\~u}}^*$ would lower the objective value of $\mathrm{J}(\textbf{\underline{u}})$ thus there would be a negative gradient in the direction. But when using (\ref{eq:qmpc_saturating}), every step of projecting variables violating constraints is a step over a positive gradient (as any step from the global optimum of a convex function). This would lead to claim that there is a local maximum in $\textbf{\underline{\~u}}^*$ which is contradictory to the assumption.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+
+\definecolor{c1}{rgb}{0.7,0.7,0.7}
+\definecolor{c2}{rgb}{0.5,0.5,0.5}
+
+\draw[fill] \boundellipse{0,0}{0.05}{0.05};
+\draw[color=gray, rotate around={45:(0,0)}] \boundellipse{0,0}{0.25}{0.17};
+\draw[color=gray, rotate around={45:(0,0)}] \boundellipse{0,0}{0.55}{0.38};
+\draw[color=c2, rotate around={45:(0,0)}] \boundellipse{0,0}{1.05}{0.72};
+\draw[color=c2, rotate around={45:(0,0)}] \boundellipse{0,0}{1.8}{1.25};
+\draw[color=c1, rotate around={45:(0,0)}] \boundellipse{0,0}{2.89}{2};
+
+\draw [-latex, dashed] (2.5,-1.75) -- (-3.5,-1.75);
+\draw [-latex, dashed] (2.5,-1.75) -- (2.5,3);
+
+\draw[fill] \boundellipse{1.5,-1}{0.05}{0.05};
+\draw (1.5,-1) -- (3.5,-1) -- (3.5,-2.5) -- (1.5,-2.5) -- (1.5,-1);
+
+\node[] at (-0.4,0.2) {$\textbf{\underline{u}}^*$};
+\node[] at (1.8, -0.7) {$\textbf{\underline{\~u}}^*$};
+\node[] at (-3.5,-1.5) {$x_1$};
+\node[] at (2.5,3.2) {$x_2$};
+\node[] at (2.5,-2.3) {\footnotesize feasibility set};
+
+\draw[-latex] (0,0) -- (0,-1);
+\draw[-latex] (0,0) -- (1.5,0);
+\draw[-latex, dashed] (1.5,0) -- (1.5,-1);
+\draw[-latex, dashed] (0,-1) -- (1.5,-1);
+
+%\node[] at (0.65,-0.26) {\footnotesize $\frac{\partial\mathrm{J}}{\partial x_1,x_2} > 0$};
+
+%\draw [decorate,decoration={brace,amplitude=10pt},xshift=0pt,yshift=0.1cm]
+%(-0.2,0) -- (1.45,-0) node [black,midway,xshift=0pt,yshift=0.6cm] {\footnotesize
+%$\frac{\partial\mathrm{J}}{\partial x_1} > 0$};
+
+\end{tikzpicture}
+\caption{An illustrative example of 2-dimensional quadratic form with box constraints.}
+\label{fig:qmpc_constrained_analogy}
+\end{figure}
+
+\subsubsection{QMPC with general linear inequality constraints}
+
 
 
 \subsection{The MPC control loop}
