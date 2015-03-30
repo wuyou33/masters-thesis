@@ -2,11 +2,11 @@
 
 Model predictive controller (MPC), also known as \textit{receding horizon controller}, is a common technique of controlling unmanned aircraft. Though it is a challenging task to implement it into an embedded hardware, unlike other feedback loop controllers usually used on UAVs, namely PID (proportional-integral-derivative controller) and full-state feedback. The origins of MPC can be found around chemical plants where the time constants of such dynamical processes are relatively high (up to order of hours) thus the computational demand is not so limiting. Also the constraint handling, an inherent property of MPC, is widely used while driving chemical processes. Since then the MPC started to spread on faster systems as the hardware become more powerful. Nowadays it is used to drive systems with sampling in order of milliseconds and tens of hertz loop rate.
 
-The control loop itself is built upon optimizing a cost function (usually called \textbf{objective function}) with decision variables that represent a desired input action. It is usually a function of all states, desired trajectory and system inputs over a certain time horizon, often called \textbf{prediction horizon}. It penalizes (has higher values) the difference between predicted and desired state trajectory. It also penalizes the control action itself which can be interpreted as penalizing the energy used for controlling the system. In other words, the objective function returns a scalar value that quantifies whether the controller drove the system well. Such function can have extrema. Our goal is to find its minimum which follows that the states are changing according to our desired trajectory. The minimum can be local or global, depending on the function itself. It is usually desirable to find the global minimum since that is where the optimal control action is found with respect to the constructed objective function.
+The control loop itself is built upon repeatedly optimizing a cost function (usually called \textbf{objective function}) with decision variables that represent a desired input action. It is usually a function of all states, desired trajectory and system inputs over a certain time horizon, often called \textbf{prediction horizon}. It penalizes (has higher values) the difference between predicted and desired state trajectory. It also penalizes the control action itself which can be interpreted as penalizing the energy used for controlling the system. In other words, the objective function returns a scalar value that quantifies whether the controller drove the system well. Such function can have extrema. Our goal is to find its minimum which follows that the states are changing according to our desired trajectory. The minimum can be local or global, depending on the function itself. It is usually desirable to find the global minimum since that is where the optimal control action is found with respect to the constructed objective function.
 
 There are several classes of continuous optimization problems depending on the type of the objective function. Mathematicians favor usually linear or quadratic objective function subjected to linear inequality constraints. These are historically well studied cases with known methods of solving them. The problem is usually called \textit{Linear Programming} (LP) when optimizing linear function, or \textit{Quadratic Programming} (QP) when optimizing a quadratic function. Since the MPC can be formulated as LP or QP, the control design problem is then basically reduced to solving a QP or LP program and the main focus is left on system modeling and fine-tuning of free parameters of the objective function. The optimization task itself is usually left on dedicated solver that it specialized on the particular function type. 
 
-For purpose of this thesis, we consider only the linear MPC i.e. controlling an LTI system proposed in chapter \ref{cap:system_identification}. The MPC can be formulated as LP or QP, depending on what type of distance norm is used for computing the distance between two states. When using the \mbox{\emph{1-norm}} or \mbox{\emph{$\infty$-norm}} distance, the formulation leads to a linear program. One can formulate the LP in a way that minimizes the maximal deviation from desired trajectory - this formulation is usually called a \emph{robust MPC} (RMPC). But for purpose of this work, the focus will be on the QP formulation of MPC (QMPC). The quadratic formulation leads to smoother control actions the linear one.
+For purpose of this thesis, we consider only the linear MPC i.e. controlling an LTI system proposed in chapter \ref{cap:system_identification}. The MPC can be formulated as LP or QP, depending on what type of distance norm is used for computing the distance between two states. When using the \mbox{\emph{1-norm}} or \mbox{\emph{$\infty$-norm}} distance, the formulation leads to a linear program. One can formulate the LP in a way that minimizes the maximal deviation from desired trajectory - this formulation is usually called a \emph{robust MPC} (RMPC). But for purpose of this work, the focus will be on the QP formulation of MPC (QMPC).
 
 \subsection{System prediction}
 
@@ -149,7 +149,7 @@ where $\textbf{\underline{b}} \in \mathbb{R}^{kM}$ and $\textbf{\underline{g}} \
 
 \subsubsection{State constraints}
  
-The ability to constrain a particular state's values is one of the main benefits of the MPC. It can be used to drive the system within some safety region of state variables and to find a control action that won't push the system into unwanted states (sometime irreversibly, e.g. in chemical plants for which the MPC was born). A convenient example can be found also in a field of unmanned vehicles which can usually operate only within a certain region of velocities and accelerations. By inducing state constraints to the optimization task, it suddenly becomes more difficult to solve. These constraints can be also modeled as a set of linear inequalities using the prediction equation (\ref{eq:prediction_final}). Vectors $\textbf{\underline{v}} \in \mathbb{R}^{nM}$ and $\textbf{\underline{w}} \in \mathbb{R}^{nM}$ denote the lover and upper bounds on states.
+The ability to constrain a particular state's values is one of the main benefits of the MPC. It can be used to drive the system within some safety region of state variables and to find a control action that won't push the system into unwanted states (sometime irreversibly, e.g. in chemical processes). A convenient example can be found also in a field of unmanned vehicles which can usually operate only within a certain region of velocities and accelerations. By inducing state constraints to the optimization task, it suddenly becomes more difficult to solve. These constraints can be also modeled as a set of linear inequalities using the prediction equation (\ref{eq:prediction_final}). Vectors $\textbf{\underline{v}} \in \mathbb{R}^{nM}$ and $\textbf{\underline{w}} \in \mathbb{R}^{nM}$ denote the lover and upper bounds on states. State constraints create the most general linear inequalities of the quadratic programming.
  
 \begin{equation}
 \textbf{\underline{v}} \leq \textbf{\^A}\textbf{x}_{[0]} + \textbf{\^B}\textbf{\underline{u}} \leq \textbf{\underline{w}}
@@ -241,25 +241,29 @@ One could ask why this process leads to the optimal solution on a feasibility se
 
 \definecolor{c1}{rgb}{0.7,0.7,0.7}
 \definecolor{c2}{rgb}{0.5,0.5,0.5}
+\definecolor{podminky}{rgb}{0.9,0.9,0.9}
+
+\fill [podminky] (1.5,-1) rectangle (3.5,-2.5);
 
 \draw[fill] \boundellipse{0,0}{0.05}{0.05};
 \draw[color=gray, rotate around={45:(0,0)}] \boundellipse{0,0}{0.25}{0.17};
 \draw[color=gray, rotate around={45:(0,0)}] \boundellipse{0,0}{0.55}{0.38};
 \draw[color=c2, rotate around={45:(0,0)}] \boundellipse{0,0}{1.05}{0.72};
 \draw[color=c2, rotate around={45:(0,0)}] \boundellipse{0,0}{1.8}{1.25};
-\draw[color=c1, rotate around={45:(0,0)}] \boundellipse{0,0}{2.89}{2};
+\draw[color=c1, rotate around={45:(0,0)}] \boundellipse{0,0}{2.8}{2.8/1.44};
+\draw[color=c1, rotate around={45:(0,0)}] \boundellipse{0,0}{3.9}{3.9/1.44};
 
-\draw [-latex, dashed] (2.5,-1.75) -- (-3.5,-1.75);
-\draw [-latex, dashed] (2.5,-1.75) -- (2.5,3);
+\draw [-latex, dashed] (2.5,-1.75) -- (-3.7,-1.75);
+\draw [-latex, dashed] (2.5,-1.75) -- (2.5,3.2);
 
 \draw[fill] \boundellipse{1.5,-1}{0.05}{0.05};
 \draw (1.5,-1) -- (3.5,-1) -- (3.5,-2.5) -- (1.5,-2.5) -- (1.5,-1);
 
 \node[] at (-0.4,0.2) {$\textbf{\underline{u}}^*$};
 \node[] at (1.8, -0.7) {$\textbf{\underline{\~u}}^*$};
-\node[] at (-3.5,-1.5) {$x_1$};
-\node[] at (2.5,3.2) {$x_2$};
-\node[] at (2.5,-2.3) {\footnotesize feasibility set};
+\node[] at (-3.7,-1.5) {$x_1$};
+\node[] at (2.5,3.4) {$x_2$};
+\node[] at (2.5,-2.3) {\footnotesize feasible set};
 
 \draw[-latex] (0,0) -- (0,-1);
 \draw[-latex] (0,0) -- (1.5,0);
@@ -277,11 +281,19 @@ One could ask why this process leads to the optimal solution on a feasibility se
 \label{fig:qmpc_constrained_analogy}
 \end{figure}
 
-\subsubsection{QMPC with general linear inequality constraints}
+\subsubsection{QMPC with state constraints}
 
+As it was mentioned previously, the state constraints are the most general of linear inequalities. Solving such quadratic program is a difficult task, compared to the one constrained only by input constraints. The author of \citep{mikulas2013} compares several iterative methods for solving constrained model predictive control. The first one mentioned is the \textbf{Active set method}. It uses the fact that the optimum is attained on the boundary of the feasible set. Throughout the iterations, the algorithm walks along the facets of the convex polyhedron in a similar way that the \textit{simplex algorithm} for linear programming does. The QP with equality constraints (or unconstrained) is solved every step. The number of iterations depends on the number of constraints active in the optimum.
 
+Another method presented in \citep{mikulas2013} and used in [!!!] is the \textbf{Fast gradient method}. It is a modification of the classical gradient descend. But instead of moving against the gradient vector, it rather projects it to the feasible set. Its computational demands strongly depends on the projection itself which means it is usually used when only a certain type of constraints is used e.g. box, simplex or Euclidean norm ball. It also suffers when the quadratic form is not well conditioned.
+
+The last method discussed in [!!!] is the \textbf{Interior point method} using logarithmic barrier function. It constructs a new unconstrained optimization problem based on the original one which can be solved by e.g. Newton's method. The new task is only an approximation which precision can be controlled. It requires to be started from a feasible solution and the computational complexity strongly depends on the conditionality of the quadratic form.
 
 \subsection{The MPC control loop}
 \label{cap:qmpc_control_loop}
 
+When using MPC for realtime control, one usually solves the optimization task and uses the first elements of \textbf{\underline{u}} for control, until another iteration with updated $\textbf{x}_{[0]}$ is done. The number of elements used depends on how well the system was modeled and identified and how fast the optimization can be done. One have to set the complexity (number of variables, length of prediction horizon) in such way, that the optimization is done fast enough so the system could react adequately to disturbances and trajectory changes.
+
 \subsection{Summary}
+
+This is the end of the theoretical introduction for implementation of MPC into embedded hardware of unmanned helicopter. We have discussed how to formulate a control task as a mathematical optimization problem using quadratic programming. Input and state constraints were presented as well as move blocking technique for reducing the number of variables. At last there are methods proposed how to solve unconstrained and constrained MPC.
