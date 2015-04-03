@@ -1,27 +1,28 @@
 \section{State observer}
 
-Implementing an advanced control mechanism such as \textit{linear quadratic controller}, \textit{full state feedback} or in our case, \textit{model predictive controller}, requires a knowledge of all system states values. This is a different situation then in the case of previously used PID controller, when only the controlled state needs to be known. There are some situations and corresponding systems, where the knowledge of all states values is relatively easy to obtain, respectively it might be already measured for another reason. For instance space, aerials or another vehicles, where the typical states are position and its derivatives. But in the case where not all states can be measured or we do not want to measure them, the state observer needs to be implemented. The state observer is a dynamical system which is simulated concurrently with the controlled system. It has the same number of inputs and it is controlled by the same actions as the real system. The order of the observer is the same as the order of the system. Its states are supposed to be observable and should correspond to the real system's states.
+Design of an advanced control mechanism such as \textit{model predictive controller}, requires a knowledge about the development of all system states. This is a different situation than in the case of previously used PID controller, when only the controlled state needs to be known. There are some situations and corresponding systems, where all states values are relatively easy to obtain, respectively they might be already measured for another reason then the control. For instance space, aerials or another vehicles, where the typical states are position and its derivatives. But in the case where not all states can be measured or we do not want to measure them, the state observer needs to be implemented. The state observer is a dynamical system which is simulated concurrently with the controlled system. It has the same number of inputs and it is controlled by the same actions as the real system. The order of the observer is the same as the order of the system. Its states are supposed to be observable and they should correspond to the real system's states.
 
 \subsection{Open-loop observer}
 
-Let us have an LTI system that needs to be observed (assuming $\textbf{C} = \textbf{I}$, $\textbf{D} = \mathbf{0}$ i.e. the output consists directly of all states and there is no direct transfer from the input to the output). The uncertainty in the model or some external disturbance is covered by the vector $\textbf{w}$ which is unknown and usually called a \emph{process noise}.
+Let us have an LTI system that needs to be observed (assuming $\textbf{C} = \textbf{I}$, $\textbf{D} = \mathbf{0}$ i.e. the output consists directly of all states and there is no direct transfer from the input to the output). The uncertainty in the model is covered by a random variable $\textbf{w} \in \mathbb{R}^n$ which is usually called a \emph{process noise}. The system description (\ref{eq:lti_state_space}) can be extended to
 
 \begin{equation}
 \textbf{x}_{[t+1]} = \textbf{A}\textbf{x}_{[t]} + \textbf{B}\textbf{u}_{[t]} + \textbf{w}_{[t]}
+\label{eq:lti_for_observer}
 \end{equation}
 
-The open-loop observer can be constructed by setting up following system where $\textbf{\^x}$ denotes a vector of estimated state values. When $\textbf{w}$ has non zero-mean $\textbf{\^x}$ is going to drift from $\textbf{x}$ since the process noise is integrated over time.
+The open-loop observer can be constructed by setting up following system (\ref{eq:openloop_observer}) where $\textbf{\^x}$ denotes a vector of estimated state values. When $\textbf{w}$ has non zero-mean, $\textbf{\^x}$ is going to drift from $\textbf{x}$ since the process noise is integrated over time.
 
 \begin{equation}
 \textbf{\^x}_{[t+1]} = \textbf{A}\textbf{\^x}_{[t]} + \textbf{B}\textbf{u}_{[t]}
 \label{eq:openloop_observer}
 \end{equation}
 
-Three distinct situations can be expected to happen during the execution:
+Three distinct situations can be expected to happen during the execution of the open-loop observer:
 
 \begin{itemize}
 \item Estimated states track well corresponding system states. The system was identified perfectly and there is no need for feedback control in this situation.
-\item Estimated states track well system sates, but there is some drift during the time frame of the experiment. The feedback loop is required to provide zero-offset observation.
+\item Estimated states track well system states, but there is some drift during the time frame of the experiment. The feedback loop is required to provide zero-offset observation.
 \item States estimated by the observer are completely out of scope of real system states which may suggest that the observer's model is wrong.
 \end{itemize}
 
@@ -29,40 +30,33 @@ Open-loop estimations in the chapter \ref{cap:system_identification} indicate th
 
 \subsection{Closed-loop observer}
 
-The open-loop observer can be basically corrected by closing a feedback loop around the system as follows.
+The open-loop observer can be basically corrected by closing a feedback loop around the system as follows
 
 \begin{equation}
 \textbf{\^x}_{[t+1]} = \textbf{A}\textbf{\^x}_{[t]} + \textbf{B}\textbf{u}_{[t]} - \textbf{L}\left(\textbf{x}_{[t]} - \textbf{\^x}_{[t]}\right)
 \label{eq:closed_loop_observer}
 \end{equation}
 
-There are methods of finding $\textbf{L}$ such that poles of the observer are desirably placed\footnote{Assuming the system can be converted to the \textit{controlled canonical form}}. One can utilize that placing poles of a state feedback is a dual problem for placing poles of the observer. Practically one can tune a state feedback controller using matrices $\textbf{A}^T, \textbf{B}^T$ to get $\textbf{L}^T$ for the observer.
+There are methods of finding $\textbf{L}$ such that poles of the observer are desirably placed\footnote{Assuming the system can be converted to the \textit{controlled canonical form}}. One can utilize that placing poles of a state feedback is a dual problem for placing poles of the observer. Practically one can tune a state feedback controller using matrices $\textbf{A}^T, \textbf{B}^T$ to get $\textbf{L}^T$ for the observer, hence the duality.
 
 \subsection{Kalman filter}
 
-For the purpose of this thesis, the Kalman filter was implemented to estimate all states of the helicopter and to filter the measured data from sensors. The Kalman filter is a closed-loop iterative estimator. A hypothesis about estimated states takes form of a normal distribution with mean vector $\hat{\textbf{x}}$ and covariance matrix $\hat{\boldsymbol{\Sigma}}$. It presumes a model in a following form
+In this thesis, the Kalman filter was implemented to estimate all states of the helicopter and to filter the measured data from sensors. The Kalman filter is variant of the closed-loop iterative estimator. If well tuned, it corrects a drift in estimated states. It is widely used not only as an observer but also for its great filtering capabilities. We present a standard linear version, for more advanced, nonlinear one seek for Extended Kalman Filter (EKF). A hypothesis about estimated states takes form of a normal distribution with mean vector $\hat{\textbf{x}}$ and covariance matrix $\hat{\boldsymbol{\Sigma}}$. It presumes a dynamical model in the form (\ref{eq:lti_for_observer}) where $\textbf{w} \in \mathbb{R}^n$ is supposed to be drawn from normal distribution $\mathcal{N}(\textbf{0}, \textbf{R})$, $\textbf{R} \in \mathbb{R}^{n\times n}$. Furthermore we presume a linear sensor model
 
 \begin{equation}
-\textbf{x}_{[t+1]} = \textbf{A}\textbf{x}_{[t]} + \textbf{B}\textbf{u}_{[t]} + \textbf{w}_{[t]}
-\label{eq:kalman_model}
+\textbf{\^z}_{[t]} = \textbf{P}\textbf{\^x}_{[t]} + \textbf{v}_{[t]}
 \end{equation}
 
-where \textbf{w} is the process noise which is supposed to be drawn from normal distribution $\mathcal{N}(\textbf{0}, \textbf{R})$. Furthermore there is a sensor model
-
-\begin{equation}
-\textbf{z}_{[t]} = \textbf{H}\textbf{x}_{[t]} + \textbf{v}_{[t]}
-\end{equation}
-
-where $\textbf{z}$ is a measurement vector, \textbf{H} is a matrix that maps the state vector to the measurement and $\textbf{v}$ is the measurement noise which is supposed to be drawn from $\mathcal{N}(\textbf{0}, \textbf{Q})$. A real measurement is modeled using the sensor model by adding a sample of the measurement noise to all states and transforming it by \textbf{H} to a measurement vector. The filter holds a state vector $\textbf{\^x}$ and its covariance matrix $\hat{\boldsymbol{\Sigma}}$ between iterations.
+where $\textbf{\^z}_{[t]} \in \mathbb{R}^p$ is the measurement vector, $\textbf{P} \in \mathbb{R}^{p \times n}$ is a matrix that maps the state vector to the measurement and $\textbf{v} \in \mathbb{R}^p$ is the measurement noise which is supposed to be drawn from $\mathcal{N}(\textbf{0}, \textbf{Q})$, $\textbf{Q} \in \mathbb{R}^{p \times p}$. A real measurement $\textbf{z}_{[t]} \in \mathbb{R}^p$ is modeled using the sensor model by adding a sample of the measurement noise to all estimated states and transforming it by \textbf{P} to a measurement vector. The filter updates a state vector $\textbf{\^x}_{[t]}$ and its covariance matrix $\hat{\boldsymbol{\Sigma}}_{[t]}$ between iterations. The feedback withing the filter is than constructed using the inverse sensor model with the real measurement $\textbf{z}_{[t]}$.
 
 \begin{table}[h]
 \centering
 \begin{tabular}{ccccc}
 \hline
-& vector & covariance & mapping to \textbf{\^x} & mapping to \textbf{z}\\
+& vector & covariance & mapping to \textbf{\^x} & mapping to \textbf{\^z}\\
 \hline
 estimated states & \textbf{\^x} & $\hat{\boldsymbol{\Sigma}}$ & \textbf{I} & \textbf{P}\\
-measurement & \textbf{z} & \textbf{Q} & \textbf{H} & \textbf{I}\\
+measurement & \textbf{\^z} & \textbf{Q} & \textbf{H} & \textbf{I}\\
 model (process) & \textbf{x} & \textbf{R} & & \\
 \hline
 \end{tabular}
@@ -72,7 +66,7 @@ model (process) & \textbf{x} & \textbf{R} & & \\
 
 \subsubsection{Prediction phase}
 
-There are two phases of the Kalman filter algorithm. Figure \ref{fig:kalman_diagram} shows the block diagram for better clarity. The first one is the \textit{prediction phase} (\ref{eq:kalman_prediction}) which can be easily compared to the open-loop observer (\ref{eq:openloop_observer}). Here the new state vector is estimated using the model (\ref{eq:kalman_model}), previous state $\textbf{\^x}_{[t-1]}$ and the input $\textbf{u}_{[t-1]}$. Its covariance $\hat{\boldsymbol{\Sigma}}_{[t]}$ is modified using the model and the process noise covariance $\textbf{R}$.
+There are two stages of the Kalman filter algorithm. Figure \ref{fig:kalman_diagram} shows the block diagram for greater clarity. The first one is the \textit{prediction phase} (\ref{eq:kalman_prediction}) which can be easily related to the open-loop observer (\ref{eq:openloop_observer}). Here the new state vector is estimated using the model (\ref{eq:kalman_model}), previous state $\textbf{\^x}_{[t-1]}$ and the input $\textbf{u}_{[t-1]}$. Its covariance $\hat{\boldsymbol{\Sigma}}_{[t]}$ is modified using the model and the process noise covariance $\textbf{R}$.
 
 \begin{equation}
 \begin{split}
@@ -83,7 +77,7 @@ There are two phases of the Kalman filter algorithm. Figure \ref{fig:kalman_diag
 \end{equation}    
 
 \subsubsection{Correction phase}
-The second phase is the \textit{correction phase} (\ref{eq:kalman_correction}) where the state vector is updated using a measurement $\textbf{z}_{[t]}$. The covariance $\hat{\boldsymbol{\Sigma}}_{[t]}$ is modified again but this time using the noise measurement covariance \textbf{Q}. Following assignment statements denote the correction phase of the Kalman filter
+The second phase is the \textit{correction phase} (\ref{eq:kalman_correction}) where the state vector is updated using the measurement $\textbf{z}_{[t]}$. The covariance $\hat{\boldsymbol{\Sigma}}_{[t]}$ is modified again but this time using the noise measurement covariance \textbf{Q}. Following assignment statements denote the correction phase of the Kalman filter
 
 \begin{equation}
 \begin{split}
@@ -94,7 +88,7 @@ The second phase is the \textit{correction phase} (\ref{eq:kalman_correction}) w
 \label{eq:kalman_correction}
 \end{equation}
 
-where $\textbf{K}_t$ is the Kalman gain, $\mathbf{I}$ is the identity matrix, \textbf{P} is the matrix that maps estimated states to the measurement. The first part consists of computing a Kalman gain $\textbf{K}_t$. It has a direct correspondence to the matrix \textbf{L} in (\ref{eq:closed_loop_observer}) thus it determines the feedback effect in the observer. The gain can be fine tuned by carefully setting \textbf{R} and \textbf{Q}. The \textbf{Q} can be found by observing the noise parameters of measurements. That means the process noise is left for us to set. The table \ref{tab:matrices_in_kalman} denotes the important vectors and matrices that are used in the filter. Practically there is a trade-off between trusting fully to the model and trusting fully to sensors. When setting \textbf{R} the filtered values have to be observed and the Kalman filter should be set basically by tuning the ratio between elements of \textbf{R} and \textbf{Q}. The desired outcome usually is to eliminate the measurement noise while still preserving the zero-offset tracking (with sufficient transient response) of all estimated states.
+where $\textbf{K}_{[t]}$ is the Kalman gain, $\mathbf{I}$ is the identity matrix, \textbf{P} is the matrix that maps estimated states to the measurement. The first part consists of computing a Kalman gain $\textbf{K}_{[t]}$. It has a direct correspondence to the matrix \textbf{L} in (\ref{eq:closed_loop_observer}) thus it determines the feedback effect in the observer. The gain can be fine tuned by carefully setting \textbf{R} and \textbf{Q}. The \textbf{Q} can be found by observing the noise parameters of measurements. That means the process noise is left for us to set. The table \ref{tab:matrices_in_kalman} denotes the important vectors and matrices that are used in the filter. Practically there is a trade-off between trusting fully to the model and trusting fully to sensors. When setting \textbf{R} the filtered values have to be observed and the Kalman filter should be set basically by tuning the ratio between elements of \textbf{R} and \textbf{Q}. The desired outcome usually is to eliminate the measurement noise while still preserving the zero-offset tracking (with sufficient transient response) of all estimated states.
 
 \begin{figure}
 \centering
@@ -167,7 +161,7 @@ where $\textbf{K}_t$ is the Kalman gain, $\mathbf{I}$ is the identity matrix, \t
 
 \subsection{Summary}
 
-In this chapter the Kalman filter algorithm was presented in order to estimate all system states and filter measured data. Its performance can be shown on subsequence of data (forward movement) used in chapter \ref{cap:attitude_subsystem_identification}. The figure \ref{fig:kalman1} shows the velocity in one of attitude axis of UAV measured by \emph{px4flow} sensor. Among others, it is able to estimate all other states including the position and the acceleration which is essential for further use of model predictive controller. It can be tuned to estimate noisy signal with relatively small delay compared to e.g. exponential filter\footnote{The exponential filter is an easy technique where filtered value is computed as $\textbf{\^x}_{[t]} = \alpha\textbf{\^x}_{[t-1]} + (1-\alpha)\textbf{x}_{[t]}$}. For particular parameters of Kalman filter that are used in the final implementation see chapter \ref{cap:Implementation} where also an extended form of LTI system is presented to provide a disturbance estimation.
+In this chapter the Kalman filter algorithm was presented in order to estimate all system states and filter measured data. Its performance can be shown on subsequence of data (forward movement) used in chapter \ref{cap:attitude_subsystem_identification}. The figure \ref{fig:kalman1} shows the velocity in one of attitude axis of UAV measured by \emph{px4flow} sensor. Among others, it is able to estimate all other states including the position and the acceleration which is essential for further use of model predictive controller. It can be tuned to estimate noisy signal with relatively small delay compared to e.g. exponential filter\footnote{The exponential filter is an easy technique where filtered value is computed as $\textbf{\^x}_{[t]} = \alpha\textbf{\^x}_{[t-1]} + (1-\alpha)\textbf{x}_{[t]}$}. For particular parameters of Kalman filter that are used in the final implementation see chapter \ref{cap:Implementation} where also an extended form of LTI system is presented to provide a disturbance estimation. For further reading about the Kalman filter we recommend a paper \citep{faragher2012understandingKF} which explains it in more details as well as very intuitively.
 
 \begin{figure}[h]
 \includegraphics[width=1\textwidth]{fig/kalman1.eps} 
