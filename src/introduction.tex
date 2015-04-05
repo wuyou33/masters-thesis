@@ -37,18 +37,60 @@ Let us have a controllable multirotor UAV. The task is to design, build and impl
 
 where \textbf{x} is the solution that leads to the desired control actions over a certain \textbf{prediction horizon}. A proper method for solving the optimization need to be chosen and implemented on the embedded hardware of the UAV. Previously mentioned tasks should be accompanied by simulation of the system including modeling of measurements, data filtration and the flight itself. There are minor tasks tied to the implementation and hardware design, mainly resolving communication, signal processing, data handling. The final outcome should be verified using variety of experiments testing its capabilities and finally compared to the prior solution used in the laboratory up to now.
 
-\subsection{Related work}
-
-The paper \citep{alexis2014rmpc} is considered as the current state of the art in the field of embedded MPC implementation on UAV. They have proposed a solution based on RMPC (Robust MPC)  utilizing an explicit formulation of the optimization task. The RMPC takes a form of a linear optimization subject to linear constraints (Linear Programming). Their formulation allows a disturbance rejection which is demonstrated by experiments where the UAV follows a trajectory while being under the influence of wind gusts. Their experimental platform consists of two vehicles equipped with Atom based PC, one of them being localized by Vicon, the other one equipped with a ultrasonic rangefinder and camera for computing an optical flow. Their solution also allows to incorporate a collision avoidance directly into the control loop which is also experimentally verified in the paper.
-
-Another work \citep{papachristos2013} (prior to \citep{alexis2014rmpc}) shows an implementation of a quadratic MPC embedded on tilt-rotor aircraft, utilizing Atom based computer. Their constrained formulation can handle state constraints and optimize over prediction horizon of 8 steps. Experiments were conducted in order to show its ability to track desired 3D trajectory and reject position disturbances.
-
-The paper \citep{bangura2014realtimempc} shows a quadratic implementation of MPC running on Pixhawk platform \citep{pixhawk}. Their unconstrained formulation solves the control problem with the prediction horizon of length 5. Their UAV is supplied with position data gathered from the Vicon system and transmitted to the vehicle wirelessly. There are experiments evaluations which shows that the vehicle is capable of tracking position step changes and harmonic trajectory.
-
-University ETH in Zurich has a long tradition of research in a field of UAV control. Their videos of helicopter aerobatics has been commonly known even among general public...
-
 \subsection{Previous work}
 \label{cap:prior_work}
 
+There has been a research on UAV control in laboratory of Intelligent and Mobile Robotics (IMR) group at FEE CTU Prague since 2011. The main focus has been in simulation of relatively localized UAV swarms and formations. Because it was also desired to verify the results experimentally, a development of hardware platform started. The first experiments has been done with AR Drone platform \citep{kranik2012drone} but it was shown that there is a need for a customizable platform capable of lifting heavier payload.
+
+The first iteration of creating the custom platform is depicted in \citep{baca2013}. A custom control board was developed accommodating PID controllers. It could be mounted on a general purpose UAV and allowed connecting a dedicated onboard camera localization system \citep{faigl2013low}. Experiments showed that the UAV is able to track and follow the position of a ground robot marked for image recognition. It was also tested that localization based solely on the position of a moving object (another robot or UAV) tends to destabilize the vehicle. Experiments were conducted with a heterogeneous formation of two helicopters and one ground robot.
+
+Subsequent work has been done in \citep{endrych2014} utilizing the same hardware accompanied by the \textit{px4flow} optical flow sensor. PID controllers were fine-tuned and the system was further improved to allow automatic flight even when the tracked object cannot be seen. This allowed creating formations of multiple UAV's which was not successful with former system. Experiments were again conducted to test the system's performance.
+
+Furthermore, the need for a precise execution of indoor experiments led to increasing focus in development of the control system itself. This thesis describes a development of new hardware platform which satisfies demands that arose during previous work. The system should be capable of executing a MPC controller, transmitting telemetry to ground station as well as logging data onboard in realtime. 
+
+\subsection{Related work}
+
+It is difficult to find results on completely embedded MPC control of UAV. Those who are not only scientifically active in simulating flight control but verify their outcomes experimentally tend to use an external localization system and on the ground computational power, since it makes experiments much less demanding on particular hardware implementation. Following survey contains (in our opinion) the state of the art of both, embedded and ground computed MPC.
+
+The paper \citep{bangura2014realtimempc} shows an onboard quadratic implementation of MPC running on Pixhawk platform \citep{pixhawk}. Their unconstrained formulation solves the control problem with the prediction horizon of length 5 steps. Their UAV is supplied with position data gathered from the Vicon system and transmitted to the vehicle wirelessly. There are experiments evaluations which show that the vehicle is capable of tracking position step changes and harmonic trajectory.
+
+The paper \citep{alexis2014rmpc} is considered as the current state of the art in the field of embedded MPC implementation on UAV. They have proposed a solution based on RMPC (Robust MPC)  utilizing an explicit formulation of the optimization task. The RMPC takes a form of a linear optimization subject to linear constraints (Linear Programming). Their formulation allows a disturbance rejection which is demonstrated by experiments where the UAV follows a trajectory while being under the influence of wind gusts. Their experimental platform consists of two vehicles equipped with Atom based PC, one of them being localized by Vicon, the other one equipped with a ultrasonic rangefinder and camera for computing an optical flow. Their solution also allows to incorporate a collision avoidance directly into the control loop which is also experimentally verified in the paper.
+
+Another work \citep{papachristos2013} (prior to \citep{alexis2014rmpc}) shows an implementation of a quadratic MPC, embedded on tilt-rotor aircraft, utilizing onboard Atom based computer. The position of UAV is estimated from onboard sensor data. Their constrained formulation can handle state constraints and optimize over prediction horizon of 8 steps. Experiments were conducted in order to show its ability to track desired 3D trajectory and reject position disturbances.
+
+Authors of technical report \citep{bouffard2012dtic} and later paper \citep{bouffard2012learning} managed to implement the explicit formulation of quadratic MPC using onboard Atom PC. They localize the helicopter using the Vicon system and use a learning based MPC to improve the performance of the system. Their experiments involved a helicopter catching a flying ball.
+
+Journal \cite{suzuki2014collision} presents a non-linear MPC formulation allowing to control several miniature, single-rotor helicopters in collision-free way. They utilize an external camera localization system as well as ground computer station. They optimize over $2 \jed{s}$ prediction horizon. Their simulation result has been experimentally verified with one miniature helicopter.
+
+University ETH in Zurich has a long tradition of research in a field of UAV control. Some of their videos of helicopter aerobatics has been commonly known even among general public. They have accomplished astounding achievements with UAVs with the Vicon system involved \citep{brescianini2013polearobatics, Augugliaro2013buildingstructures}. Their contribution to MPC is published in \citep{ethMueller2013mpc}, but just as previous ones, it relies on the external localization system as well as the PC ground station.
+
 \subsection{Contribution}
+
+We were able to develop a control system for UAV that allows the execution of quadratic MPC onboard the aircraft. It consists of a single board equipped with two $\mu$-controllers, telemetry module and SD-card data logger. The system was tested with a \textit{px4flow} optical flow sensor, but allows connecting other sensors and modules. A custom implementation of QMPC controls the UAV with $2.2\jed{s}$ prediction horizon. The implementation allows to estimate system disturbances with Kalman filter and reject them directly with the controller. When flying in indoor environment the system is able to track desired trajectories with errors in order of centimeters. Experiments shown that the system is competitive with current state of the art solutions. It can be implemented into very small UAVs (5 inch propellers) to allow experiments with tight formation in indoor environment.
+
+\subsection{Mathematical notation}
+
+The table \ref{tab:notation} denotes the basic mathematical notation used in this thesis.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}
+\hline
+Symbol & Description \\
+\hline
+lower or upper case letter, e.g. $n$ & a scalar \\
+bold lowercase letter, e.g. \textbf{x} & a column vector \\ 
+bold uppercase letter, r.g. \textbf{A} & a matrix \\
+$\textbf{x}^T$, $\textbf{A}^T$ & vector and matrix transpose \\
+underlined vector, e.g. \textbf{\underline{x}} & concatenated vectors $\left(\textbf{x}_1^T,\textbf{x}_2^T,...,\textbf{x}_n^T\right)^T$ \\
+\textbf{I} & identity matrix \\
+\textbf{1} & matrix of ones \\
+$x^{(W)}$ & $x$ in coordinate system$W$ \\ 
+$x_{[t]}$, $\textbf{x}_{[t]}$ & $x$, $\textbf{x}_{[t]}$ in the sample time $t$ \\
+$\mathrm{R}$, $\mathrm{N}$ & set of real and natural numbers \\
+\hline
+\end{tabular}
+\caption{Overview of mathematical notation.}
+\label{tab:notation}
+\end{table}
 

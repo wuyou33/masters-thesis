@@ -11,14 +11,12 @@ Let us have an LTI system that needs to be observed (assuming $\textbf{C} = \tex
 \label{eq:lti_for_observer}
 \end{equation}
 
-The open-loop observer can be constructed by setting up following system (\ref{eq:openloop_observer}) where $\textbf{\^x}$ denotes a vector of estimated state values. When $\textbf{w}$ has non zero-mean, $\textbf{\^x}$ is going to drift from $\textbf{x}$ since the process noise is integrated over time.
+The open-loop observer can be constructed by setting up following system (\ref{eq:openloop_observer}) where $\textbf{\^x}$ denotes a vector of estimated state values. When $\textbf{w}$ has non zero-mean, $\textbf{\^x}$ is going to drift from $\textbf{x}$ since the process noise is integrated over time. Three distinct situations can be expected to happen during the execution of the observer:
 
 \begin{equation}
 \textbf{\^x}_{[t+1]} = \textbf{A}\textbf{\^x}_{[t]} + \textbf{B}\textbf{u}_{[t]}
 \label{eq:openloop_observer}
 \end{equation}
-
-Three distinct situations can be expected to happen during the execution of the open-loop observer:
 
 \begin{itemize}
 \item Estimated states track well corresponding system states. The system was identified perfectly and there is no need for feedback control in this situation.
@@ -41,7 +39,7 @@ There are methods of finding $\textbf{L}$ such that poles of the observer are de
 
 \subsection{Kalman filter}
 
-In this thesis, the Kalman filter was implemented to estimate all states of the helicopter and to filter the measured data from sensors. The Kalman filter is variant of the closed-loop iterative estimator. If well tuned, it corrects a drift in estimated states. It is widely used not only as an observer but also for its great filtering capabilities. We present a standard linear version, for more advanced, nonlinear one seek for Extended Kalman Filter (EKF). A hypothesis about estimated states takes form of a normal distribution with mean vector $\hat{\textbf{x}}$ and covariance matrix $\hat{\boldsymbol{\Sigma}}$. It presumes a dynamical model in the form (\ref{eq:lti_for_observer}) where $\textbf{w} \in \mathbb{R}^n$ is supposed to be drawn from normal distribution $\mathcal{N}(\textbf{0}, \textbf{R})$, $\textbf{R} \in \mathbb{R}^{n\times n}$. Furthermore we presume a linear sensor model
+In this thesis, the Kalman filter (KF) was implemented to estimate all states of the helicopter and to filter the measured data from sensors. The Kalman filter is variant of the closed-loop iterative estimator. If well tuned, it corrects a drift in estimated states. It is widely used not only as an observer but also for its great filtering capabilities. We present a standard linear version, for more advanced, nonlinear one seek for Extended Kalman Filter (EKF). A hypothesis about estimated states takes form of a normal distribution with mean vector $\hat{\textbf{x}}$ and covariance matrix $\hat{\boldsymbol{\Sigma}}$. It presumes a dynamical model in the form (\ref{eq:lti_for_observer}) where $\textbf{w} \in \mathbb{R}^n$ is supposed to be drawn from normal distribution $\mathcal{N}(\textbf{0}, \textbf{R})$, $\textbf{R} \in \mathbb{R}^{n\times n}$. Furthermore, we presume a linear sensor model
 
 \begin{equation}
 \textbf{\^z}_{[t]} = \textbf{P}\textbf{\^x}_{[t]} + \textbf{v}_{[t]}
@@ -56,7 +54,7 @@ where $\textbf{\^z}_{[t]} \in \mathbb{R}^p$ is the measurement vector, $\textbf{
 & vector & covariance & mapping to \textbf{\^x} & mapping to \textbf{\^z}\\
 \hline
 estimated states & \textbf{\^x} & $\hat{\boldsymbol{\Sigma}}$ & \textbf{I} & \textbf{P}\\
-measurement & \textbf{\^z} & \textbf{Q} & \textbf{H} & \textbf{I}\\
+measurement & \textbf{\^z} & \textbf{Q} & & \textbf{I}\\
 model (process) & \textbf{x} & \textbf{R} & & \\
 \hline
 \end{tabular}
@@ -66,7 +64,7 @@ model (process) & \textbf{x} & \textbf{R} & & \\
 
 \subsubsection{Prediction phase}
 
-There are two stages of the Kalman filter algorithm. Figure \ref{fig:kalman_diagram} shows the block diagram for greater clarity. The first one is the \textit{prediction phase} (\ref{eq:kalman_prediction}) which can be easily related to the open-loop observer (\ref{eq:openloop_observer}). Here the new state vector is estimated using the model (\ref{eq:kalman_model}), previous state $\textbf{\^x}_{[t-1]}$ and the input $\textbf{u}_{[t-1]}$. Its covariance $\hat{\boldsymbol{\Sigma}}_{[t]}$ is modified using the model and the process noise covariance $\textbf{R}$.
+There are two stages of the KF algorithm. Figure \ref{fig:kalman_diagram} shows the block diagram for greater clarity. The first one is the \textit{prediction phase} (\ref{eq:kalman_prediction}) which can be easily related to the open-loop observer (\ref{eq:openloop_observer}). Here the new state vector is estimated using the model (\ref{eq:lti_for_observer}), previous state $\textbf{\^x}_{[t-1]}$ and the input $\textbf{u}_{[t-1]}$. Its covariance $\hat{\boldsymbol{\Sigma}}_{[t]}$ is modified using the model and the process noise covariance $\textbf{R}$.
 
 \begin{equation}
 \begin{split}
@@ -161,10 +159,10 @@ where $\textbf{K}_{[t]}$ is the Kalman gain, $\mathbf{I}$ is the identity matrix
 
 \subsection{Summary}
 
-In this chapter the Kalman filter algorithm was presented in order to estimate all system states and filter measured data. Its performance can be shown on subsequence of data (forward movement) used in chapter \ref{cap:attitude_subsystem_identification}. The figure \ref{fig:kalman1} shows the velocity in one of attitude axis of UAV measured by \emph{px4flow} sensor. Among others, it is able to estimate all other states including the position and the acceleration which is essential for further use of model predictive controller. It can be tuned to estimate noisy signal with relatively small delay compared to e.g. exponential filter\footnote{The exponential filter is an easy technique where filtered value is computed as $\textbf{\^x}_{[t]} = \alpha\textbf{\^x}_{[t-1]} + (1-\alpha)\textbf{x}_{[t]}$}. For particular parameters of Kalman filter that are used in the final implementation see chapter \ref{cap:Implementation} where also an extended form of LTI system is presented to provide a disturbance estimation. For further reading about the Kalman filter we recommend a paper \citep{faragher2012understandingKF} which explains it in more details as well as very intuitively.
+The Kalman filter algorithm was presented in order to estimate all system states and filter measured data. Its performance can be shown on subsequence of data (forward movement) used in chapter \ref{cap:attitude_subsystem_identification}. The figure \ref{fig:kalman1} shows the velocity of UAV measured by onboard sensor. Among others, it is able to estimate all other states including the position and the acceleration which is essential for further use of model predictive controller. It can be tuned to estimate noisy signal with relatively small delay compared to e.g. exponential filter\footnote{The exponential filter is an easy technique where filtered value is computed as $\textbf{\^x}_{[t]} = \alpha\textbf{\^x}_{[t-1]} + (1-\alpha)\textbf{P}\textbf{z}_{[t]}$}. For particular parameters of KF that were used in the final implementation see chapter \ref{cap:Implementation} where also an extended form of LTI system is presented to provide a disturbance estimation. For further reading about the KF see \citep{faragher2012understandingKF} which explains it in more details as well as very intuitively.
 
 \begin{figure}[h]
 \includegraphics[width=1\textwidth]{fig/kalman1.eps} 
-\caption{Kalman filter tracking a noisy singal of UAV's forward speed.}
+\caption{Kalman filter tracking a noisy singal of UAV's forward speed. See the difference between filtered values, that might have a significant effect on the control.}
 \label{fig:kalman1}
 \end{figure}
