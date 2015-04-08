@@ -33,9 +33,11 @@ The vehicle is localized in space by \textit{px4flow} sensor \citep{px4flow} (fi
 
 \subsection{Custom control board v.2}
 
-The control board v.2 is a significant improvement since the first version \citep{baca2013} which comprised only of a single 8-bit Atmel $\mu$-controller. After 1 year of using the old one, following needs emerged that started a development of the second version. The platform should support variety of connections for external sensors and modules, mainly via UART and $\mathrm{i}^2\mathrm{c}$. It should support onboard data logging which is necessary for debugging and capturing data for system identification. Another requirement is a presence of a telemetry module. The UAV should be able to send short packets of data to another helicopter and to the ground station (laptop). The main motivation is to allow simple telemetry data being displayed on laptop while conduction an experiment. This should limit the uncertainty during experiments by offering a simple way to detect misbehaving sensors etc. Additionally there will be a way to send simple commands from PC to the UAV. Very important is the last demand --- to support execution of the model predictive controller.
+The control board v.2 (see fig. \ref{fig:custom_board}) is a significant improvement since the first version \citep{baca2013} which comprised only of a single 8-bit Atmel $\mu$-controller. After 1 year of utilizing the old one, following requirements emerged that started a development of the second version. The platform should support variety of connections for external sensors and modules, mainly via UART and $\mathrm{i}^2\mathrm{c}$. It should support onboard data logging which is necessary for debugging and capturing data for system identification. Another requirement is a presence of a telemetry module. The UAV should be able to send short packets of data to another helicopter and to the ground station (laptop). The main motivation is to allow simple telemetry data being displayed on laptop while conduction an experiment. This should limit the uncertainty during experiments by offering a simple way to detect misbehaving sensors etc. Additionally there will be a way to send simple commands from PC to the UAV. Very important is the last demand --- to support execution of the model predictive controller.
 
-The board itself was built upon a standard (for UAVs) square mounting pattern ($45\times 45\jed{mm}$). It is design in such way that allows mounting another board with dimensions $50\times 50\jed{mm}$ on top itself while not obscuring connectors, buttons and radio antenna. It comprises a $3.3\jed{V}, 1\jed{A}$ switching power supply that powers all its components.
+The board itself was built upon a standard (for UAVs) square mounting pattern ($45\times 45\jed{mm}$). It is design in such way that allows mounting another board with dimensions $50\times 50\jed{mm}$ on top itself while not obscuring connectors, buttons and radio antenna. It comprises a $3.3\jed{V}, 1\jed{A}$ switching power supply that powers all its components. For an electrical schematic see Appendix~\ref{ape:schematic}, for layouts of the printed circuit board see Appendix~\ref{ape:pcb}.
+
+ Following sections contain brief description of all key parts of the control board. Figure~\ref{fig:block_diagram_modules} shows a block diagram of all modules on the UAV.
 
 \begin{figure}[htbp]
 \centering
@@ -57,13 +59,190 @@ The board itself was built upon a standard (for UAVs) square mounting pattern ($
 
 \subsubsection{xMega main unit}
 
-\subsubsection{ARM co-processing unit}
+The first of two used $\mu$-controllers is 8-bit AVR, ATXmega128a3u. It was decided to distribute software tasks (MPC, Kalman filter and others) onto two separate units. This MCU (microcontroller unit) is designated for handling all communication and other minor tasks. It is one of the most powerful MCUs in AVR 8-bit family with $32 \jed{MHz}$ clock and $8 \jed{kB}$ of SRAM memory. One of its biggest features are 7 separate UARTs. 3 of them are used for communication with other onboard parts, 4 of them are left free for connecting external devices. One is equipped with an optional level converter for connecting $5 \jed{V}$ devices. Additionally, there are two $\mathrm{i}^2\mathrm{c}$ lines and PPM\footnote{Pulse position modulation is a communication protocol commonly used on UAVs and RC models.} input/output for communicating with \textit{KK2} and RC receiver (both with optional level converters).
+
+\subsubsection{ARM coprocessing unit}
+
+The second MCU onboard is a powerful 32-bit ARM device produced by STMicroelectronics --- STM32F415RGT6. It is built upon ARM Cortex M4 with FPU (floating point unit) which allows a native work with floating point numbers. It has a powerful processor working on $168 \jed{MHz}$ accompanied by $192 \jed{kB}$ of RAM. This MCU is designated solely for computing Kalman filter and MPC. In is incorporated in such a way, that it only serves as an external coprocessor for xMega --- there are no peripherals connected to it. There are several reasons for choosing such architecture where the more powerful MCU does not server for all purposes although it has enough power for it. The first one is the backwards compatibility with previously developed software. The xMega can execute it without many changes and it is also easier to develop on\footnote{The system as a whole is meant as a platform for another students to test and develop their systems.}. Since the MPC and Kalman filter are important pieces of the program and their unwanted modification could make the machine dangerous, it was decided to conserve it on a separate MCU. The controller and KF are then used from the xMega MCU by a form of API.  
 
 \subsubsection{XBee telemetry module}
 
+When searching for a suitable wireless communication module, one can't miss the family of XBee devices \citep{xbee}. Built upon ZigBee standard, they can be set up to maintain one of several network topologies e.g. star or mesh. There are many different versions of XBee, based on its capabilities and frequency used. All of them support the same connection socket so they can be easily swapped for another type if necessary. Currently we use XBee Pro S2B which works on $2.4\jed{GHz}$ ISM band. Practical tests shown that it is not well suited for any real-time critical data transfers since there is a significant delay ($\approx 150\jed{ms}$)  and its throughput is $\approx 20\jed{kbit/s}$.
+
 \subsubsection{OpenLog datalogging module}
 
+Since we were not interested in creating our own data logger, we have implemented an existing, open source solution --- OpenLog \citep{openlog}. It has been designed to serve as an external SD card logging device connected by UART. Because its design is very simple, it was directly implemented into the control board. One can then set it up to receive a stream of data from the xMega MCU once the UAV is turned one. It can handle logging $30\jed{bytes}$ with rate $70\jed{Hz}$ which is satisfiable for debugging and system identification.
+
+
+\usetikzlibrary{shapes.geometric,backgrounds,calc}
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[->,>=stealth',node distance=1.5cm]
+
+	\node[state] (atxmega) {
+		\begin{tabular}{c}
+  			ATxmega MCU\\
+
+ 		\end{tabular}
+ 	};
+ 	
+	\node[state, right of = atxmega, shift = (right:2cm)] (stm) {
+		\begin{tabular}{c}
+  			ARM MCU\\
+ 		\end{tabular}
+ 	};
+ 	
+	\node[state, above of = stm] (openLog) {
+		\begin{tabular}{c}
+  			OpenLog\\
+
+ 		\end{tabular}
+ 	};
+ 	
+	\node[state, below of = stm] (XBee) {
+		\begin{tabular}{c}
+  			XBee\\
+
+ 		\end{tabular}
+ 	}; 
+ 
+	\node[state, left of = atxmega, shift = (left:2.5cm)] (px4flow) {
+		\begin{tabular}{c}
+  			px4flow\\
+
+ 		\end{tabular}
+ 	}; 
+ 	
+	\node[state, right of = XBee, shift = (right:2.5cm)] (pc) {
+		\begin{tabular}{c}
+  			Ground station\\
+
+ 		\end{tabular}
+ 	}; 
+ 	
+	\node[state, above of = px4flow] (receiver) {
+		\begin{tabular}{c}
+  			RC receiver\\
+
+ 		\end{tabular}
+ 	}; 
+ 	
+	\node[state, below of = px4flow] (kk2) {
+		\begin{tabular}{c}
+  			KK2 board\\
+
+ 		\end{tabular}
+ 	}; 
+
+    \path (atxmega.north)+(1.4cm, 2.2cm) node (label1) {\textbf{Custom control board v.2}};
+ 
+    \begin{pgfonlayer}{background}
+    	\path (atxmega.west |- label1.north)+(-0.6,0.2) node (a) {};
+        \path (XBee.south -| stm.east)+(+0.6,-0.5) node (b) {};
+		\path[fill=yellow!20,rounded corners, draw=gray!50]
+            (a) rectangle (b);
+    \end{pgfonlayer}
+       
+	\path[->] ($(atxmega.north) + (+0.5cm, 0)$) edge [bend left=30] ($(openLog.west)$);
+	\path[<->] (atxmega) edge (stm);
+	\path[<->] ($(atxmega.south) + (+0.5cm, 0)$) edge [bend right=30] ($(XBee.west)$);
+	\path[->] (px4flow) edge (atxmega);
+	\path[->] ($(receiver.east)$) edge [bend left=30] ($(atxmega.north) + (-0.5cm, 0)$);
+	\path[<->,dashed] (XBee) edge (pc);
+	\path[<-] ($(kk2.east)$) edge [bend right=30] ($(atxmega.south) + (-0.5cm, 0)$);
+
+\end{tikzpicture}
+\caption{Block diagram of modules on the UAV.}
+\label{fig:block_diagram_uav}
+\end{figure}
+
 \subsection{FreeRTOS and tasks}
+
+\usetikzlibrary{shapes.geometric,backgrounds,calc}
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[->,>=stealth',node distance=1.5cm]
+
+	\node[state] (commtask) {
+		\begin{tabular}{c}
+  			CommTask\\
+ 		\end{tabular}
+ 	};
+ 	
+	\node[state, left of = commtask, shift = (left:2.4cm)] (controllerstask) {
+		\begin{tabular}{c}
+  			ControllersTask\\
+ 		\end{tabular}
+ 	};
+ 	
+	\node[state, above of = commtask, shift = (left:2.1cm)] (maintask) {
+		\begin{tabular}{c}
+  			MainTask\\
+ 		\end{tabular}
+ 	};
+
+	\node[state, below of = commtask, shift = (left:2.1cm)] (logtask) {
+		\begin{tabular}{c}
+  			LogTask\\
+ 		\end{tabular}
+ 	};
+ 	
+	\node[state, right of = commtask, shift = (right:3cm)] (commtask2) {
+		\begin{tabular}{c}
+  			CommTask\\
+ 		\end{tabular}
+ 	};
+
+	\node[state, above of = commtask2, shift = (right:2.6cm)] (kalmantask) {
+		\begin{tabular}{c}
+  			KalmanTask\\
+ 		\end{tabular}
+ 	};
+ 	
+	\node[state, below of = commtask2, shift = (right:2.6cm)] (mpctask) {
+		\begin{tabular}{c}
+  			MPCTask\\
+ 		\end{tabular}
+ 	};
+
+	\path (maintask.north)+(0cm, 0.5cm) node (label1) {\textbf{xMega MCU}};
+	\path (kalmantask.north)+(-1cm, 0.5cm) node (label2) {\textbf{STM MCU}};
+ 
+    \begin{pgfonlayer}{background}
+    	\path (controllerstask.west |- label1.north)+(-0.6,0.2) node (a) {};
+        \path (logtask.south -| commtask.east)+(+0.6,-0.5) node (b) {};
+		\path[fill=yellow!20,rounded corners, draw=gray!50]
+            (a) rectangle (b);
+    \end{pgfonlayer}
+    
+    \begin{pgfonlayer}{background}
+    	\path (commtask2.west |- label2.north)+(-0.6,0.2) node (a) {};
+        \path (mpctask.south -| kalmantask.east)+(+0.6,-0.5) node (b) {};
+		\path[fill=yellow!20,rounded corners, draw=gray!50]
+            (a) rectangle (b);
+    \end{pgfonlayer}
+       
+	\path[<->] (maintask) edge [bend left] ($(commtask.north)$);
+	\path[<->] (commtask) edge (controllerstask);
+	\path[<->] (controllerstask) edge [bend left] (maintask);
+	\path[<->] (commtask) edge (commtask2);
+	\path[<->] (commtask2) edge [bend left] (kalmantask);
+	\path[->] (kalmantask) edge [bend left=45] (mpctask);
+	\path[<->] (mpctask) edge [bend left] (commtask2);
+	\path[->] ($(commtask.south)$) edge [bend left] (logtask);
+
+\end{tikzpicture}
+\caption{Block diagram of data exchange between tasks of xMega and STM MCUs.}
+\label{fig:block_diagram_modules}
+\end{figure}
 
 \subsection{CMatrixLib - ANSI C matrix library}
 
