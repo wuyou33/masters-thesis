@@ -38,6 +38,7 @@ The open-loop observer can be basically corrected by closing a feedback loop aro
 There are methods of finding $\textbf{L}$ such that poles of the observer are desirably placed\footnote{Assuming the system can be converted to the \textit{controlled canonical form}}. One can utilize that placing poles of a state feedback is a dual problem for placing poles of the observer. Practically one can tune a state feedback controller using matrices $\textbf{A}^T, \textbf{B}^T$ to get $\textbf{L}^T$ for the observer, hence the duality.
 
 \subsection{Kalman filter}
+\label{cap:kalman_filter_theory}
 
 In this thesis, the Kalman filter (KF) was implemented to estimate all states of the helicopter and to filter the measured data from sensors. The Kalman filter is variant of the closed-loop iterative estimator. If well tuned, it corrects a drift in estimated states. It is widely used not only as an observer but also for its great filtering capabilities. We present a standard linear version, for more advanced, nonlinear one seek for Extended Kalman Filter (EKF). A hypothesis about estimated states takes form of a normal distribution with mean vector $\hat{\textbf{x}}$ and covariance matrix $\hat{\boldsymbol{\Sigma}}$. It presumes a dynamical model in the form (\ref{eq:lti_for_observer}) where $\textbf{w} \in \mathbb{R}^n$ is supposed to be drawn from normal distribution $\mathcal{N}(\textbf{0}, \textbf{R})$, $\textbf{R} \in \mathbb{R}^{n\times n}$. Furthermore, we presume a linear sensor model
 

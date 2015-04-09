@@ -1,6 +1,6 @@
 \section{Hardware and Software platform}
 
-In order to test the embedded implementation of MPC on real aircraft, one has to either use an existing platform or develop its own. Creating a custom hardware is a tedious job, but it is an investment that may eventually repay itself by providing complete control over platform's parameters and design. The key decision has been done to improve the existing design of custom control board (see \citep{baca2013} for more details) emphasizing possibility to reuse the code that has been already developed. A new version has been designed by incorporating experiences and observations from prior development. Following chapter firstly describes the UAV used for experimental validation of the control design, then there is new control board presented with overview of its features and capabilities, and lastly the software structure is discussed including used realtime operating system and custom matrix library.
+In order to test the embedded implementation of MPC on real aircraft, one has to either use an existing platform or develop its own. Creating a custom hardware is a tedious job, but it is an investment that may eventually repay itself by providing complete control over platform's parameters and design. The key decision has been done to improve the existing design of custom control board (see work \citep{baca2013} for more details) emphasizing possibility to reuse the code that has been already developed. A new version has been designed by incorporating experiences and observations from prior development. Following chapter firstly describes the UAV used for experimental validation of the control design, then there is new control board presented with overview of its features and capabilities, and lastly the software structure is discussed including used realtime operating system and custom matrix library.
 
 \subsection{UAV platform}
 
@@ -11,7 +11,7 @@ The aircraft is equipped with the \textit{KK2} board which provides the basic st
 \subsection{px4flow sensor}
 \label{cap:px4flow}
 
-The vehicle is localized in space by \textit{px4flow} sensor \citep{px4flow} (fig. \ref{fig:px4flow}), developed and produced by PixHawk \citep{pixhawk}. It integrates two sensors --- a camera for computing an optical flow and an ultrasonic rangefinder for measuring a distance from the ground. It provides an information about its velocity relative to the ground computed by the correlation of two consecutive images from the camera (the same principle as with most computer mice). The velocity is internally compensated from rotational motion by integrated gyroscope and finally scaled to absolute values using the altitude measured by the ultrasonic sensor. The sensor is able to measure velocities up to $0.5\jed{ms^{-1}}$ when flying in 1 meter altitude in good light conditions. The altitude is measured from $0.3\jed{m}$ to $4\jed{m}$. Data are sent in frequency around $70\jed{Hz}$ over UART (universal asynchronous receiver-transmitter) using MAVLink protocol.
+The vehicle is localized in space by \textit{px4flow} sensor \citep{px4flow} (fig. \ref{fig:px4flow}), developed and produced by PixHawk \citep{pixhawk}. It encapsulates two sensors --- a camera for computing an optical flow and an ultrasonic rangefinder for measuring a distance from the ground. It provides an information about its velocity relative to the ground computed by the correlation of two consecutive images from the camera (the same principle as with most computer mice). The velocity is internally compensated from rotational motion by built-in gyroscope and finally scaled to absolute values using the altitude measured by the ultrasonic sensor. The sensor is able to measure velocities up to $0.5\jed{ms^{-1}}$ when flying in 1 meter altitude in good light conditions. The altitude is measured from $0.3\jed{m}$ to $4\jed{m}$. Data is sent in frequency around $70\jed{Hz}$ over UART (universal asynchronous receiver-transmitter) using MAVLink protocol \citep{px4flow}.
 
 \begin{figure}[tbp]
 \centering
@@ -33,9 +33,9 @@ The vehicle is localized in space by \textit{px4flow} sensor \citep{px4flow} (fi
 
 \subsection{Custom control board v.2}
 
-The control board v.2 (see fig. \ref{fig:custom_board}) is a significant improvement since the first version \citep{baca2013} which comprised only of a single 8-bit Atmel $\mu$-controller. After 1 year of utilizing the old one, following requirements emerged that started a development of the second version. The platform should support variety of connections for external sensors and modules, mainly via UART and $\mathrm{i}^2\mathrm{c}$. It should support onboard data logging which is necessary for debugging and capturing data for system identification. Another requirement is a presence of a telemetry module. The UAV should be able to send short packets of data to another helicopter and to the ground station (laptop). The main motivation is to allow simple telemetry data being displayed on laptop while conduction an experiment. This should limit the uncertainty during experiments by offering a simple way to detect misbehaving sensors etc. Additionally there will be a way to send simple commands from PC to the UAV. Very important is the last demand --- to support execution of the model predictive controller.
+The control board v.2 (see fig. \ref{fig:custom_board}) is a significant improvement since the first version \citep{baca2013} which comprised only of a single 8-bit Atmel $\mu$-controller. After 1 year of utilizing the old one, following requirements emerged that started a development of the second version. The platform should support variety of connections for external sensors and modules, mainly via UART and $\mathrm{i}^2\mathrm{c}$. It should support onboard data logging which is necessary for debugging and capturing data for system identification. Another requirement is a presence of a telemetry module. The UAV should be able to send short packets of data to another helicopter and to the ground station (laptop). The main motivation is to allow simple telemetry data being displayed on laptop while conducting an experiment. This should limit the uncertainty during experiments by offering a simple way to detect misbehaving sensors etc. Additionally there will be a way to send simple commands from PC to the UAV. Very important is the last demand --- to support execution of the model predictive controller.
 
-The board itself was built upon a standard (for UAVs) square mounting pattern ($45\times 45\jed{mm}$). It is design in such way that allows mounting another board with dimensions $50\times 50\jed{mm}$ on top itself while not obscuring connectors, buttons and radio antenna. It comprises a $3.3\jed{V}, 1\jed{A}$ switching power supply that powers all its components. For an electrical schematic see Appendix~\ref{ape:schematic}, for layouts of the printed circuit board see Appendix~\ref{ape:pcb}.
+The board itself was built upon a standard (for UAVs) square mounting pattern ($45\times 45\jed{mm}$). It is designed in such way that allows mounting another board with dimensions $50\times 50\jed{mm}$ on top itself while not obscuring connectors, buttons and radio antenna. The board contains a $3.3\jed{V}, 1\jed{A}$ switching power supply that powers all its components. For an electrical schematic see Appendix~\ref{ape:schematic}, for layouts of the printed circuit board see Appendix~\ref{ape:pcb}.
 
  Following sections contain brief description of all key parts of the control board. Figure~\ref{fig:block_diagram_modules} shows a block diagram of all modules on the UAV.
 
@@ -72,7 +72,6 @@ When searching for a suitable wireless communication module, one can't miss the 
 \subsubsection{OpenLog datalogging module}
 
 Since we were not interested in creating our own data logger, we have implemented an existing, open source solution --- OpenLog \citep{openlog}. It has been designed to serve as an external SD card logging device connected by UART. Because its design is very simple, it was directly implemented into the control board. One can then set it up to receive a stream of data from the xMega MCU once the UAV is turned one. It can handle logging $30\jed{bytes}$ with rate $70\jed{Hz}$ which is satisfiable for debugging and system identification.
-
 
 \usetikzlibrary{shapes.geometric,backgrounds,calc}
 \pgfdeclarelayer{background}
@@ -143,7 +142,7 @@ Since we were not interested in creating our own data logger, we have implemente
     \begin{pgfonlayer}{background}
     	\path (atxmega.west |- label1.north)+(-0.6,0.2) node (a) {};
         \path (XBee.south -| stm.east)+(+0.6,-0.5) node (b) {};
-		\path[fill=yellow!20,rounded corners, draw=gray!50]
+		\path[fill=gray!20,rounded corners, draw=black!50]
             (a) rectangle (b);
     \end{pgfonlayer}
        
@@ -162,12 +161,23 @@ Since we were not interested in creating our own data logger, we have implemente
 
 \subsection{FreeRTOS and tasks}
 
-\usetikzlibrary{shapes.geometric,backgrounds,calc}
-\pgfdeclarelayer{background}
-\pgfdeclarelayer{foreground}
-\pgfsetlayers{background,main,foreground}
+When creating a program for MCU such as xMega and STM one can basically choose between two ways of doing that. The most straightforward is to develop the bare application that will be directly executed on the processor while utilizing all of its computational resources. It is up to the creator of the program to manage concurrent processes, interact with hardware and supply fast communication responses in parallel with long-running calculations. In previous work, the software was developed exactly in that way. Its benefit is obvious. The programmer has a complete control over the hardware --- it is only his code running on the CPU. But when the application gets complicated an operating system can be used to take care of allocating computational resources for different parts of the program. There is a family of operating systems intended for real-time application such as the ours --- Real-Time Operating Systems (RTOS). 
 
-\begin{figure}[h]
+The reader should not confuse the RTOS with the notion of operating system usually used on personal computers. These are special software developed with different criteria. The main one is its scheduling which ensures each application is given its time slot in a deterministic and defined time. It usually works based on hardware timers and interrupts. Context switch in RTOS is usually very fast and it happen relatively often to allow real-time processing of incoming data. One of widely used RTOS is the FreeRTOS \citep{freertos}. An Open Source solution with existing ports for both MCUs used in the control board. It offers a capability to create so called \textit{tasks}, an analogy of processes in classical operating systems. Tasks are separate pieces of program with its own CPU context and memory stack. 
+
+The RTOS takes care of switching between tasks based on given priority allowing user to develop apparently multitask application. There are new issues coming with this concept --- the problem of synchronization and sharing resources. The FreeRTOS incorporates \textit{queues} and \textit{semaphores} which are supposed to be used for exchanging data between tasks and for their synchronization. We have implemented the FreeRTOS on both MCUs creating separate tasks for handling communication and computations. See figure \ref{fig:block_diagram_uav} for view on tasks and the information flow between them.
+
+Since our system requires executing controllers and estimators in rates in order of tens\jed{Hz} and it has to handle communication in rate in order of hundreds\jed{Hz} the context switch rate was chosen in order of magnitude faster --- $1000\jed{Hz}$. But still there are operations that require even faster execution and reaction times (e.g. reception and creation of pulse-position signal or buffering raw data from peripherals). That is why here remains a part of the control software executed directly on interrupt basis, independently of the FreeRTOS. Because safety is the great concern of us, the system is able to hand over the UAV to the human operator even when the FreeRTOS and the control system does not work properly or even freezes. Both implementations on our MCUs requires around $4\jed{kB}$ of memory leaving out enough for custom code.
+
+\subsection{Tasks on xMega MCU}
+
+The software on xMega consists of 4 different tasks running equally in parallel. There is \textbf{CommTask} which is designated to handle all incoming and outgoing communication. Since 	sharing access to all communication media would be difficult to maintain, all other tasks communicate with peripherals via the CommTask. Another one is \textbf{ControllersTask} which handles computations with regards to system controllers. \textbf{LogTask} is responsible for periodic data logging to OpenLog module. And despite its name, \textbf{MainTask} handles minor jobs as trajectory following and flight state automaton (modeling different flight modes of the UAV). 
+
+\subsection{Tasks on STM MCU}
+
+Tasks on STM has much clearer designation. There is also the \textbf{CommTask} serving as a communication mediator. The another one is \textbf{KalmanTask}. It handles the complete computation of the Kalman filter. Finally the last one is \textbf{MPCTask} that takes care of computing the model predictive controller. 
+
+\begin{figure}[h]	
 \centering
 \begin{tikzpicture}[->,>=stealth',node distance=1.5cm]
 
@@ -219,14 +229,14 @@ Since we were not interested in creating our own data logger, we have implemente
     \begin{pgfonlayer}{background}
     	\path (controllerstask.west |- label1.north)+(-0.6,0.2) node (a) {};
         \path (logtask.south -| commtask.east)+(+0.6,-0.5) node (b) {};
-		\path[fill=yellow!20,rounded corners, draw=gray!50]
+		\path[fill=gray!20,rounded corners, draw=black!50]
             (a) rectangle (b);
     \end{pgfonlayer}
     
     \begin{pgfonlayer}{background}
     	\path (commtask2.west |- label2.north)+(-0.6,0.2) node (a) {};
         \path (mpctask.south -| kalmantask.east)+(+0.6,-0.5) node (b) {};
-		\path[fill=yellow!20,rounded corners, draw=gray!50]
+		\path[fill=gray!20,rounded corners, draw=black!50]
             (a) rectangle (b);
     \end{pgfonlayer}
        
@@ -245,5 +255,9 @@ Since we were not interested in creating our own data logger, we have implemente
 \end{figure}
 
 \subsection{CMatrixLib - ANSI C matrix library}
+
+In order to implement the Kalman filter (section \ref{cap:kalman_filter_theory}) and the model predictive controller (section \ref{cap:mpc_theory}) one has to deal with a lot of vector and matrix operations. Although one can implement them directly using the programming language it is impractical for code debugging and it discards the clarity of mathematical matrix notation. There is a large selection of matrix libraries \citep{matrixlibraries} available for variety of programming languages. But since both our code projects are developed using ANSI C programming language and our platforms are very specific (the library should be supplied by means of source code) we decided to develop our own matrix library. Another reason that supports this decision is to maintain as mmuch control over the executing code as possible, specifically with regards to memory allocations, which is a critical issue on micro-controllers. Our library supports basic matrix and vector operation with floating point values as well as basic algebra operators --- matrix inversion and computation of determinant. It was developed with regard to minimize stack memory footprint by requiring prior allocation of memory for subresults. There is also a possibility to create a matrix using a constant data located within a program memory. 
+
+CMatrixLib, as it called, is presented on a community website GitHub \citep{cmatrixlib} under GNU General Public License. As it is with a proper documentation.
 
 \subsection{Summary}

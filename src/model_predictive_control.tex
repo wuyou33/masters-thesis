@@ -1,4 +1,5 @@
 \section{Model predictive control}
+\label{cap:mpc_theory}
 
 Model predictive controller (MPC), also known as \textit{receding horizon controller}, is a common technique of controlling unmanned aircraft. Though it is a challenging task to implement it into an embedded hardware, unlike other feedback loop controllers usually used on UAVs, namely PID (proportional-integral-derivative controller) and full-state feedback. The origins of MPC can be found around chemical plants where the time constants of such dynamical processes are relatively high (up to order of hours) thus the computational demand is not so limiting. Also the constraint handling, an inherent property of MPC, is widely used while driving chemical processes. Since then the MPC started to spread on faster systems as the hardware become more powerful. Nowadays it is used to drive systems with sampling in order of milliseconds and tens of hertz loop rate.
 
