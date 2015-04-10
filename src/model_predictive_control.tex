@@ -3,7 +3,7 @@
 
 Model predictive controller (MPC), also known as \textit{receding horizon controller}, is a common technique of controlling unmanned aircraft. Though it is a challenging task to implement it into an embedded hardware, unlike other feedback loop controllers usually used on UAVs, namely PID (proportional-integral-derivative controller) and full-state feedback. The origins of MPC can be found around chemical plants where the time constants of such dynamical processes are relatively high (up to order of hours) thus the computational demand is not so limiting. Also the constraint handling, an inherent property of MPC, is widely used while driving chemical processes. Since then the MPC started to spread on faster systems as the hardware become more powerful. Nowadays it is used to drive systems with sampling in order of milliseconds and tens of hertz loop rate.
 
-The control loop itself is built upon repeatedly optimizing a cost function (usually called \textbf{objective function}) with decision variables that represent a desired input action. It is usually a function of all states, desired trajectory and system inputs over a certain time horizon, often called \textbf{prediction horizon}. It penalizes (has higher values) the difference between predicted and desired state trajectory. It also penalizes the control action itself which can be interpreted as penalizing the energy used for controlling the system. In other words, the objective function returns a scalar value that quantifies whether the controller drove the system well. Such function can have extrema. Our goal is to find its minimum which follows that the states are changing according to our desired trajectory. The minimum can be local or global, depending on the function itself. It is usually desirable to find the global minimum since that is where the optimal control action is found with respect to the constructed objective function.
+The control loop itself is built upon repeatedly optimizing a cost function (usually called \emph{objective function}) with decision variables that represent a desired input action. It is usually a function of all states, desired trajectory and system inputs over a certain time horizon, often called \emph{prediction horizon}. It penalizes (has higher values) the difference between predicted and desired state trajectory. It also penalizes the control action itself which can be interpreted as penalizing the energy used for controlling the system. In other words, the objective function returns a scalar value that quantifies whether the controller drove the system well. Such function can have extrema. Our goal is to find its minimum which follows that the states are changing according to our desired trajectory. The minimum can be local or global, depending on the function itself. It is usually desirable to find the global minimum since that is where the optimal control action is found with respect to the constructed objective function.
 
 There are several classes of continuous optimization problems depending on the type of the objective function and constraints. Problems based on linear or quadratic objective function subjected to linear inequality constraints are commonly . These are historically well studied cases with known methods for solving them. The problem is usually called \textit{Linear Programming} (LP) when optimizing linear function, or \textit{Quadratic Programming} (QP) when optimizing a quadratic function. Since the MPC can be formulated as LP or QP, the control design problem is then basically reduced to solving a QP or LP program and the main focus is left on system modeling and fine-tuning of free parameters of the objective function. The optimization task itself is usually left on dedicated solver that it specialized on the particular function type. In this thesis, we consider only the linear MPC i.e. controlling an LTI system proposed in chapter \ref{cap:system_identification}. The MPC can be formulated as LP or QP, depending on what type of Euclidean norm is used for computing the distance between two states. When using the \mbox{\emph{$\ell^1$}} or \mbox{\emph{$\ell^\infty$}} norm, the formulation leads to a linear program. One can formulate the LP in a way that minimizes the maximal deviation from desired trajectory - this formulation is usually called a \emph{robust MPC} (RMPC). We will focus on the QP formulation (\mbox{\emph{$\ell^2$}} norm, QMPC) since the quadratic penalization can be more expressive the the linear one --- it penalizes large errors more and additionally provides a deadband in the controller.
 
@@ -85,10 +85,10 @@ The control error is denoted by $\textbf{e}_{[t]} = \textbf{x}_{[t]} - \textbf{\
 
 
 \begin{equation}
-\mathrm{J}(\underline{\textbf{u}}) = \frac{1}{2}\textbf{\underline{u}}^T\underbrace{\left(\textbf{\^B}^T\textbf{\^Q}\textbf{\^B} + \textbf{\^P}\right)}_{\textbf{\^H}}\textbf{\underline{u}} + \textbf{\underline{u}}^T\underbrace{\left(\textbf{\^Q}\textbf{\^B}\right)^T\left(\textbf{\^A}\textbf{x}_{[0]} - \textbf{\underline{\~x}}\right)}_{\textbf{\^F}}
+\mathrm{J}(\underline{\textbf{u}}) = \frac{1}{2}\textbf{\underline{u}}^T\underbrace{\left(\textbf{\^B}^T\textbf{\^Q}\textbf{\^B} + \textbf{\^P}\right)}_{\textbf{\^H}}\textbf{\underline{u}} + \textbf{\underline{u}}^T\underbrace{\left(\textbf{\^Q}\textbf{\^B}\right)^T\left(\textbf{\^A}\textbf{x}_{[0]} - \textbf{\underline{\~x}}\right)}_{\textbf{\^c}}
 \end{equation}
 
-where $\textbf{\underline{\~x}} = (\textbf{\underline{\~x}}_{[0]}^T, \textbf{\underline{\~x}}_{[1]}^T, ..., \textbf{\underline{\~x}}_{[M-1]}^T)^T$ is the reference trajectory for all states consisting of a state vector for each step of the prediction horizon, \mbox{$\textbf{\^Q} \in \mathbb{R}^{nM \times nM}$} and $\textbf{\^P} \in \mathbb{R}^{kM\times kM}$ are weighting matrices denoted in (\ref{eq:qmpc_weighting_matrices}). Matrices $\textbf{\^H} \in \mathbb{R}^{kM\times kM}$ and $\textbf{\^F} \in \mathbb{R}^{kM}$ then define the quadratic form. 
+where $\textbf{\underline{\~x}} = (\textbf{\underline{\~x}}_{[0]}^T, \textbf{\underline{\~x}}_{[1]}^T, ..., \textbf{\underline{\~x}}_{[M-1]}^T)^T$ is the reference trajectory for all states consisting of a state vector for each step of the prediction horizon, \mbox{$\textbf{\^Q} \in \mathbb{R}^{nM \times nM}$} and $\textbf{\^P} \in \mathbb{R}^{kM\times kM}$ are weighting matrices denoted in (\ref{eq:qmpc_weighting_matrices}). Matrices $\textbf{\^H} \in \mathbb{R}^{kM\times kM}$ and $\textbf{\^c} \in \mathbb{R}^{kM}$ then define the quadratic form. 
 
 \begin{equation}
 \label{eq:qmpc_weighting_matrices}
@@ -112,7 +112,7 @@ Finally the optimization task can be formulated as minimizing the objective func
 \label{eq:qmpc_main_quadratic_form}
 \begin{aligned}
 & \min_{\textbf{\underline{u}} \in \mathbb{R}^{kM}}
-& & \mathrm{J}(\underline{\textbf{u}}) = \frac{1}{2}\textbf{\underline{u}}^T\textbf{\^H}\textbf{\underline{u}} + \textbf{\underline{u}}^T\textbf{\^F}\\
+& & \mathrm{J}(\underline{\textbf{u}}) = \frac{1}{2}\textbf{\underline{u}}^T\textbf{\^H}\textbf{\underline{u}} + \textbf{\underline{u}}^T\textbf{\^c}\\
 & \text{s.t.}
 & & \text{constrains on \textbf{u}}
 \end{aligned}
@@ -194,7 +194,7 @@ The quadratic function in our task is a convex function due to matrices $\textbf
 
 \begin{equation}
 \begin{split}
-\frac{1}{2}\textbf{\underline{u}}^T\textbf{\^H}\textbf{\underline{u}} + \textbf{\underline{u}}^T\textbf{\^F} &= \frac{1}{2}(\textbf{\underline{u}} - \textbf{\underline{u}}^*)^T\textbf{\^H}(\textbf{\underline{u}} - \textbf{\underline{u}}^*)\\
+\frac{1}{2}\textbf{\underline{u}}^T\textbf{\^H}\textbf{\underline{u}} + \textbf{\underline{u}}^T\textbf{\^c} &= \frac{1}{2}(\textbf{\underline{u}} - \textbf{\underline{u}}^*)^T\textbf{\^H}(\textbf{\underline{u}} - \textbf{\underline{u}}^*)\\
 &= \frac{1}{2}\textbf{\underline{u}}^T\textbf{\^H}\textbf{\underline{u}} - \frac{1}{2}\textbf{\underline{u}}^T\textbf{\^H}\textbf{\underline{u}}^* - \frac{1}{2}\textbf{\underline{u}}^{*T}\textbf{\^H}\textbf{\underline{u}} + \frac{1}{2}\textbf{\underline{u}}^{*T}\textbf{\^H}\textbf{\underline{u}}^* \\
 &= \frac{1}{2}\textbf{\underline{u}}^T\textbf{\^H}\textbf{\underline{u}} -
 \textbf{\underline{u}}^T\textbf{\^H}\textbf{\underline{u}}^* + \frac{1}{2}\textbf{\underline{u}}^{*T}\textbf{\^H}\textbf{\underline{u}}^*
@@ -205,12 +205,12 @@ and by comparing parts of the same degree we get following equations
 
 \begin{equation}
 \begin{split}
-\textbf{\^F} &= -\textbf{\^H}\textbf{\underline{u}}^* \\
+\textbf{\^c} &= -\textbf{\^H}\textbf{\underline{u}}^* \\
 0 &= \frac{1}{2}\textbf{\underline{u}}^{*T}\textbf{\^H}\textbf{\underline{u}}^*
 \end{split}
 \end{equation}
 
-and finally the solution can be found in a closed-form as $\textbf{\underline{u}}^* = -\textbf{\^H}^{-1}\textbf{\^F}$
+and finally the solution can be found in a closed-form as $\textbf{\underline{u}}^* = -\textbf{\^H}^{-1}\textbf{\^c}$
 
 \subsection{Solving QMPC - constrained}
 \label{cap:qmpc_constrained}

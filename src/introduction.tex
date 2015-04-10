@@ -2,7 +2,7 @@
 
 Unmanned aerial vehicles capable of vertical takeoff and landing have undergone a big boom in past few years. It is mainly thanks to arrival of multirotor helicopters (multicopters). Their capabilities span from being a platform for professional film makers, to toys and hobby products, up to military vehicles built for reconnaissance. These vehicles (fig. \ref{fig:quadru1}) have characteristically several propellers (typically four and more) with fixed pitch angle. The machine's design is usually simple by comparison with a classical helicopter. From the mechanical point of view it has several brushless motors with propellers mounted directly on them. There is a rigid body with utility platform, motor mounts and landing gear. They can operate in situations where the presence of a person could be hazardous (natural disasters) or they can help with work tasks which would otherwise require a very expensive solution e.g. inspection of high-voltage lines. They also find an application in situations where prior technology would not help --- archaeological imaging from low-to-mid altitude.
 
-In most cases such aircraft requires a human operator to fly although it can offer a certain level of automatic assistance. Nowadays the global position system (GPS) receiver is embedded literally in every mobile phone thus it is no surprise that it can help with control of an unmanned aircraft (UAV) when flying outdoors. Commercially available platforms can assist with position hold or even fly to a particular location. Such technology can provide an automatic flight with precision up to $1 \jed{m}$ depending on the GPS, external conditions and the vehicle itself. The scientific community showed that there are methods to increase the precision of UAV control up to centimeters by using a better localization system than GPS (namely Vicon\footnote{Vicon system is base on multiples cameras capturing the object. http://www.vicon.com/}) and implementing advanced algorithms for automatic control \citep{brescianini2013polearobatics, kumar2010grasp}.
+In most cases such aircraft requires a human operator to fly although it can offer a certain level of automatic assistance. Nowadays the global position system (GPS) receiver is embedded literally in every mobile phone thus it is no surprise that it can help with control of an unmanned aircraft (UAV) when flying outdoors. Commercially available platforms can assist with position hold or even fly to a particular location. Such technology can provide an automatic flight with precision up to $1 \jed{m}$ depending on the GPS, external conditions and the vehicle itself. The scientific community showed that there are methods to increase the precision of UAV control up to centimeters by using a better localization system than GPS (namely Vicon\footnote{Vicon system is based on multiples cameras capturing the object. http://www.vicon.com/}) and implementing advanced algorithms for automatic control \citep{brescianini2013polearobatics, kumar2010grasp}.
 
 \begin{figure}[h]
 \centering
@@ -29,13 +29,13 @@ Let us have a controllable multirotor UAV. The task is to design, build and impl
 \label{eq:qmpc_intro}
 \begin{aligned}
 & \min_{\textbf{x} \in \mathbb{R}^{N}}
-& & \mathrm{J}(\textbf{x}) = \frac{1}{2}\textbf{x}^T\textbf{H}\textbf{x} + \textbf{x}^T\textbf{F}\\
+& & \mathrm{J}(\textbf{x}) = \frac{1}{2}\textbf{x}^T\textbf{H}\textbf{x} + \textbf{x}^T\textbf{c}\\
 & \text{s.t.}
 & & \text{constrains on \textbf{x}}
 \end{aligned}
 \end{equation}
 
-where \textbf{x} is the solution that leads to the desired control actions over a certain \textbf{prediction horizon}. A proper method for solving the optimization need to be chosen and implemented on the embedded hardware of the UAV. Previously mentioned tasks should be accompanied by simulation of the system including modeling of measurements, data filtration and the flight itself. There are minor tasks tied to the implementation and hardware design, mainly resolving communication, signal processing, data handling. The final outcome should be verified using variety of experiments testing its capabilities and finally compared to the prior solution used in the laboratory up to now.
+where \textbf{x} is the solution that leads to the desired control actions over a certain \emph{prediction horizon}. A proper method for solving the optimization need to be chosen and implemented on the embedded hardware of the UAV. Previously mentioned tasks should be accompanied by simulation of the system including modeling of measurements, data filtration and the flight itself. There are minor tasks tied to the implementation and hardware design, mainly resolving communication, signal processing, data handling. The final outcome should be verified using variety of experiments testing its capabilities and finally compared to the prior solution used in the laboratory up to now.
 
 \subsection{Previous work}
 \label{cap:prior_work}
@@ -78,15 +78,15 @@ The table \ref{tab:notation} denotes the basic mathematical notation used in thi
 \hline
 Symbol & Description \\
 \hline
-lower or upper case letter, e.g. $n$ & a scalar \\
+lower or upper case letter, e.g. $n$, $N$ & a scalar \\
 bold lowercase letter, e.g. \textbf{x} & a column vector \\ 
 bold uppercase letter, r.g. \textbf{A} & a matrix \\
 $\textbf{x}^T$, $\textbf{A}^T$ & vector and matrix transpose \\
 underlined vector, e.g. \textbf{\underline{x}} & concatenated vectors $\left(\textbf{x}_1^T,\textbf{x}_2^T,...,\textbf{x}_n^T\right)^T$ \\
 \textbf{I} & identity matrix \\
 \textbf{1} & matrix of ones \\
-$x^{(W)}$ & $x$ in coordinate system$W$ \\ 
-$x_{[t]}$, $\textbf{x}_{[t]}$ & $x$, $\textbf{x}_{[t]}$ in the sample time $t$ \\
+$x^{(W)}$ & $x$ in coordinate system $W$ \\ 
+$x_{[t]}$, $\textbf{x}_{[t]}$ & $x$, $\textbf{x}$ in the sample time $t$ \\
 $\mathbb{R}$, $\mathbb{N}$ & set of real and natural numbers \\
 \hline
 \end{tabular}
