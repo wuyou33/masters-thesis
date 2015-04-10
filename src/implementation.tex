@@ -1,7 +1,13 @@
 \section{Implementation aspects}
 \label{cap:Implementation}
 
+Following section shows how the theoretical concept of Kalman filter and MPC (see sections \ref{cap:kalman_filter_theory} and \ref{cap:mpc_theory}) were transferred on the real hardware. Although its implementation may seem easy and it is simple and straightforward when using e.g. Matlab, the transfer of the technology into embedded hardware brings in new challenges. We propose practical refinements that allow execution of MPC on underpowered hardware of the UAV. We present an approach how to exploit the structure of the dynamical system to introduce off-set free tracking with the original MPC formulation. Subsequently we discuss how to take the advantage of objective's structure to optimize it using low memory footprint. Lastly parameters of MPC are tuned to meat the performance requirements (namely computation). The resulting system is further simulated to allow comparison with experimental results.
+
+
+
 \subsection{Implementing Kalman filter}
+
+
 
 \subsubsection{Estimating state disturbances}
 
@@ -13,5 +19,7 @@
 
 \subsubsection{Performance and move blocking}
 \label{cap:implementation_performance}
+
+\subsection{Simulation results}
 
 \subsection{Summary}
