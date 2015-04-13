@@ -1,19 +1,116 @@
 \section{Implementation aspects}
 \label{cap:Implementation}
 
-Following section shows how the theoretical concept of Kalman filter and MPC (see sections \ref{cap:kalman_filter_theory} and \ref{cap:mpc_theory}) were transferred on the real hardware. Although its implementation may seem easy and it is simple and straightforward when using e.g. Matlab, the transfer of the technology into embedded hardware brings in new challenges. We propose practical refinements that allow execution of MPC on underpowered hardware of the UAV. We present an approach how to exploit the structure of the dynamical system to introduce off-set free tracking with the original MPC formulation. Subsequently we discuss how to take the advantage of objective's structure to optimize it having small memory footprint. Lastly parameters of MPC are tuned to meat the performance requirements (namely computation rate). Furthermore the simulation results are presented to allow comparison with experiments.
+Following section shows how the theoretical concept of Kalman filter and MPC (see sections \ref{cap:kalman_filter_theory} and \ref{cap:mpc_theory}) was transferred on the real hardware. Although its implementation may seem easy and it is simple and straightforward when using e.g. Matlab, the transfer of the technology into embedded hardware brings in new challenges. We propose practical refinements that allow execution of MPC on underpowered hardware of the UAV. We present an approach how to exploit the structure of the dynamical system to introduce off-set free tracking with the original MPC formulation. Subsequently we discuss how to take the advantage of objective's structure to optimize it having small memory footprint. Lastly parameters of MPC are tuned to meet the performance requirements (namely computation rate). Furthermore the simulation results are presented to allow comparison with experiments.
 
-
+The final setup comprises of two separate MPC controllers driving both attitude axis. Since the PID altitude controller developed during previous work \citep{endrych2014} is satisfactory for experiments with multiple UAVs, implementation of the MPC for the altitude system was postponed for future work. Because both attitude axis are controlled identically (due to decoupled system description), following chapters contain plots mostly of forward motion of the UAV. The yaw subsystem is left uncontrolled due to absence of data for estimating angle $\phi$ but considering its stability and the order of the dynamical system, appropriate PD controller could be designed to suite our needs.
 
 \subsection{Implementing Kalman filter}
 
+The KF, as it is described in section \ref{cap:kalman_filter_theory}, was firstly simulated in Matlab. In order to provide good estimate all states, one has to identify the measurement noise $\textbf{Q}$ and tune the process noise parameters in \textbf{R}. Practically, setting of kalman filter is done by tuning the ratio between elements of $\textbf{R}$ and $\textbf{Q}$. For the system defined by (\ref{eq:attitude_LTI}) these were stated as follow
 
+\begin{equation}
+\textbf{R}_{x,y} = \begin{bmatrix}
+1 & 0 & 0 \\
+0 & 1 & 0 \\
+0 & 0 & 1 \\
+\end{bmatrix}, 
+\textbf{Q}_{x, y} = \begin{bmatrix}
+150
+\end{bmatrix}
+\label{eq:kf_RQ_simple}
+\end{equation}
+
+The remaining parameters for KF are $\textbf{C}_{x, y} = \left[0, 1, 0\right]$ and LTI system matrices defined as (\ref{eq:attitude_LTI_identified}). Tuning the filter is a very subjective process where one has to take into account several criteria, often contradictory. One need to estimate all states as accurate as possible while having them converge as fast as possible (increasing values of \textbf{R}). On the other hand, it is supposed to eliminate the measurement noise (increasing values of \textbf{Q}) which brings a possibility of incorrect estimate. The rule of thumb is to give a priority to convergence by finding a noise level which is the highest tolerable to allow smooth control. The corresponding ratio (\ref{eq:kf_RQ_simple}) was found roughly in simulation and lately fine-tuned on hardware.
+
+The filter was firstly implemented solely on the xMega MCU. Because the MCU allowed its execution only in a rate around $50\jed{Hz}$ while dedicating all its resources, it was moved on the STM MCU. There the computation is done under $1\jed{ms}$ for both axis.
 
 \subsubsection{Estimating state disturbances}
 
+The kalman filter can be also used to estimate disturbances, when one is able to model them as a state in the LTI system. In our case, these are uncontrollable and unmeasurable states, that have a link into path between the system input and some measured state. Specifically, all disturbances in the system of the UAV can be combined into one force acting on its body. In practice these are for example the wind disturbances and IMU calibration offset. The force can be expressed as an \textit{parasitic} acceleration in the respective attitude axis. 
+
+Let us redefine the attitude LTI system by adding two new states --- $x_d$ representing the disturbance in acceleration and $x_2$ representing the sum of the disturbance and the state $x_1$ that was previously considered as the acceleration. Figure \ref{fig:LTI_with_disturbances} shows the diagram of the newly proposed system 
+
+\begin{figure}[h]	
+\centering
+\begin{tikzpicture}[->,>=stealth',node distance=1.5cm]
+
+	\node[nothing] (vstup) {
+ 	};
+ 	
+	\node[state, right of = vstup, shift = (right:0.5cm)] (kk2) {
+  		$\frac{1}{\tau_1s + 1}$
+ 	};
+ 	
+ 	\node[input, right of = kk2, shift = (right:0.5cm), shift = (down:0.7cm) ] (adder) {
+		+
+ 	};
+ 	
+ 	\node[nothing, below of = kk2, shift = (right:0.3cm)] (disturbance) {
+		$\ddot{x}_d(s)$
+ 	};
+ 	
+	\node[state, right of = adder, shift = (right:0.5cm)] (int1) {
+  		$\frac{1}{s}$
+ 	};
+ 	
+	\node[state, right of = int1, shift = (right:0.5cm)] (int2) {
+  		\large{$\frac{1}{s}$}
+ 	};
+ 	
+	\node[nothing, right of = int2, shift = (right:0.2cm)] (output) {
+ 	};
+
+	\path (vstup.east)+(0.7cm, 0.3cm) node (label0) {\textbf{$u(s)$}};
+	\path (kk2.east)+(0.8cm, 0.3cm) node (label1) {\textbf{$\ddot{x}_1(s)$}};
+	\path (adder.east)+(0.7cm, 0.3cm) node (label2) {\textbf{$\ddot{x}_2(s)$}};
+	\path (int1.east)+(0.7cm, 0.3cm) node (label3) {\textbf{$\dot{x}(s)$}};
+	\path (int2.east)+(0.7cm, 0.3cm) node (label4) {\textbf{$x(s)$}};
+       
+	\path[->] (vstup) edge ($(kk2.west)$);
+	\path[->] ($(kk2.east)$) edge [bend left=15] (adder);
+	\path[->] (disturbance) edge [bend right=15] (adder);
+	\path[->] (adder) edge ($(int1.west)$);
+	\path[->] (int1.east) edge ($(int2.west)$);
+	\path[->] (int2.east) edge (output);
+
+\end{tikzpicture}
+\caption{Diagram of the LTI system with the disturbance estimation.}
+\label{fig:LTI_with_disturbances}
+\end{figure}
+
+where $u(s)$ is the Laplace image of the input signal $u(t)$, and $x(s)$, $\dot{x}(s)$, $\ddot{x}_1(s)$, $\ddot{x}_2(s)$, $\ddot{x}_d(s)$ are Laplace images of $x(t)$, $\dot{x}(t)$, $\ddot{x}_1(t)$, $\ddot{x}_2(t)$, $\ddot{x}_d(t)$ respectively. Furthermore the disturbance can be estimate by the KF by carefully setting the process noise matrix $\textbf{R}$. If we set relatively high variances for states $\ddot{x}_1$, $\ddot{x}_2$ compared to state $\ddot{x}_d$ the filter will estimate $\ddot{x}_d$ by computing discrepancies between estimations from $u$ and corrections from measured $\dot{x}$.
+
+Matrices for the new discrete attitude LTI system states as follows	
+
+\begin{equation}
+\begin{split}
+\mathbf{A}_{x, y} = \begin{bmatrix}
+1 & 0.0114 & 0 & 0 & 0 \\
+0 & 1 & 0.0114 & 0 & 0\\
+0 & 0 & 0 & 1 & 1 \\
+0 & 0 & 0 & 0.9799 & 0 \\
+0 & 0 & 0 & 0 & 1
+\end{bmatrix}, \mathbf{B}_{x, y} = \begin{bmatrix}
+0\\
+0\\
+0\\
+5.0719 \times 10^{-5}\\
+0
+\end{bmatrix}
+\end{split}
+\label{eq:attitude_LTI_big_identified}
+\end{equation}
+
+where the state vectors are $\mathbf{q}_{x} = \left(x, \dot{x}, \ddot{x}_1, \ddot{x}_2, \ddot{x}_d\right)^T$ and $\mathbf{q}_{y} = \left(y, \dot{y}, \ddot{y}_1, \ddot{y}_2, \ddot{y}_d\right)^T$ respectively. This state representation was used in the final implementation and during experiments. One can effectively tune the parameters of KF that the settling time of the disturbance estimation is in order of $100\jed{ms}$ as it is shown in section \ref{cap:momentary_disturbances}. The diagonal of the process noise matrix was set to $\mathrm{diag}(\textbf{R})~=~\left(1, 1, 1, 1, 0.04\right)^T$ in the final implementation. Estimated disturbances can be further used in the control loop to eliminate control offset (see section \ref{cap:offset_free_tracking}). It can be also used for detecting abnormal flying conditions as a part of a failure detection system.
+ 
+
 \subsection{Implementing QMPC}
 
+
+
 \subsubsection{Offset-free tracking}
+\label{cap:offset_free_tracking}
 
 \subsubsection{Input governor}
 
