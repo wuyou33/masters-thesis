@@ -102,19 +102,25 @@ Matrices for the new discrete attitude LTI system states as follows
 \label{eq:attitude_LTI_big_identified}
 \end{equation}
 
-where the state vectors are $\mathbf{q}_{x} = \left(x, \dot{x}, \ddot{x}_1, \ddot{x}_2, \ddot{x}_d\right)^T$ and $\mathbf{q}_{y} = \left(y, \dot{y}, \ddot{y}_1, \ddot{y}_2, \ddot{y}_d\right)^T$ respectively. This state representation was used in the final implementation and during experiments. One can effectively tune the parameters of KF that the settling time of the disturbance estimation is in order of $100\jed{ms}$ as it is shown in section \ref{cap:momentary_disturbances}. The diagonal of the process noise matrix was set to $\mathrm{diag}(\textbf{R})~=~\left(1, 1, 1, 1, 0.04\right)^T$ in the final implementation. Estimated disturbances can be further used in the control loop to eliminate control offset (see section \ref{cap:offset_free_tracking}). It can be also used for detecting abnormal flying conditions as a part of a failure detection system.
+where the state vectors are $\mathbf{q}_{x} = \left(x, \dot{x}, \ddot{x}_1, \ddot{x}_2, \ddot{x}_d\right)^T$ and $\mathbf{q}_{y} = \left(y, \dot{y}, \ddot{y}_1, \ddot{y}_2, \ddot{y}_d\right)^T$ respectively. This state representation was used in the final implementation and during experiments. One can effectively tune the parameters of KF that the settling time of the disturbance estimation is in order of $100\jed{ms}$ as it is shown in section \ref{cap:momentary_disturbances}. The diagonal of the process noise matrix was set to $\mathrm{diag}(\textbf{R})~=~\left(1, 1, 1, 1, 0.04\right)^T$ in the final implementation. Estimated disturbances can be further used in the control loop to eliminate control offset (see section \ref{cap:offset_free_tracking}). It can be also used for detecting abnormal flight conditions as a part of a failure detection system.
  
-
 \subsection{Implementing QMPC}
 
+There are two points of view on model predictive control. It can be either used for trajectory planning or for real-time control solely. Given the dynamical model, set of constraints and roughly defined (even infesible) desired trajectory, it can produce a feasible one (satisfying constraints and the dynamical model) when minimizing a certain objective. In this form, it can be used as an offline trajectory planner \citep{saska2014formations}. On the other hand, when using the MPC for real-time control of the UAV, we suppose that the desired trajectory is already known and that it is feasible. It has a significant impact on the particular formulation of our MPC. If the trajectory is feasible (meaning no state constraints are violated) and it initiates in the current state of the UAV, there will be no state constraints violated (and thus required) in the MPC formulation, otherwise the trajectory is not feasible. Based on these assumptions we propose an implementation of \emph{input constrained QMPC}. Since the feasibility of the desired trajectory may not be guaranteed or the trajectory may not start with the current state of the UAV, we propose a simple \emph{input governor} (see section \ref{cap:input_governor}) which is a recommended technique \citep{rossiter2013mpcpracticalapproach} in place of implementing constraints.
 
+\subsubsection{Input governor}
+\label{cap:input_governor}
+
+In order to provide a trajectory tracking that does not violate state constraints, there are two situations that should be watched over. Firstly, the trajectory itself should satisfy the system dynamics and imposed constraints and secondly the trajectory should start with the current state of the UAV. The \emph{input governor} is a system that modifies the desired trajectory in such way, that it does not violate imposed conditions. The modification does not need to be optimal since our aim is not to produce optimal trajectories for the UAV but to find optimal control actions to drive the system through known trajectories.
 
 \subsubsection{Offset-free tracking}
 \label{cap:offset_free_tracking}
 
-\subsubsection{Input governor}
+The MPC formulation as stated in section \ref{cap:mpc_formulation} does necessary not provide offset-free tracking. In the case of external disturbances or imperfect behavior of the integrated stabilization system, this would lead to steady state control error. There are techniques to solve the problem, the classical one is a \emph{delta input formulation of MPC} \citep{borrelli2007offsetfree}. One could even create an additional integral feedback loop around the MPC controller. But since our estimator is able to observe the disturbance within the system, the classical formulation of MPC is in fact able to control the system without a steady state error \citep{rossiter2013mpcpracticalapproach}. Moreover it has some other useful properties --- there are no windup issues (like with classical integral feedback) and the controller (considering its separation from the estimator) can be completely stateless.
 
 \subsubsection{Storing matrices in memory}
+
+\subsubsection{Tuning of parameters}
 
 \subsubsection{Performance and move blocking}
 \label{cap:implementation_performance}

@@ -72,7 +72,7 @@ Thus it can be simplified into a form using matrices $\textbf{\^A}$ and $\textbf
 \end{equation}
 
 \subsection{Problem formulation - QMPC}
-
+\label{cap:mpc_formulation}
 
 The objective function for QMPC is formulated as sum of squares of weighted control errors combined with weighted control actions. In our case the weight of the last control error is weighted differently than all the previous errors which is denoted by the second summand in (\ref{eq:qmpc_basic_formulation}). By doing that, we can prioritize the final error in the horizon and force the controller to converge to the desired trajectory.
 
