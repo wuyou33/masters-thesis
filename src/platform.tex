@@ -140,7 +140,7 @@ Since we were not interested in creating our own data logger, we have implemente
     \begin{pgfonlayer}{background}
     	\path (atxmega.west |- label1.north)+(-0.6,0.2) node (a) {};
         \path (XBee.south -| stm.east)+(+0.6,-0.5) node (b) {};
-		\path[fill=gray!20,rounded corners, draw=black!50]
+		\path[fill=gray!20, draw=black!50]
             (a) rectangle (b);
     \end{pgfonlayer}
        
@@ -227,14 +227,14 @@ Tasks on STM has much clearer designation. There is also the \emph{CommTask} ser
     \begin{pgfonlayer}{background}
     	\path (controllerstask.west |- label1.north)+(-0.6,0.2) node (a) {};
         \path (logtask.south -| commtask.east)+(+0.6,-0.5) node (b) {};
-		\path[fill=gray!20,rounded corners, draw=black!50]
+		\path[fill=gray!20, draw=black!50]
             (a) rectangle (b);
     \end{pgfonlayer}
     
     \begin{pgfonlayer}{background}
     	\path (commtask2.west |- label2.north)+(-0.6,0.2) node (a) {};
         \path (mpctask.south -| kalmantask.east)+(+0.6,-0.5) node (b) {};
-		\path[fill=gray!20,rounded corners, draw=black!50]
+		\path[fill=gray!20, draw=black!50]
             (a) rectangle (b);
     \end{pgfonlayer}
        

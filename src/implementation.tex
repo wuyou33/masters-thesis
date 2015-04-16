@@ -108,6 +108,19 @@ where the state vectors are $\mathbf{q}_{x} = \left(x, \dot{x}, \ddot{x}_1, \ddo
 
 There are two points of view on model predictive control. It can be either used for trajectory planning or for real-time control solely. Given the dynamical model, set of constraints and roughly defined (even infesible) desired trajectory, it can produce a feasible one (satisfying constraints and the dynamical model) when minimizing a certain objective. In this form, it can be used as an offline trajectory planner \citep{saska2014formations}. On the other hand, when using the MPC for real-time control of the UAV, we suppose that the desired trajectory is already known and that it is feasible. It has a significant impact on the particular formulation of our MPC. If the trajectory is feasible (meaning no state constraints are violated) and it initiates in the current state of the UAV, there will be no state constraints violated (and thus required) in the MPC formulation, otherwise the trajectory is not feasible. Based on these assumptions we propose an implementation of \emph{input constrained QMPC}. Since the feasibility of the desired trajectory may not be guaranteed or the trajectory may not start with the current state of the UAV, we propose a simple \emph{input governor} (see section \ref{cap:input_governor}) which is a recommended technique \citep{rossiter2013mpcpracticalapproach} in place of implementing constraints.
 
+Since optimizing the objective constrained only with input constraints is substantially easier than solving the state-constrained MPC, we can afford to optimize over a larger prediction horizon. It allows the UAV to track dynamic trajectories with greater precision since the controller can be more proactive with regards to future changes in the desired trajectory.  
+
+\subsubsection{Setting parameters}
+\label{cap:implementation_performance}
+
+forma trajektorie
+
+parametry - Q
+
+délka horizontu + počet proměnných
+
+move blocking
+
 \subsubsection{Input governor}
 \label{cap:input_governor}
 
@@ -116,14 +129,11 @@ In order to provide a trajectory tracking that does not violate state constraint
 \subsubsection{Offset-free tracking}
 \label{cap:offset_free_tracking}
 
-The MPC formulation as stated in section \ref{cap:mpc_formulation} does necessary not provide offset-free tracking. In the case of external disturbances or imperfect behavior of the integrated stabilization system, this would lead to steady state control error. There are techniques to solve the problem, the classical one is a \emph{delta input formulation of MPC} \citep{borrelli2007offsetfree}. One could even create an additional integral feedback loop around the MPC controller. But since our estimator is able to observe the disturbance within the system, the classical formulation of MPC is in fact able to control the system without a steady state error \citep{rossiter2013mpcpracticalapproach}. Moreover it has some other useful properties --- there are no windup issues (like with classical integral feedback) and the controller (considering its separation from the estimator) can be completely stateless.
+The MPC formulation as stated in section \ref{cap:mpc_formulation} does not necessary provide offset-free tracking. In the case of external disturbances or imperfect behavior of the integrated stabilization system, this would lead to steady state control error. There are several techniques to solve the problem, the classical one is a \emph{delta input formulation of MPC} \citep{borrelli2007offsetfree}. One could even create an additional integral feedback loop around the MPC controller. But since our estimator is able to observe the disturbance within the system, the classical formulation of MPC is in fact able to control the system without a steady state error \citep{rossiter2013mpcpracticalapproach}. Moreover it has some other useful properties --- there are no windup issues (like with classical integral feedback) and the controller (considering its separation from the estimator) can be completely stateless. 
+
+With this approach, the controller is able to compensate not only for small and steady disturbances, but it creates adequate actions even for sudden and momentary disturbances. See section \ref{cap:momentary_disturbances} for results of the experiments.
 
 \subsubsection{Storing matrices in memory}
-
-\subsubsection{Tuning of parameters}
-
-\subsubsection{Performance and move blocking}
-\label{cap:implementation_performance}
 
 \subsection{Simulation results}
 
