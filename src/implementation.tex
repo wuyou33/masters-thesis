@@ -108,18 +108,68 @@ where the state vectors are $\mathbf{q}_{x} = \left(x, \dot{x}, \ddot{x}_1, \ddo
 
 There are two points of view on model predictive control. It can be either used for trajectory planning or for real-time control solely. Given the dynamical model, set of constraints and roughly defined (even infesible) desired trajectory, it can produce a feasible one (satisfying constraints and the dynamical model) when minimizing a certain objective. In this form, it can be used as an offline trajectory planner \citep{saska2014formations}. On the other hand, when using the MPC for real-time control of the UAV, we suppose that the desired trajectory is already known and that it is feasible. It has a significant impact on the particular formulation of our MPC. If the trajectory is feasible (meaning no state constraints are violated) and it initiates in the current state of the UAV, there will be no state constraints violated (and thus required) in the MPC formulation, otherwise the trajectory is not feasible. Based on these assumptions we propose an implementation of \emph{input constrained QMPC}. Since the feasibility of the desired trajectory may not be guaranteed or the trajectory may not start with the current state of the UAV, we propose a simple \emph{input governor} (see section \ref{cap:input_governor}) which is a recommended technique \citep{rossiter2013mpcpracticalapproach} in place of implementing constraints.
 
-Since optimizing the objective constrained only with input constraints is substantially easier than solving the state-constrained MPC, we can afford to optimize over a larger prediction horizon. It allows the UAV to track dynamic trajectories with greater precision since the controller can be more proactive with regards to future changes in the desired trajectory.  
+Since optimizing the objectives, constrained only by input constraints is substantially easier than solving the state-constrained MPC, we can afford to optimize over a larger prediction horizon. It allows the UAV to track dynamic trajectories with greater precision since the controller can be more proactive with regards to future changes in the desired trajectory.  
 
-\subsubsection{Setting parameters}
+\subsubsection{Controller parameters}
 \label{cap:implementation_performance}
 
-forma trajektorie
+There are several parameters whose settings have an impact on performance of the controller. They are bound together by its computation rate. Experiments have shown that the controller needs to be executed in the rate of at least $20\jed{Hz}$ to supply sufficient control actions. One have to choose a horizon length together with the number of variables. With it comes a choice of the particular move blocking setup. After an extensive testing, we converged to horizon length of 200 steps ($2.2\jed{s}$) with 20 variables in the objective function. They are distributed in an exponential way over the horizon. First 10 variables directly correspond to first 10 control actions. Another 9 variables cover control actions evenly up to the 100th one. The last variable sets the control action for the last 100 steps. Table \ref{tab:mpc_parameters} shows the overview of the parameters.
 
-parametry - Q
+\begin{table}
+\centering
+\begin{tabular}{ll}
+\hline
+Horizon length & 200 steps, $2.2\jed{s}$ \\
+Number of variables & 20 \\
+Move blocking & exponential-like \\
+Constraints & input constraints \\
+MPC rate & 30\jed{Hz} \\
+\hline
+\end{tabular}
+\caption{Parameters of our MPC implementation.}
+\label{tab:mpc_parameters}
+\end{table}
 
-délka horizontu + počet proměnných
+Our system presumes desired trajectories in the form of position states only. There is no need to require the information about the desired velocity of the UAV, unless its speed is the only state that should be controlled without demanding the control of UAV's position. One can specify it by setting respective elements of matrices $\textbf{Q}$, $\textbf{S}$ and $\textbf{P}$ (consequently merged to \textbf{\^Q}, \textbf{\^P}) to zero. This leaves us basically three parameters to set in order to tune the performance of the controller. These are the weights for penalizing position errors and control actions as defined in section \ref{cap:mpc_formulation}, specifically tuned as follows
 
-move blocking
+\begin{equation}
+\textbf{Q} = \begin{bmatrix}
+1.07 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0
+\end{bmatrix}, \textbf{S} = \begin{bmatrix}
+10 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0
+\end{bmatrix}, \textbf{P} = \begin{bmatrix}
+0.0000025
+\end{bmatrix}
+\label{eq:QSP_matrices}
+\end{equation}
+
+Tuning of MPC controller is a different process than tuning of e.g. PID controller. Its parameters (diagonals of matrices in (\ref{eq:QSP_matrices})) have a meaningful interpretation --- they correspond to a particular state and the effect of changing them can directly observed. A common rule of thumb is to firstly normalize the diagonal of \textbf{Q} according to a \textit{'usual'} control error of that state (e.g. if the \textit{'usual'} error of the velocity could be $0.1\jed{ms^{-1}}$ the corresponding element of \textbf{Q} is set to $1/0.1$). For the start, this helps to normalize the penalties, since each state can hypothetically have a different unit of measurement and the typical range of values. Furthermore TADY POPSAT JAK SE NASTAVUJE PENALIZACE AKCNICH ZASAHU + POTOM PODMINENOST KVADRATICKE FORMY VIZ FIGURE \ref{fig:quad_form_conditionality}.
+
+\begin{figure}[htbp]
+\centering
+
+\begin{subfigure}[b]{0.5\textwidth}
+	\includegraphics[width=\textwidth]{fig/quadform1.eps}
+	\caption{well-conditioned quadratic form}
+	\label{fig:board_top}
+\end{subfigure}%
+\begin{subfigure}[b]{0.5\textwidth}
+	\includegraphics[width=\textwidth]{fig/quadform2.eps}
+	\caption{ill-conditioned quadratic form}
+	\label{fig:board_bottom}
+\end{subfigure}
+
+\caption{Illustrative example of 2-dimensional quadratic form.}
+\label{fig:quad_form_conditionality}
+\end{figure}
 
 \subsubsection{Input governor}
 \label{cap:input_governor}
