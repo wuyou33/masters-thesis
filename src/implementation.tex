@@ -113,7 +113,7 @@ Since optimizing the objectives, constrained only by input constraints is substa
 \subsubsection{Controller parameters}
 \label{cap:implementation_performance}
 
-There are several parameters whose settings have an impact on performance of the controller. They are bound together by its computation rate. Experiments have shown that the controller needs to be executed in the rate of at least $20\jed{Hz}$ to supply sufficient control actions. One have to choose a horizon length together with the number of variables. With it comes a choice of the particular move blocking setup. After an extensive testing, we converged to horizon length of 200 steps ($2.2\jed{s}$) with 20 variables in the objective function. They are distributed in an exponential way over the horizon. First 10 variables directly correspond to first 10 control actions. Another 9 variables cover control actions evenly up to the 100th one. The last variable sets the control action for the last 100 steps. Table \ref{tab:mpc_parameters} shows the overview of the parameters.
+There are several parameters whose settings have an impact on performance of the controller. Some of them are tied up by execution rate of the MPC, namely the number of decision variables and the length of the prediction horizon.  After an extensive testing, we converged to horizon length of 200 steps ($2.2\jed{s}$) with 20 variables in the objective function. They are distributed in an exponential way over the horizon. First 10 variables directly correspond to first 10 control actions. Another 9 variables cover control actions evenly up to the 100th one. The last variable sets the control action for the last 100 steps. Table \ref{tab:mpc_parameters} shows the overview of the parameters.
 
 \begin{table}
 \centering
