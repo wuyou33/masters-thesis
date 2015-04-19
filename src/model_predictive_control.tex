@@ -86,6 +86,7 @@ The control error is denoted by $\textbf{e}_{[t]} = \textbf{x}_{[t]} - \textbf{\
 
 \begin{equation}
 \mathrm{J}(\underline{\textbf{u}}) = \frac{1}{2}\textbf{\underline{u}}^T\underbrace{\left(\textbf{\^B}^T\textbf{\^Q}\textbf{\^B} + \textbf{\^P}\right)}_{\textbf{\^H}}\textbf{\underline{u}} + \textbf{\underline{u}}^T\underbrace{\left(\textbf{\^Q}\textbf{\^B}\right)^T\left(\textbf{\^A}\textbf{x}_{[0]} - \textbf{\underline{\~x}}\right)}_{\textbf{\^c}}
+\label{eq:mpc_objective_large}
 \end{equation}
 
 where $\textbf{\underline{\~x}} = (\textbf{\underline{\~x}}_{[0]}^T, \textbf{\underline{\~x}}_{[1]}^T, ..., \textbf{\underline{\~x}}_{[M-1]}^T)^T$ is the reference trajectory for all states consisting of a state vector for each step of the prediction horizon, \mbox{$\textbf{\^Q} \in \mathbb{R}^{nM \times nM}$} and $\textbf{\^P} \in \mathbb{R}^{kM\times kM}$ are weighting matrices denoted in (\ref{eq:qmpc_weighting_matrices}). Matrices $\textbf{\^H} \in \mathbb{R}^{kM\times kM}$ and $\textbf{\^c} \in \mathbb{R}^{kM}$ then define the quadratic form. 

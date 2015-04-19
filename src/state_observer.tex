@@ -163,7 +163,7 @@ where $\textbf{K}_{[t]}$ is the Kalman gain, $\mathbf{I}$ is the identity matrix
 The Kalman filter algorithm was presented in order to estimate all system states and filter measured data. Its performance can be shown on subsequence of data (forward movement) used in chapter \ref{cap:attitude_subsystem_identification}. The figure \ref{fig:kalman1} shows the velocity of UAV measured by onboard sensor. Among others, it is able to estimate all other states including the position and the acceleration which is essential for further use of model predictive controller. It can be tuned to estimate noisy signal with relatively small delay compared to e.g. exponential filter\footnote{The exponential filter is an easy technique where filtered value is computed as $\textbf{\^x}_{[t]} = \alpha\textbf{\^x}_{[t-1]} + (1-\alpha)\textbf{P}\textbf{z}_{[t]}$}. For particular parameters of KF that were used in the final implementation see chapter \ref{cap:Implementation} where also an extended form of LTI system is presented to provide a disturbance estimation. For further reading about the KF see \citep{faragher2012understandingKF} which explains it in more details as well as very intuitively.
 
 \begin{figure}[h]
-\includegraphics[width=1\textwidth]{fig/kalman1.eps} 
+\includegraphics[width=0.99\textwidth]{fig/kalman1.eps} 
 \caption{Kalman filter tracking a noisy singal of UAV's forward speed. See the difference between filtered values, that might have a significant effect on the control.}
 \label{fig:kalman1}
 \end{figure}
