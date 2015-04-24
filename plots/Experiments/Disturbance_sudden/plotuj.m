@@ -1,13 +1,13 @@
 clear all
 
-a = load('LOG-9792.TXT');
+a = load('LOG-9913.TXT');
 
 % LOG-9794 = prvni let, vetrak cca 1.5m daleko
 % LOG-9793 = druhy let, vetrak blize (1m), nakonci vypnuty regulator
 % LOG-9702 = treti let, vetrak blize
 
-from = 500;
-to = size(a, 1)-550;
+from = 700;
+to = size(a, 1)-500;
 
 mpcEnabled = 1;
 
@@ -22,7 +22,7 @@ hold off
 plot(time, a(from:to, 7).*mpcEnabled, 'r', 'LineWidth', 1.5);
 hold on
 plot(time, a(from:to, 1).*mpcEnabled, 'b', 'LineWidth', 1.5);
-axis([0 time(end) -0.2 0.5]);
+axis([0 time(end) -0.8 0.7]);
 title('Position');
 xlabel('Time [s]');
 ylabel('Position [m]');
@@ -31,17 +31,17 @@ legend('Setpoint', 'Position');
 subplot(3, 1, 2);
 hold off
 plot(time, a(from:to, 11).*mpcEnabled, 'r', 'LineWidth', 1.5);
-axis([0 time(end) -80 120]);
+axis([0 time(end) -700 700]);
 title('Control action');
-legend('Control action');
 xlabel('Time [s]');
 ylabel('Output [-]');
+legend('Control action');
 
 subplot(3, 1, 3);
 hold off
 plot(time, a(from:to, 5).*mpcEnabled, 'b', 'LineWidth', 1.5);
-axis([0 time(end) -0.1 0.13]);
-title('Estimated acceleration error (wind disturbance)');
+axis([0 time(end) -0.15 0.2]);
+title('Estimated acceleration error (disturbance by hand)');
 xlabel('Time [s]');
 ylabel('Acceleration error [m/s^2]');
 legend('Disturbance');

@@ -186,7 +186,7 @@ xd_pure_integration(1) = x(1, 1);
 %% support matrices
 
 % process noise
-R_kalman = diag([1, 1, 1, 1, 0.02]);
+R_kalman = diag([1, 1, 1, 1, 0.04]);
 
 % measurement noise
 Q_kalman = diag([150]);
@@ -260,15 +260,30 @@ end
 
 hFig = figure(10);
 
+subplot(1, 2, 1);
+
 hold off
 plot(linspace(0, dt*(i-1), i), x_ref(1:i), 'r', 'LineWidth', 2.5);
 hold on
 plot(linspace(0, dt*(i-1), i), x(1, 1:i), 'b', 'LineWidth', 1.5);
 title('Position');
-legend('Desired position', 'Simulated position', 'Location', 'NorthEast');
+legend('Setpoint', 'Position', 'Location', 'NorthEast');
 xlabel('Time [s]');
 ylabel('Position [m]');
 axis([0 dt*i -1.25 2.1]);
+
+subplot(1, 2, 2);
+
+hold off
+plot(time(1:end-1), measurement(2, 1:(i-1)), 'r', 'LineWidth', 1.5);
+hold on
+plot(time(1:end-1), estimate(2, 1:(i-1)), 'b', 'LineWidth', 1.5);
+% plot(time(1:end-1), ones(1, length(time(1:end-1)))*0.35, 'k--');
+title('Speed');
+legend('Simulated measurement', 'Estimated speed', 'Speed limit');
+xlabel('Time [s]');
+ylabel('Velocity [m/s]');
+axis([0 dt*i -0.5 0.9]);
 
 set(hFig, 'Units', 'centimeters');
 set(hFig, 'Position', [0 0 21 21*0.5625/2])

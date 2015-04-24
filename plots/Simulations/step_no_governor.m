@@ -207,20 +207,20 @@ for i=2:simu_len
     [estimate(:, i), kalmanCovariance] = kalman(estimate(:, i-1), kalmanCovariance, measurement(2, i-1), u_sat, A, B, R_kalman, Q_kalman, C_kalman); 
         
 % Input governor
-    reference = estimate(1, i);
-    for j=2:horizon_len
-        diference = reference(j-1) - x_ref(j+i-1);
-        
-        if (diference > max_speed*dt)
-            diference = max_speed*dt;
-        elseif (diference < -max_speed*dt)
-            diference = -max_speed*dt;
-        end
-        
-        reference(j) = reference(j-1) - diference;
-    end
+%     reference = estimate(1, i);
+%     for j=2:horizon_len
+%         diference = reference(j-1) - x_ref(j+i-1);
+%         
+%         if (diference > max_speed*dt)
+%             diference = max_speed*dt;
+%         elseif (diference < -max_speed*dt)
+%             diference = -max_speed*dt;
+%         end
+%         
+%         reference(j) = reference(j-1) - diference;
+%     end
 
-%     reference(1:horizon_len) = x_ref(i:i+horizon_len-1);
+    reference(1:horizon_len) = x_ref(i:i+horizon_len-1);
 
     my_ref = zeros(n_states*horizon_len, 1);
     my_ref(1:n_states:n_states*horizon_len, 1) = reference;
@@ -267,10 +267,10 @@ plot(linspace(0, dt*(i-1), i), x_ref(1:i), 'r', 'LineWidth', 1.5);
 hold on
 plot(linspace(0, dt*(i-1), i), x(1, 1:i), 'b', 'LineWidth', 1.5);
 title('Position');
-legend('Desired position', 'Simulated position', 'Location', 'NorthEast');
+legend('Setpoint', 'Position', 'Location', 'NorthEast');
 xlabel('Time [s]');
 ylabel('Position [m]');
-axis([0 dt*i -0.1 1.7]);
+axis([0 dt*i -0.2 2.6]);
 
 set(hFig, 'Units', 'centimeters');
 set(hFig, 'Position', [0 0 21 21*0.5625/2])
@@ -281,11 +281,11 @@ hold off
 plot(time(1:end-1), measurement(2, 1:(i-1)), 'r', 'LineWidth', 1.5);
 hold on
 plot(time(1:end-1), estimate(2, 1:(i-1)), 'b', 'LineWidth', 1.5);
-title('Velocity');
-legend('Measurements', 'Estimation');
+title('Speed');
+legend('Simulated measurement', 'Estimated speed');
 xlabel('Time [s]');
-ylabel('Velocity [m/s]');
-axis([0 dt*i -0.3 1.3]);
+ylabel('Speed [m/s]');
+axis([0 dt*i -0.3 2]);
 
 set(hFig, 'Units', 'centimeters');
 set(hFig, 'Position', [0 0 21 21*0.5625/2])

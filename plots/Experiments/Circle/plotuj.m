@@ -22,33 +22,32 @@ dt = 0.033;
 time = integrate(ones(1, length(from:to)).*dt);
 
 hFig = figure(1)
-subplot(2, 1, 1);
+subplot(1, 2, 1);
 hold off
 plot(time, a(from:to, 7), 'r', 'LineWidth', 1.5);
 hold on
 plot(time, a(from:to, 1), 'b', 'LineWidth', 1.5);
-
-axis([0 time(end) -1.3 1.3]);
+axis([0 time(end) -1.15 2]);
 title('Position');
 xlabel('Time [s]');
 ylabel('Position [m]');
 legend('Desired position', 'Estimated by KF');
 
-subplot(2, 1, 2);
+subplot(1, 2, 2);
 hold off
 plot(time, a(from:to, 9), 'r', 'LineWidth', 1.5);
 hold on
 plot(time, a(from:to, 3), 'b', 'LineWidth', 1.5);
-% plot(time, ones(1, length(from:to)).*-speedLimit, 'color', 'black');
-% plot(time, ones(1, length(from:to)).*speedLimit, 'color', 'black');
-axis([0 time(end) -0.6 0.6]);
+plot(time, ones(1, length(from:to)).*-speedLimit, 'k--');
+plot(time, ones(1, length(from:to)).*speedLimit, 'k--');
+axis([0 time(end) -0.5 1.2]);
 title('Speed');
 xlabel('Time [s]');
 ylabel('Speed [m/s]');
-legend('Measured by px4flow', 'Estimated by KF');
+legend('Measured by px4flow', 'Estimated by KF', 'Speed limit');
 
 set(hFig, 'Units', 'centimeters');
-set(hFig, 'Position', [0 0 21 21*0.5625])
+set(hFig, 'Position', [0 0 21 21*0.5625/2])
 
 drawnow;
 

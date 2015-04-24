@@ -273,7 +273,7 @@ plot(linspace(0, dt*(i-1), i), x_ref(1:i), 'r', 'LineWidth', 1.5);
 hold on
 plot(linspace(0, dt*(i-1), i), x(1, 1:i), 'b', 'LineWidth', 1.5);
 title('Position');
-legend('Desired position', 'Simulated position', 'Location', 'NorthEast');
+legend('Setpoint', 'Position', 'Location', 'NorthEast');
 xlabel('Time [s]');
 ylabel('Position [m]');
 axis([0 dt*i -0.1 0.15]);

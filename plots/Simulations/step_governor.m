@@ -267,7 +267,7 @@ plot(linspace(0, dt*(i-1), i), x_ref(1:i), 'r', 'LineWidth', 1.5);
 hold on
 plot(linspace(0, dt*(i-1), i), x(1, 1:i), 'b', 'LineWidth', 1.5);
 title('Position');
-legend('Desired position', 'Simulated position', 'Location', 'NorthEast');
+legend('Setpoint', 'Position', 'Location', 'NorthEast');
 xlabel('Time [s]');
 ylabel('Position [m]');
 axis([0 dt*i -0.1 1.75]);
@@ -282,8 +282,8 @@ plot(time(1:end-1), measurement(2, 1:(i-1)), 'r', 'LineWidth', 1.5);
 hold on
 plot(time(1:end-1), estimate(2, 1:(i-1)), 'b', 'LineWidth', 1.5);
 plot(time(1:end-1), ones(1, length(time(1:end-1)))*0.34, 'k--');
-title('Velocity');
-legend('Measurements', 'Estimation', 'Velocity limit');
+title('Speed');
+legend('Simulated measurement', 'Estimated speed', 'Speed limit');
 xlabel('Time [s]');
 ylabel('Velocity [m/s]');
 axis([0 dt*i -0.25 1]);
