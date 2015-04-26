@@ -151,9 +151,7 @@ time(1) = 0;
 % aileron_pos = aileron_pos - mean(aileron_pos);
 
 % reference position
-x_ref = 0;
-
-x_ref(300:3000) = 1;
+x_ref = zeros(1, 3000);
 
 reference = zeros(1, horizon_len);
 
@@ -172,7 +170,7 @@ u_hist(1) = 0;
 saturace = 800;
 
 % max speed
-max_speed = 1;
+max_speed = 0.35;
 
 u_sat = 0;
 
@@ -207,20 +205,20 @@ for i=2:simu_len
     [estimate(:, i), kalmanCovariance] = kalman(estimate(:, i-1), kalmanCovariance, measurement(2, i-1), u_sat, A, B, R_kalman, Q_kalman, C_kalman); 
         
 % Input governor
-%     reference = estimate(1, i);
-%     for j=2:horizon_len
-%         diference = reference(j-1) - x_ref(j+i-1);
-%         
-%         if (diference > max_speed*dt)
-%             diference = max_speed*dt;
-%         elseif (diference < -max_speed*dt)
-%             diference = -max_speed*dt;
-%         end
-%         
-%         reference(j) = reference(j-1) - diference;
-%     end
+    reference = estimate(1, i);
+    for j=2:horizon_len
+        diference = reference(j-1) - x_ref(j+i-1);
+        
+        if (diference > max_speed*dt)
+            diference = max_speed*dt;
+        elseif (diference < -max_speed*dt)
+            diference = -max_speed*dt;
+        end
+        
+        reference(j) = reference(j-1) - diference;
+    end
 
-    reference(1:horizon_len) = x_ref(i:i+horizon_len-1);
+%     reference(1:horizon_len) = x_ref(i:i+horizon_len-1);
 
     my_ref = zeros(n_states*horizon_len, 1);
     my_ref(1:n_states:n_states*horizon_len, 1) = reference;
@@ -281,17 +279,18 @@ hold off
 plot(time(1:end-1), measurement(2, 1:(i-1)), 'r', 'LineWidth', 1.5);
 hold on
 plot(time(1:end-1), estimate(2, 1:(i-1)), 'b', 'LineWidth', 1.5);
+plot(time(1:end-1), ones(1, length(time(1:end-1)))*0.34, 'k--');
 title('Speed');
-legend('Simulated measurement', 'Estimated speed');
+legend('Simulated measurement', 'Estimated speed', 'Speed limit');
 xlabel('Time [s]');
-ylabel('Speed [m/s]');
-axis([0 dt*i -0.25 1.5]);
+ylabel('Velocity [m/s]');
+axis([0 dt*i -0.25 1]);
 
 set(hFig, 'Units', 'centimeters');
 set(hFig, 'Position', [0 0 21 21*0.5625/2])
 
 drawnow;
 
-pause(1);
+pause(2);
 
 tightfig(hFig);
