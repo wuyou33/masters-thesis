@@ -33,5 +33,8 @@ pause(2);
 
 tightfig(hFig);
 
+%% 
+
 std = std(a(from:to, 1))
 max = max(abs(a(from:to, 1)))
+mean = mean(a(from:to, 1))

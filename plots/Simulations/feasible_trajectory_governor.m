@@ -288,4 +288,8 @@ axis([0 dt*i -0.5 0.9]);
 set(hFig, 'Units', 'centimeters');
 set(hFig, 'Position', [0 0 21 21*0.5625/2])
 
+drawnow;
+
+pause(2);
+
 tightfig(hFig);
