@@ -22,7 +22,7 @@ axis([0 time(end) -1 1]);
 title('Position');
 xlabel('Time [s]');
 ylabel('Position [m]');
-legend('Setpoint', 'Position from KF');
+legend('Desired position', 'Estimated by KF');
 
 set(hFig, 'Units', 'centimeters');
 set(hFig, 'Position', [0 0 21 21*0.5625/2])

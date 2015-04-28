@@ -6,7 +6,7 @@ a = load('LOG-9792.TXT');
 % LOG-9793 = druhy let, vetrak blize (1m), nakonci vypnuty regulator
 % LOG-9702 = treti let, vetrak blize
 
-from = 500;
+from = 550;
 to = size(a, 1)-550;
 
 mpcEnabled = 1;
@@ -26,7 +26,7 @@ axis([0 time(end) -0.2 0.5]);
 title('Position');
 xlabel('Time [s]');
 ylabel('Position [m]');
-legend('Setpoint', 'Position');
+legend('Desired position', 'Estimated by KF');
 
 subplot(3, 1, 2);
 hold off

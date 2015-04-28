@@ -25,7 +25,7 @@ axis([0 time(end) -0.2 1.8]);
 title('Elevator position');
 xlabel('Time [s]');
 ylabel('Position [m]');
-legend('Setpoint', 'Position');
+legend('Desired position', 'Estimated by KF');
 
 subplot(1, 2, 2);
 hold off

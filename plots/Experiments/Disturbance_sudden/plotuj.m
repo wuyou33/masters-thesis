@@ -26,7 +26,7 @@ axis([0 time(end) -0.8 0.7]);
 title('Position');
 xlabel('Time [s]');
 ylabel('Position [m]');
-legend('Setpoint', 'Position');
+legend('Desired position', 'Estimated by KF');
 
 subplot(3, 1, 2);
 hold off
