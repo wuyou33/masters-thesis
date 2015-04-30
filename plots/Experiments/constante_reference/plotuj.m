@@ -6,7 +6,8 @@ dt = 0.033;
 
 from = 25/dt;
 % to = from + 30/dt;
-to = size(a, 1)-3/dt;
+% to = size(a, 1)-3/dt;
+to = from + 500;
 
 mpcEnabled = 1;
 
@@ -32,6 +33,11 @@ drawnow;
 pause(2);
 
 tightfig(hFig);
+
+%%
+
+figure(2);
+plot(time, a(from:to, 9).*mpcEnabled, 'r', 'LineWidth', 1.5);
 
 %% 
 

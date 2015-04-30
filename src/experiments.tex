@@ -139,7 +139,7 @@ The UAV was tested for its capability to reject wind disturbances by setting a $
 \subsubsection{Momentary disturbances}
 \label{cap:momentary_disturbances}
 
-The last experiment, shown in the compilation video, aimed to test the system's capability of rejecting momentary disturbances. Figure \ref{fig:experiment_momentary_disturbances} shows a forward motion of the UAV while it is being repeatedly dragged by hand. These disturbances were short and sudden and their estimate has relatively short raise time, comparing to those in previous experiment. Gray areas denote the moments when the UAV was dragged away. One can spot overshoots in the position signal. They can be explained by the remaining disturbance in the estimate --- the controller accounted for a disturbance, that was not actually effecting the UAV at the moment. See Appendix \ref{ape:experiments} for additional data from experiments.
+Following experiment, shown in the compilation video, aimed to test the system's capability of rejecting momentary disturbances. Figure \ref{fig:experiment_momentary_disturbances} shows a forward motion of the UAV while it is being repeatedly dragged by hand. These disturbances were short and sudden and their estimate has relatively short raise time, comparing to those in previous experiment. Gray areas denote the moments when the UAV was dragged away. One can spot overshoots in the position signal. They can be explained by the remaining disturbance in the estimate --- the controller accounted for a disturbance, that was not actually effecting the UAV at the moment. See Appendix \ref{ape:experiments} for additional data from experiments with disturbances.
 
 \begin{figure}[h]
 \centering
@@ -174,6 +174,78 @@ The last experiment, shown in the compilation video, aimed to test the system's 
 	\end{tikzpicture}
 \caption{Experiment with tracking constant setpoint while being under the influence of momentary disturbances. The UAV was dragged by hand which is indicated by the gray areas.}
 \label{fig:experiment_momentary_disturbances}
+\end{figure}
+
+\vfill
+
+\subsection{Outdoor experiment --- longer trajectory}
+
+Following experiment was the last experiment, conducted to present the UAV's capability of autonomous operation not only in indoor (laboratory) conditions, but also in a general outdoor area. The UAV was supposed to track a precomputed trajectory with 1 minute duration. Figure \ref{fig:experiment_venku_sipky} shows a photo that illustrates the course of the experiment\footnote{The photo was created by stitching multiple images from the video.} while figure \ref{fig:experiment_venku_plot} shows the plot of onboard data including desired and estimated position. The experiment was conducted under the influence of mild and steady breeze.
+
+\begin{figure}[H]
+\centering
+
+\begin{subfigure}[b]{0.5\textwidth}
+	\centering
+\begin{tikzpicture}
+		\node[anchor=south west,inner sep=0] (a) at (0,0) {\includegraphics[width=0.9\textwidth]{fig/experiment7_stitch.jpg}};
+		\begin{scope}[x={(a.south east)},y={(a.north west)}]
+
+		%\draw[help lines,xstep=.1,ystep=.1] (0,0) grid (1,1);	
+		
+%        \draw[white,ultra thick,rounded corners] (0.55,0.50) rectangle (0.7,0.7);
+%        \draw (0.58,0.655) node [text=white] {\textbf{1}};
+        
+
+		\draw[-latex, color=white, ultra thick] (0.22,0.28) -- (0.425,0.6);   
+		\draw[-latex, color=white, thick] (0.47,0.68) -- (0.52,0.75);   
+		\draw[-latex, color=white, thick] (0.6,0.8) -- (0.74,0.8);   
+		\draw[-latex, color=white, thick] (0.75,0.78) -- (0.705,0.755);      
+		\draw[-latex, color=white, thick] (0.7,0.74) -- (0.74,0.715);       
+		\draw[-latex, color=white, thick] (0.74,0.66) -- (0.6,0.57);       
+		\draw[-latex, color=white, very thick] (0.58,0.5) -- (0.75,0.35);          
+		\draw[-latex, color=white, ultra thick] (0.7,0.2) arc (70:110:0.6);
+		%\node[] at (0.25,0.92) {Disturbance started};    
+		
+		%\draw[-latex] (0.75,0.9) -- (0.795,0.81);    
+		%\node[] at (0.65,0.92) {Disturbance went off};  
+        
+    \end{scope}
+	\end{tikzpicture}
+	\caption{image stitched from the video}
+	\label{fig:experiment_venku_sipky}
+\end{subfigure}%
+\begin{subfigure}[b]{0.5\textwidth}
+	\centering
+	\includegraphics[width=\textwidth]{fig/experiment7_3D.eps}
+	\caption{visualization of onboard experiment}
+	\label{fig:experiment_venku_plot}
+\end{subfigure}
+
+\caption{Experiment with longer trajectory conducted outdoors.}
+\label{fig:experiment_venku}
+\end{figure}
+
+Most of previously presented situations can be seen in the compilation video. It is accompanied by data logged onboard the UAV, render in the view (see figure \ref{fig:video1}). The estimated position is also fitted with the estimated force, acting on the UAV. The outdoor video is also accompanied with the position plot (figure \ref{fig:video2}).
+
+\begin{figure}[H]
+\centering
+
+\begin{subfigure}[b]{0.5\textwidth}
+	\centering
+	\includegraphics[width=0.9\textwidth]{fig/experiment1_video.jpg}
+	\caption{\url{https://youtu.be/lPy7w-GUbw4}}
+	\label{fig:video1}
+\end{subfigure}%
+\begin{subfigure}[b]{0.5\textwidth}
+	\centering
+	\includegraphics[width=0.9\textwidth]{fig/experiment2_video.jpg}
+	\caption{\url{https://youtu.be/iqgL1H_DCmU}}
+	\label{fig:video2}
+\end{subfigure}
+
+\caption{Two videos with onboard data rendered --- a) compilation video, b) long trajectory video.}
+\label{fig:videos}
 \end{figure}
 
 \subsection{Summary and comparison with previous work}
