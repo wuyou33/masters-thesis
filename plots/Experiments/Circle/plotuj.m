@@ -5,8 +5,14 @@ a = load('LOG-9916.TXT');
 % bezva super venku vítr 
 % a = load('LOG00116.TXT');
 
-from = 500;
-to = from+1300;
+% from = 500;
+% to = from+1300;
+
+dt = 0.033;
+
+% pro vypocet statistiky vezmu cely experiment
+from = 500+round(10/dt);
+to = from+2800;
 
 % from = 1;
 % to = size(a, 1);
@@ -17,8 +23,6 @@ a(:, 1) = a(:, 1).*mpcEnabled;
 a(:, 2) = a(:, 2).*mpcEnabled;
 
 speedLimit = 0.35;
-
-dt = 0.033;
 time = integrate(ones(1, length(from:to)).*dt);
 
 hFig = figure(1)
@@ -79,7 +83,7 @@ pause(2);
 
 tightfig(hFig);
 
-%% 
-
-max_deviation = max(abs(a(from:to, 7) - a(from:to, 1)))
-standard_deviation = std(a(from:to, 7) - a(from:to, 1))
+stdx = std(a(from:to, 1) - a(from:to, 7))
+stdy = std(a(from:to, 2) - a(from:to, 8))
+maxx = max(abs(a(from:to, 1) - a(from:to, 7)))
+maxy = max(abs(a(from:to, 2) - a(from:to, 8)))

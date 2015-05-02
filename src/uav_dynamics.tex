@@ -22,8 +22,8 @@ Assuming a complete decoupling of the system, the attitude dynamics can be model
 
 \begin{equation}
 \begin{split}
-\ddot{x}^W &= \frac{U}{m}\left(\sin\psi\cos\phi + \sin\theta\sin\phi\right),\\
-\ddot{y}^W &= \frac{U}{m}\left(\sin\theta\cos\phi + \sin\psi\sin\phi\right),\\
+\ddot{x}^{(W)} &= \frac{U}{m}\left(\sin\psi\cos\phi + \sin\theta\sin\phi\right),\\
+\ddot{y}^{(W)} &= \frac{U}{m}\left(\sin\theta\cos\phi + \sin\psi\sin\phi\right),\\
 \end{split}
 \end{equation}
 
@@ -31,8 +31,8 @@ where $U$ is a the total thrust force action on a center of gravity\footnote{in 
 
 \begin{equation}
 \begin{split}
-\ddot{x}^R &= K_1\sin \psi,\\
-\ddot{y}^R &= K_1\sin \theta.\\
+\ddot{x}^{(R)} &= K_1\sin \psi,\\
+\ddot{y}^{(R)} &= K_1\sin \theta.\\
 \end{split}
 \label{eq:attitude_first_lin}
 \end{equation}
@@ -52,11 +52,11 @@ The altitude dynamics can be also modeled using Newton's 2nd law of motion. The 
 
 \begin{equation}
 \begin{split}
-\ddot{z} &= \frac{U}{m}\cos\theta\cos\psi - g^W
+\ddot{z} &= \frac{U}{m}\cos\theta\cos\psi - g^{(W)}
 \end{split}
 \end{equation}
 
-The gravitational acceleration is denoted by $g^W$. This system is also non-linear as in the case of attitude dynamics, but we need to be more cautious with a potential linearization in this case. If we try to build an altitude controller which is supposed to work not only around a hovering point, but also during take-off and landing the force $U$ should not be treated as constant, unlike in~(\ref{eq:attitude_first_lin}). The pull force of a propeller can be simplified to a quadratic function of its angular speed [\strong{REFERENCE}], which is one of the controlled inputs.
+The gravitational acceleration is denoted by $g^{(W)}$. This system is also non-linear as in the case of attitude dynamics, but we need to be more cautious with a potential linearization in this case. If we try to build an altitude controller which is supposed to work not only around a hovering point, but also during take-off and landing the force $U$ should not be treated as constant, unlike in~(\ref{eq:attitude_first_lin}). The pull force of a propeller can be simplified to a quadratic function of its angular speed \citep{luukkonen2011modelling}, which is one of the controlled inputs.
 
 \subsection{Dynamics of the integrated stabilization}
 

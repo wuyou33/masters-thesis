@@ -4,10 +4,8 @@ a = load('LOG-9772.TXT');
 
 dt = 0.033;
 
-from = 25/dt;
-% to = from + 30/dt;
-% to = size(a, 1)-3/dt;
-to = from + 500;
+from = round(25/dt);
+to = size(a, 1)-round(3/dt);
 
 mpcEnabled = 1;
 
@@ -41,6 +39,7 @@ plot(time, a(from:to, 9).*mpcEnabled, 'r', 'LineWidth', 1.5);
 
 %% 
 
-std = std(a(from:to, 1))
-max = max(abs(a(from:to, 1)))
-mean = mean(a(from:to, 1))
+stdx = std(a(from:to, 1))
+stdy = std(a(from:to, 2))
+maxx = max(abs(a(from:to, 1)))
+maxy = max(abs(a(from:to, 2)))

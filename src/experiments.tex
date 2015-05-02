@@ -39,6 +39,7 @@ The disturbance rejection feature based on the disturbance estimation is one of 
 \end{figure}
 
 \subsection{Tracking constant setpoint}
+\label{cap:tracking_constant_trajectory}
 
 The first experiment was to test the UAV's capability of tracking the constant reference, i.e. hovering above one place. Statistically, we are interested in the standard deviation $\sigma$ and the maximum deviation $\Delta_{max}$. Figure \ref{fig:experiment_constant_trajectory} shows its performance in good light conditions with no wind disturbances. The aircraft was capable of tracking the reference with standard deviation $\sigma = 4.8\jed{cm}$ and maximum deviation $\Delta_{max} = 14.4\jed{cm}$.
 
@@ -248,6 +249,27 @@ Most of previously presented situations can be seen in the compilation video. It
 \label{fig:videos}
 \end{figure}
 
-\subsection{Summary and comparison with previous work}
+\subsection{Performance and comparison}
 
-Je to krásné, létá to!!!
+Results were gathered from three experiments --- tracking constant trajectory (section \ref{cap:tracking_constant_trajectory}), tracking circular trajectory (section \ref{cap:dynamic_trajectory_tracking}) and the last experiment which tested tracking a longer trajectory in outdoor environment (see previous section). First two experiments were performed indoor and all of them were conducted under good lighting conditions.  Following table shows the statistical evaluation of trajectory tracking
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrrrr}
+\hline
+ & $\sigma_x$ [cm] & $\Delta_{x, max}$ [cm] & $\sigma_y$ [cm] & $\Delta_{y, max}$ [cm] & $l$ [s]\\
+\hline
+\textbf{constant trajectory} & 4.0 & 3.3 & 15.1 & 11.8 & 184 \\
+\textbf{circular trajectory} & 4.3 & 3.9 & 14.9 & 8.5 & 92\\
+\textbf{outdoor experiment} & 8.7 & 7.0 & 23.5 & 21.6 & 55\\
+\hline
+\end{tabular}
+\caption{Performance of the proposed solution.}
+\label{tab:compparison1}
+\end{table}
+
+where $\sigma_x$, $\Delta_{x, max}$ and $\sigma_y$, $\Delta_{y, max}$ denote the standard and maximum deviation for the lateral and forward axis respectively, and $l$ indicates the length of the experiment. One can see that the performance in the indoor environment is slightly better than outdoors, but overall the results are better when comparing to previous work \citep{endrych2014}. Although the performance of tracking constant trajectory is similar, the results of tracking dynamical trajectory are in order of magnitude better in case of the standard deviation. In terms of maximum deviation, according to \citep{endrych2014} it rarely went under 60\jed{cm}.
+
+\subsection{Summary}
+
+The last section of this thesis demonstrated the performance of the system in practice. The implemented Kalman filter was able to estimate external disturbances which has proven useful for offset-free tracking. The UAV was able to counteract wind disturbances with ease. Moreover, it was able to follow a desired trajectory with precision more than suitable for use in GPS-denied and indoor environment. Statistically, the results were significantly better then of the previous work. 
