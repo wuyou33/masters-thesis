@@ -4,17 +4,17 @@
 A test flight needed to be made, in order to identify parameters $P_1 \hdots P_6$, introduced in chapter \ref{chap:uav_dynamics}. Several methods exist for system identification for both time and frequency domain. Despite theirs advantages, one have to excite system poles and zeros in a way that could lead to damage of the system and its surroundings. In case of highly unstable UAV, testing by a step response or frequency response is mostly unwanted. Instead of that the model can be fitted to arbitrary data using a mathematical optimization approach. The test flight, which was conducted by a human operator, consisted mainly of hovering above one place with small oscillations in all axis. All data used for following identification were gathered from the onboard \emph{px4flow} optical flow sensor (inc. ultrasonic rangefinder). The data were received and logged in constant rate and coupled with appropriate control action of the operator. Since all searched parameters are part of the first order system eq. (\ref{eq:first_order_stab}), we can write down its discrete differential equation
 
 \begin{equation}
-q_{[n]} = P_Aq_{[n-1]} + P_Bu_{[n-1]}
+q_{[n]} = P_Aq_{[n-1]} + P_Bu_{[n-1]},
 \end{equation}
-
-where $P_A$, $P_B$ are unknown constants of the transfer function. Supposing this is the correct description, all sensors are perfect and there are no other effects on the system, this equation should hold for all measured samples. When considering all samples, the set of equations can be written in a matrix form as follows
+\\
+where $P_A$, $P_B$ are unknown constants of the transfer function. If supposing that, all sensors are perfect and there are no other effects on the system, this equation should hold for all measured samples. When considering all samples, the set of equations can be written in a matrix form as follows
 
 \begin{equation}
-\textbf{b} = \textbf{A}\textbf{p}
+\textbf{b} = \textbf{A}\textbf{p},
 \label{eq:bap}
 \end{equation}
 
-where $\textbf{A} \in \mathbb{R}^{(m-1)\times2}$ is the matrix of the set of equations, $\textbf{b} \in \mathbb{R}^{(m-1)}$ is the left-hand side of the equation and $\textbf{p} \in \mathbb{R}^{2}$ is the vector of parameters we are looking for, $m$ being the number of learning samples.
+where $\textbf{A} \in \mathbb{R}^{(m-1)\times2}$ represents matrix of the set of equations, $\textbf{b} \in \mathbb{R}^{(m-1)}$ is the left-hand side of the equation, $\textbf{p} \in \mathbb{R}^{2}$ is the vector of parameters we are looking for, and $m$ being the number of samples. Parameters \textbf{b}, \textbf{A}, \textbf{p} are created as follows:
 
 \begin{equation}
 \textbf{A} = \begin{bmatrix}
@@ -32,15 +32,15 @@ q_{[m]}
 \textbf{p} = \begin{bmatrix}
 P_A \\
 P_B
-\end{bmatrix}
+\end{bmatrix}.
 \end{equation}
 
-Due to the fact that the system description does not cover all phenomena and the measured data is noisy, the equation (\ref{eq:bap}) does not necessary to hold. But we can still estimate \textbf{p} in a way that $\norm{\textbf{Ap-b}}_2^2$ is minimal. To provide a good chance of estimating all parameters well, such data should be supplied that the set of equations is overdetermined. The solution is then optimal in terms of least squares of \textbf{r}, where $\textbf{r} = \textbf{Ap-b}$ is a vector of residuals of the equation system. This optimization problem can be solved e.g. by using Matlab's '\textit{\textbackslash}' operator.
+Due to the fact that the system description does not cover all phenomena and the measured data is noisy, the equation (\ref{eq:bap}) does not necessary hold. But we can still estimate \textbf{p} in a way that $\norm{\textbf{Ap-b}}_2^2$ is minimal. Thus the supplied set of equations needs to be overdetermined to provide sufficient accuracy of estimated parameter. The solution is then optimal in terms of least squares of \textbf{r}, where $\textbf{r} = \textbf{Ap-b}$ is a vector of residuals of the equation system. This optimization problem can be solved e.g. by using operator '\textit{\textbackslash}' in Matlab.
 
 \subsection{Attitude subsystem identification}
 \label{cap:attitude_subsystem_identification}
 
-There is a total of four parameters, $P_1$, $P_2$ for \texttt{x} axis and $P_3$, $P_4$ for \texttt{y} axis. Assuming the system is decoupled and the low-level stabilization drive both subsystems identically\footnote{Further experiments show that both axis can be driven by the same controller utilizing a single model.} we can identify a model using only one of them. Following experiment was conducted using a manually controlled UAV equipped with a px4flow optical flow sensor. Data seen in Fig. \ref{fig:iden1} are both unfiltered and captured onboard using a dedicated logging device. One could ask what are the units of measurement of the input signal. Values shown in the plot are fundamentally a difference from a mean PPM\footnote{Pulse Position Modulation is a common communication protocol used on unmanned vehicles.} signal pulse length, measured using a hardware timer. They are directly proportional to the desired attitude angle of the UAV.
+Four parameters, $P_1$, $P_2$ for \texttt{x} axis and $P_3$, $P_4$ for \texttt{y} axis, need to by identified. Assuming the system is decoupled and the low-level stabilization drives both subsystems identically\footnote{Further experiments show that both axis can be driven by the same controller utilizing a single model.}, we can identify a model using only one of them. Following experiment was conducted using a manually controlled UAV equipped with the \textit{px4flow} optical flow sensor. Data from the experiment (fig. \ref{fig:iden1}) are both unfiltered and captured onboard using a dedicated logging device. Unit of measurement of the input signal represents a difference from a mean PPM\footnote{Pulse Position Modulation is a common communication protocol used on unmanned vehicles.} signal pulse length, measured using a hardware timer. They are directly proportional to the desired attitude angle of the UAV.
 
 \begin{figure}[h]
 \includegraphics[width=1\textwidth]{fig/iden1.eps} 
@@ -48,14 +48,14 @@ There is a total of four parameters, $P_1$, $P_2$ for \texttt{x} axis and $P_3$,
 \label{fig:iden1}
 \end{figure}
 
-To identify a first order transfer function from the input to the acceleration, one have to differentiate the velocity signal. Differentiating it discreetly was found impractical, due to its large noise component. But when fitting a smooth function to the data, the derivative can be then computed analytically. The polynomial function was chosen to fit the data since it can be easily differentiated and can fit it well. Using the approach described above, constants $P_1$ and $P_2$ were obtained
+The velocity signal has to be differentiated to identify the first order transfer function from the input to the acceleration. Discrete differentiation of the signal was found impractical, due to its large noise component. But when fitting a smooth function to the data, the derivative can be computed analytically. The polynomial function was chosen to fit the data since it can be easily differentiated and it can be found easily. Using the approach described above, constants $P_1$ and $P_2$ were obtained as:
 
 \begin{equation}
-P_1 = 0.9799, P_2 = 5.0719 \times 10^{-5} 
+P_1 = 0.9799, P_2 = 5.0719 \times 10^{-5}.
 \label{eq:constants1}
 \end{equation}
 
-Having these constants, the attitude system can be completed from Eq. (\ref{eq:attitude_LTI}) with particular values. 
+Having these constants, the attitude system can be completed from eq. (\ref{eq:attitude_LTI}) with particular values:
 
 \begin{equation}
 \begin{split}
@@ -67,7 +67,7 @@ Having these constants, the attitude system can be completed from Eq. (\ref{eq:a
 0\\
 0\\
 5.0719 \times 10^{-5}
-\end{bmatrix}
+\end{bmatrix}.
 \end{split}
 \label{eq:attitude_LTI_identified}
 \end{equation}
@@ -80,11 +80,11 @@ The system can be further tested by estimating all states in open-loop from the 
 \label{fig:iden2}
 \end{figure}
 
-As it can be seen in Fig. \ref{fig:iden2}, states estimated in open-loop are tracking the genuine values without much error. Some drift can be seen in the position, after the second integrator. But overall, it can be said the model fit measured data well, at least for purpose of the control design. 
+As it can be seen in fig. \ref{fig:iden2}, states estimated in open-loop are tracking the genuine values without a significant error. Some drift can be seen in the position, after the second integrator. But the model fits the measured data sufficiently, at least for purpose of the control design. 
 
 \subsection{Altitude subsystem identification}
 
-There was another dedicated flight conducted for the purpose of altitude identification. Again, with an intention to excite the system's dynamics. In this case, the measured state is an altitude. It is supplied by an ultrasonic rangefinder which works in a range from $0.3$\jed{m} to $4$\jed{m}. The sensor is implemented on the \emph{px4flow} unit and although the data is sent together with the optical flow, its actual rate is about $20$\jed{Hz}. Data were again fitted with polynomial and further differentiated into other states. Figure \ref{fig:iden3} shows data on which parameters $P_5$, $P_6$ were found. In this particular situation, input signal had to be shifted to cancel the DC\footnote{Supposing the force caused by the gravity of Earth is a constant, the control signal countering it is constant DC component of the total thrust signal.} component which countered the gravitational acceleration. The input offset was found by another optimization with a cost computed as a sum of sums of quadratic errors of all state open-loop estimations.
+For the purpose of altitude identification, another flight was realized. Again, with an intention to excite the system's dynamics. In this case, the measured state is an altitude. It is supplied by an ultrasonic rangefinder which works in a range from $0.3$\jed{m} to $4$\jed{m}. The sensor is implemented on the \emph{px4flow} unit and although the data is sent together with the optical flow, its actual rate is about $20$\jed{Hz}. Data were again fitted with polynomial and further differentiated into other states. Figure \ref{fig:iden3} shows data on which parameters $P_5$, $P_6$ were found. In this particular situation, input signal had to be shifted to cancel the DC\footnote{Supposing the force caused by the gravity of Earth is a constant, the total thrust signal contains a DC component countering the gravitational pull.} component which countered the gravitational acceleration. The input offset was found by another optimization with a cost computed as a sum of sums of quadratic errors of all state open-loop estimations.
 
 \begin{figure}[h]
 \includegraphics[width=1\textwidth]{fig/iden3.eps} 
@@ -92,14 +92,14 @@ There was another dedicated flight conducted for the purpose of altitude identif
 \label{fig:iden3}
 \end{figure}
 
-The measurement unit of the input signal is again a time difference from a mean PPM pulse measured in discrete steps of a hardware timer. Following parameters were found using the \emph{least squares method} described in the beginning of this chapter. 
+The measurement unit of the input signal is again a time difference from a mean PPM pulse measured in discrete steps of a hardware timer. Following parameters were found using the \emph{least squares method} described in the beginning of this chapter:
 
 \begin{equation}
-P_5 = 0.9519, P_6 = 0.0012 \times 10^{-5} 
+P_5 = 0.9519, P_6 = 0.0012 \times 10^{-5}.
 \label{eq:constants2}
 \end{equation}
 
-Having these constants, the attitude system can be completed from Eq. (\ref{eq:altitude_LTI}) with the particular values
+Having these constants, the attitude system can be completed from eq. (\ref{eq:altitude_LTI}) with the particular values
 
 \begin{equation}
 \begin{split}
@@ -117,10 +117,10 @@ Having these constants, the attitude system can be completed from Eq. (\ref{eq:a
 \end{split}
 \label{eq:altitude_LTI_with_constants}
 \end{equation}
-
+\\
 where $g \approx 9.8 ms^{-2}$ is the gravitational acceleration.
 
-As can be seen in Fig. \ref{fig:iden4} the open-loop estimation holds fairly up to the velocity state. The altitude drifts heavily in a horizon of seconds, which indicates that the LTI system is not identified as good as in case of the attitude system. It could be due to omitting some physical phenomena e.g. in case of the rotor thrust or because of the linearization itself.
+As can be seen in fig. \ref{fig:iden4} the open-loop estimation holds fairly up to the velocity state. The altitude drifts heavily in a horizon of seconds, which indicates that the LTI system is not identified as good as in case of the attitude system. It could be due to omitting some physical phenomena e.g. in case of the rotor thrust or because of the linearization itself.
 
 \subsection{Yaw subsystem identification}
 
@@ -134,4 +134,4 @@ The system could be identified by exactly the same procedure as the previous sub
 
 \subsection{Summary}
 
-This chapter discussed the identification of parameters of the dynamical model presented in the chapter \ref{chap:uav_dynamics}. Mathematical optimization was used to fit a model to measured data in terms of least squares of residuals. We were able to find $P_1$, $P_2$ which are common parameters for both axis of the attitude model and also $P_3$, $P_4$ which are parameters of the altitude model. Using this information state space representation of both systems was constructed. It can be further used for state estimation and system control as it is shown in following chapters. The identification is considered successful by means of open-loop estimation error as it can be seen in presented figures. The absence of the yaw measurement could be solved by adding e.g. a magnetometer or an additional camera system.
+This chapter discussed the identification of parameters of the dynamical model presented in chapter \ref{chap:uav_dynamics}. Mathematical optimization was used to fit a model to measured data in terms of least squares of residuals. We were able to find common parameters for both axis of the attitude model $P_1$, $P_2$, and parameters of the altitude model $P_3$, $P_4$. Using this information state space representation of both systems was constructed. It can be further used for state estimation and system control as it is shown in following chapters. The identification is considered successful by means of open-loop estimation error as it can be seen in presented figures. The absence of the yaw measurement could be solved by adding e.g. a magnetometer or an additional camera system.
