@@ -18,8 +18,8 @@
 
 %%
 %% dát pryč z elektronické verze!!!
-%%\input{src/prohlaseni}
-%%\cleardoublepage
+\input{src/prohlaseni}
+\cleardoublepage
 %%
 
 %%
@@ -56,6 +56,10 @@
 
 % Seznam obrázků
 \listoffigures
+\cleardoublepage
+
+% Seznam tabulek
+\listoftables
 \cleardoublepage
 
 % Zapni fancy style na klasické stránky
@@ -103,12 +107,12 @@
 \cleardoublepage
 
 % Bibliografie
+\bibliographystyle{plain}
 \bibliography{dp}{}
 \cleardoublepage
-\bibliographystyle{plain}
 \clearpage
 
 % Apendixy, schemata, seznam zkratek, atp...
-\input{src/apendices}
+%\input{src/apendices}
 
 \end{document}

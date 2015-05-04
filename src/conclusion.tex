@@ -5,3 +5,9 @@ The entire assignment has been fulfilled successfully. We developed a hardware a
 This thesis spawned additional work for other students \citep{klucka2015, fiedler2015} --- one aimed to control a group of UAV's synchronously using the XBee modules, another developed a user interface for the ground station and dealt with a failure detection system based on proposed estimator. The platform will continue to be used for  a research of UAV swarms and formations. 
 
 The thesis is an outcome of a long lasting and diligent work. The author is grateful for the knowledge and experience he gained, both theoretical and technical. It is a little but important piece of the puzzle to allow autonomous operation of relatively localized unmanned aircraft. The future is in the sign of pushing frontiers of unmanned vehicles --- let us see what will it bring.
+
+\subsection{Future work}
+
+During the development of this thesis, several ideas and needs emerged that shall lead to future work. Since the bottleneck of the system is its dependence on sensor data, additional onboard sensors should be mounted to increase the precision and robustness of estimated position. Barometer, IMU and magnetometer could be added to the custom control board and their data fused by the Kalman filter.
+
+Regarding controllers, the MPC shall be implemented to control also the altitude, although there is not such need for precise trajectory tracking. Furthermore, an additional level of MPC could be added to allow optimal onboard trajectory planning. It would require to solve a optimization problem with more complex constraints. 
