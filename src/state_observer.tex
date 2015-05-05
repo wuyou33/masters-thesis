@@ -1,7 +1,7 @@
 \section{State observer}
 \label{cap:state_observer}
 
-Design of the \textit{model predictive controller}, requires a knowledge about development of all system states. This is a different situation than in the case of previously used PID controller, when only the controlled state needs to be known. There are some situations and corresponding systems, where all states values are relatively easy to obtain, respectively they might be already measured for another reason than the control. For instance cosmic, aerospace or another vehicles, where the typical states are position and its derivatives. But if not all states can be measured or we do not want to measure them, the state observer needs to be implemented. The state observer is a dynamical system that simulated concurrently with the controlled system. It has the same number of inputs and it is controlled by the same actions as the real system. The order of the observer is the same as the order of the system. Its states are supposed to be observable and they should correspond to the real system's states.
+Design of the \textit{model predictive controller}, requires a knowledge about development of all system states. This is a different situation than in the case of previously used PID controller, when only the controlled state needs to be known. There are some situations and corresponding systems, where all states values are relatively easy to obtain, respectively they might be already measured for another reason than the control. For instance cosmic, aerospace or another vehicles, where the typical states are position and its derivatives. But if not all states can be measured or we do not want to measure them, the state observer needs to be implemented. The state observer is a dynamical system that is simulated concurrently with the controlled system. It has the same number of inputs and it is controlled by the same actions as the real system. The order of the observer is the same as the order of the system. Its states are supposed to be observable and they should correspond to the real system's states.
 
 \subsection{Open-loop observer}
 
@@ -36,7 +36,7 @@ The open-loop observer can be basically corrected by closing a feedback loop aro
 \label{eq:closed_loop_observer}
 \end{equation}
 
-There are methods of finding $\textbf{L}$ such that poles of the observer are desirably placed\footnote{Assuming the system can be converted to the \textit{controlled canonical form}}. One can utilize that placing poles of a state feedback is a dual problem for placing poles of the observer. Practically, a state feedback controller can be tuned using matrices $\textbf{A}^T, \textbf{B}^T$ to get $\textbf{L}^T$ for the observer, hence the duality.
+There are methods of finding $\textbf{L}$ such that poles of the observer are desirably placed\footnote{Assuming the system can be converted to the \textit{controlled canonical form}.}. One can utilize that placing poles of a state feedback is a dual problem for placing poles of the observer. Practically, a state feedback controller can be tuned using matrices $\textbf{A}^T, \textbf{B}^T$ to get $\textbf{L}^T$ for the observer, hence the duality.
 
 \subsection{Kalman filter}
 \label{cap:kalman_filter_theory}
@@ -155,13 +155,13 @@ where $\textbf{K}_{[t]}$ is the Kalman gain, $\mathbf{I}$ is the identity matrix
        (CORR_IN) edge[] node[anchor=south] {Measurement} node[anchor=north] {$\textbf{z}, \textbf{Q}, \textbf{P}$} (CORRECTION);
 
 \end{tikzpicture}
-\caption{Bock diagram of the Kalman filter}
+\caption{Block diagram of the Kalman filter.}
 \label{fig:kalman_diagram}
 \end{figure}
 
 \subsection{Summary}
 
-The Kalman filter was presented in order to estimate all system states and filter measured data. Its performance can be shown on subsequence of data (forward movement) used in chapter \ref{cap:attitude_subsystem_identification}. The figure \ref{fig:kalman1} shows the velocity of UAV measured by onboard sensor. Among others, it is able to estimate all other states including the position and the acceleration which is essential for further use of model predictive controller. It can be tuned to estimate noisy signal with relatively small delay compared to e.g. exponential filter\footnote{The exponential filter is a method where filtered values are computed as $\textbf{\^x}_{[t]} = \alpha\textbf{\^x}_{[t-1]} + (1-\alpha)\textbf{P}\textbf{z}_{[t]}$}. For particular parameters of KF that were used in the final implementation see chapter \ref{cap:Implementation} where also an extended form of LTI system is presented to provide a disturbance estimation. For an intuitive description of KF in more details see \citep{faragher2012understandingKF}.
+The Kalman filter was presented in order to estimate all system states and filter measured data. Its performance can be shown on subsequence of data (forward movement) used in chapter \ref{cap:attitude_subsystem_identification}. The figure \ref{fig:kalman1} shows the velocity of UAV measured by onboard sensor. Among others, it is able to estimate all other states including the position and the acceleration which is essential for further use of model predictive controller. It can be tuned to estimate noisy signal with relatively small delay compared to e.g. exponential filter\footnote{The exponential filter is a method where filtered values are computed as $\textbf{\^x}_{[t]} = \alpha\textbf{\^x}_{[t-1]} + (1-\alpha)\textbf{P}\textbf{z}_{[t]}$.}. For particular parameters of KF that were used in the final implementation see chapter \ref{cap:Implementation} where also an extended form of LTI system is presented to provide a disturbance estimation. For an intuitive description of KF in more details see \citep{faragher2012understandingKF}.
 
 \begin{figure}[h]
 \includegraphics[width=0.99\textwidth]{fig/kalman1.eps} 

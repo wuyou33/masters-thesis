@@ -282,7 +282,7 @@ plot(time(1:end-1), estimate(2, 1:(i-1)), 'b', 'LineWidth', 1.5);
 title('Speed');
 legend('Simulated measurement', 'Estimated speed', 'Speed limit');
 xlabel('Time [s]');
-ylabel('Velocity [m/s]');
+ylabel('Speed [m/s]');
 axis([0 dt*i -0.5 0.9]);
 
 set(hFig, 'Units', 'centimeters');

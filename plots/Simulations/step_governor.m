@@ -281,11 +281,11 @@ hold off
 plot(time(1:end-1), measurement(2, 1:(i-1)), 'r', 'LineWidth', 1.5);
 hold on
 plot(time(1:end-1), estimate(2, 1:(i-1)), 'b', 'LineWidth', 1.5);
-plot(time(1:end-1), ones(1, length(time(1:end-1)))*0.34, 'k--');
+plot(time(1:end-1), ones(1, length(time(1:end-1)))*0.35, 'k--');
 title('Speed');
 legend('Simulated measurement', 'Estimated speed', 'Speed limit');
 xlabel('Time [s]');
-ylabel('Velocity [m/s]');
+ylabel('Speed [m/s]');
 axis([0 dt*i -0.25 1]);
 
 set(hFig, 'Units', 'centimeters');
@@ -293,6 +293,6 @@ set(hFig, 'Position', [0 0 21 21*0.5625/2])
 
 drawnow;
 
-pause(1);
+pause(2);
 
 tightfig(hFig);

@@ -74,7 +74,7 @@ Thus it can be simplified into a form using matrices $\textbf{\^A}$ and $\textbf
 \subsection{Problem formulation - QMPC}
 \label{cap:mpc_formulation}
 
-The objective function for QMPC is formulated as sum of squares of weighted control errors combined with weighted control actions. In our case the weight of the last control error is weighted differently than all the previous errors, which is denoted by the second summand in (\ref{eq:qmpc_basic_formulation}). By doing that, we can prioritize the final error in the horizon and force the controller to converge to the desired trajectory.
+The objective function for QMPC is formulated as sum of squares of weighted control errors combined with weighted control actions. In our case the last control error is weighted differently than all the previous errors, which is denoted by the second summand in (\ref{eq:qmpc_basic_formulation}). By doing that, we can prioritize the final error in the horizon and force the controller to converge to the desired trajectory.
 
 \begin{equation}
 \label{eq:qmpc_basic_formulation}
@@ -115,7 +115,7 @@ Finally the optimization task can be formulated as minimizing the objective func
 & \min_{\textbf{\underline{u}} \in \mathbb{R}^{kM}}
 & & \mathrm{J}(\underline{\textbf{u}}) = \frac{1}{2}\textbf{\underline{u}}^T\textbf{\^H}\textbf{\underline{u}} + \textbf{\underline{u}}^T\textbf{\^c}\\
 & \text{s.t.}
-& & \text{constrains on \textbf{u}}
+& & \text{constrains on \textbf{u}}.
 \end{aligned}
 \end{equation}
 
@@ -233,7 +233,7 @@ Input box constrains are a special case of general linear inequalities of QP. Th
 {(#1) ellipse (#2 and #3)
 }
 
-One could ask why this process leads to the optimal solution on a feasibility set. A simple proof can be constructed. The figure \ref{fig:qmpc_constrained_analogy} shows an analogous example for two dimensions. It is assumed that the function $\mathrm{J}(\textbf{\underline{u}})$ is convex. When the global optimum $\textbf{\underline{u}}^*$ is found using the closed form solution and it satisfies all constraints, the task is finished. Otherwise there is a constrained optimum $\textbf{\underline{\~u}}^*$ located in the feasibility set which can be found by (\ref{eq:qmpc_saturating}). If there would be another, different, better solution on the feasible set, we could get to it by following facets of the feasibility set polyhedron \citep{boyd2004convex}. That means the step from $\textbf{\underline{\~u}}^*$ would lower the objective value of $\mathrm{J}(\textbf{\underline{u}})$ thus there would be a negative gradient in the direction. But when using (\ref{eq:qmpc_saturating}), every step of projecting variables violating constraints is a step over a positive gradient (as any step from the global optimum of a convex function). This would lead to a claim that there is a local maximum in $\textbf{\underline{\~u}}^*$ which is contradictory to the assumption.
+One could ask why this process leads to the optimal solution on a feasibility set. A simple proof can be constructed. The figure \ref{fig:qmpc_constrained_analogy} shows an analogous example for two dimensions. It is assumed that the function $\mathrm{J}(\textbf{\underline{u}})$ is convex. When the global optimum $\textbf{\underline{u}}^*$ is found using the closed-form solution and it satisfies all constraints, the task is finished. Otherwise there is a constrained optimum $\textbf{\underline{\~u}}^*$ located in the feasibility set which can be found by (\ref{eq:qmpc_saturating}). If there would be another, different, better solution on the feasible set, we could get to it by following facets of the feasibility set polyhedron \citep{boyd2004convex}. That means the step from $\textbf{\underline{\~u}}^*$ would lower the objective value of $\mathrm{J}(\textbf{\underline{u}})$ thus there would be a negative gradient in the direction. But when using (\ref{eq:qmpc_saturating}), every step of projecting variables violating constraints is a step over a positive gradient (as any step from the global optimum of a convex function). This would lead to a claim that there is a local maximum in $\textbf{\underline{\~u}}^*$ which is contradictory to the assumption.
 
 \begin{figure}[h]
 \centering
@@ -283,7 +283,7 @@ One could ask why this process leads to the optimal solution on a feasibility se
 
 \subsubsection{QMPC with state constraints}
 
-As it was mentioned previously, the state constraints are the most general of linear inequalities. Solving such quadratic program is a difficult task, compared to the one constrained only by input constraints. The author of \citep{mikulas2013} compares several iterative methods for solving constrained model predictive control. The first one mentioned is the \textbf{Active set method}. It uses the fact that the optimum is attained on the boundary of the feasible set. Throughout the iterations, the algorithm walks along the facets of the convex polytope in a similar way that the \textit{simplex algorithm} for linear programming does. The QP with equality constraints (or unconstrained) is solved every step. The number of iterations depends on the number of constraints active in the optimum.
+As it was mentioned previously, the state constraints are the most general of linear inequalities. Solving such quadratic program is a difficult task, compared to the one constrained only by input constraints. The author of \citep{mikulas2013} compares several iterative methods for solving constrained model predictive control. The first one mentioned is the \textbf{Active set method}. It uses the fact that the optimum is attained on the boundary of the feasible set. Throughout the iterations, the algorithm walks along the facets of the convex polytope in a similar way that the \textit{simplex algorithm} does for linear programming. The QP with equality constraints (or unconstrained) is solved every step. The number of iterations depends on the number of constraints active in the optimum.
 
 Another method presented in \citep{mikulas2013} and used in \citep{zometa2012segway} is the \textbf{Fast gradient method}. It is a modification of the classical gradient descend. But instead of moving against the gradient vector, it rather projects it to the feasible set. Its computational demands strongly depend on the projection itself which means it is usually used when only a certain type of constraints is used e.g. box, simplex or Euclidean norm ball. The method also suffers from bad convergence when the quadratic form is not well conditioned.
 
