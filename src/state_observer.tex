@@ -1,4 +1,5 @@
 \section{State observer}
+\label{cap:state_observer}
 
 Design of the \textit{model predictive controller}, requires a knowledge about development of all system states. This is a different situation than in the case of previously used PID controller, when only the controlled state needs to be known. There are some situations and corresponding systems, where all states values are relatively easy to obtain, respectively they might be already measured for another reason than the control. For instance cosmic, aerospace or another vehicles, where the typical states are position and its derivatives. But if not all states can be measured or we do not want to measure them, the state observer needs to be implemented. The state observer is a dynamical system that simulated concurrently with the controlled system. It has the same number of inputs and it is controlled by the same actions as the real system. The order of the observer is the same as the order of the system. Its states are supposed to be observable and they should correspond to the real system's states.
 
