@@ -1,7 +1,7 @@
 \section{System identification}
 \label{cap:system_identification}
 
-A test flight needed to be made, in order to identify parameters $P_1 \hdots P_6$, introduced in chapter \ref{chap:uav_dynamics}. Several methods exist for system identification for both time and frequency domain. Despite theirs advantages, one have to excite system poles and zeros in a way that could lead to damage of the system and its surroundings. In case of highly unstable UAV, testing by a step response or frequency response is mostly unwanted. Instead of that the model can be fitted to arbitrary data using a mathematical optimization approach. The test flight, which was conducted by a human operator, consisted mainly of hovering above one place with small oscillations in all axis. All data used for following identification were gathered from the onboard \emph{px4flow} optical flow sensor (inc. ultrasonic rangefinder). The data were received and logged in constant rate and coupled with appropriate control action of the operator. Since all searched parameters are part of the first order system eq. (\ref{eq:first_order_stab}), we can write down its discrete differential equation
+A test flight needed to be made, in order to identify parameters $P_1 \hdots P_6$, introduced in chapter \ref{chap:uav_dynamics}. Several methods exist for system identification for both time and frequency domain. Despite theirs advantages, one have to excite system poles and zeros in a way that could lead to damage of the system and its surroundings. In case of highly unstable UAV, testing by a step response or frequency response is mostly unwanted. Instead of that the model can be fitted to arbitrary data using a mathematical optimization approach. The test flight, which was conducted by a human operator, consisted mainly of hovering above one place with small oscillations in all axis. All data used for following identification were gathered from the onboard \emph{px4flow} optical flow sensor (including ultrasonic rangefinder). The data were received and logged in constant rate and coupled with appropriate control action of the operator. Since all searched parameters are part of the first order system eq. (\ref{eq:first_order_stab}), we can write down its discrete differential equation
 
 \begin{equation}
 q_{[n]} = P_Aq_{[n-1]} + P_Bu_{[n-1]},
@@ -128,7 +128,7 @@ The system could be identified by exactly the same procedure as the previous sub
 
 \begin{figure}[h]
 \includegraphics[width=0.99\textwidth]{fig/iden4.eps} 
-\caption{Identification - open loop estimation of altitude system states}
+\caption{Identification - open loop estimation of altitude system states.}
 \label{fig:iden4}
 \end{figure}
 
