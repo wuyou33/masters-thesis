@@ -2,22 +2,12 @@ clear all
 
 a = load('LOG-9916.TXT');
 
-% bezva super venku vítr 
-% a = load('LOG00116.TXT');
-
-% from = 500;
-% to = from+1300;
-
 dt = 0.033;
 
-% pro vypocet statistiky vezmu cely experiment
-% from = 500+round(10/dt);
-% to = from+2800;
-
-from = 1;
+from = round(15/dt);
 to = size(a, 1);
 
-mpcEnabled = a(:, 17);
+mpcEnabled = 1;
 
 a(:, 1) = a(:, 1).*mpcEnabled;
 a(:, 2) = a(:, 2).*mpcEnabled;
@@ -35,7 +25,7 @@ axis([0 time(end) -1.2 2.2]);
 title('Position');
 xlabel('Time [s]');
 ylabel('Position [m]');
-legend('Estimated position', 'Setpoint');
+legend('Estimated position', 'Setpoint', 'Position', 'Northwest');
 
 subplot(3, 1, 2);
 hold off
