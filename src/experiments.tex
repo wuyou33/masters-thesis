@@ -1,11 +1,11 @@
 \section{Experiments}
 \label{cap:experiments}
 
-Following section presents an evaluation of the proposed control system. Firstly, simulation results are shown to be subsequently compared to those of real-world experiments. We tested the system on various situation including tracking constant reference, step response and sine trajectory. Another experiments were conducted to verify the disturbance rejection feature. This section also includes observations on drift of the position estimator with an absolute localization system. Finally the system's performance is compared to the previous work. Most of experiments are captured in the compilation video \url{http://youtu.be/lPy7w-GUbw4} which is also located on the enclosed CD. 
+This section presents an evaluation of the proposed control system. Firstly, simulation results are shown to be subsequently compared real-world experiments. We tested the system in various situations including tracking constant reference, step response and sine trajectory. Another experiments were conducted to verify the disturbance rejection feature. This section also includes observations on drift of the position estimator with an absolute localization system. Finally, the system's performance is compared to the previous work. Most of the experiments are captured in the compilation video \url{http://youtu.be/lPy7w-GUbw4}, which is also located on the enclosed CD. 
 
 \subsection{Simulating MPC}
 
-Figure \ref{fig:simulation_step_no_governor} shows the step response of the system, simulated without the input governor. The proaction can be seen before the step in the reference trajectory which is thanks to the predictive nature of the controller. 
+Figure \ref{fig:simulation_step_no_governor} shows the step response of the system, simulated without the input governor. The proaction can be seen before the step in the reference trajectory, which is enabled due to the predictive nature of the controller. 
 
 \begin{figure}[H]
 \centering
@@ -21,7 +21,7 @@ Figure \ref{fig:simulation_step_no_governor} shows the step response of the syst
 \label{fig:simulation_step_governor}
 \end{figure}
 
-Since the desired \emph{unit step} trajectory is not feasible, it should be firstly transformed using the input governor. In our case, we limit the UAV's speed to $0.35\jed{ms^{-1}}$ (which is due to maximum speed that the \emph{px4flow} sensor can measure reliably). Figure \ref{fig:simulation_step_governor} shows the simulation of step response with the input governor. See that the speed lies roughly under the limit. Figure \ref{fig:simulation_sine} shows the simulation of UAV tracking sine trajectory. Prior work \citep{baca2013, endrych2014} and related work \citep{bangura2014realtimempc} demonstrated that tracking such trajectory is difficult without a notable lag. Our simulation shows that MPC with long enough prediction horizon should perform better. See section \ref{cap:dynamic_trajectory_tracking} for experimental validation of sine trajectory.
+Since the desired \emph{unit step} trajectory is not feasible, it should be firstly transformed using the input governor. In our case, we limit the UAV's speed to $0.35\jed{ms^{-1}}$ (which is due to maximum speed that the \emph{px4flow} sensor can measure reliably). Figure \ref{fig:simulation_step_governor} shows the simulation of step response with the input governor. See that the speed lies roughly under the limit. Figure \ref{fig:simulation_sine} shows the simulation of UAV tracking sine trajectory. Prior work \citep{baca2013, endrych2014} and related work \citep{bangura2014realtimempc} demonstrated that tracking such trajectory is difficult without a notable lag. Our simulation shows that MPC with long enough prediction horizon achieves better results. See section \ref{cap:dynamic_trajectory_tracking} for experimental validation of sine trajectory.
 
 \begin{figure}[H]
 \centering
@@ -30,65 +30,63 @@ Since the desired \emph{unit step} trajectory is not feasible, it should be firs
 \label{fig:simulation_sine}
 \end{figure}
 
-The disturbance rejection feature based on the disturbance estimation is one of selling points of the system. It should be able to deal with constant disturbances (cause by bad trimming, offset in \emph{KK2} stabilization) as well as momentary disturbances (possibly caused by wind). Although simulations showed that the the disturbance estimation can be tuned arbitrarily to match a desired settling time of the estimate, in practice, there is a limit (see discussion in section \ref{cap:persistant_wind_disturbances_experiment}). Figure \ref{fig:simulation_disturbance_rejection} shows a simulation of the disturbance rejection with parameters tuned on the real UAV.
+The disturbance rejection ability based on the disturbance estimation is one of key points of the system. It should be able to deal with constant disturbances (cause by bad trimming, offset in \emph{KK2} stabilization) as well as momentary disturbances (possibly caused by wind). Although simulations showed that the disturbance estimation can be tuned arbitrarily to match a desired settling time of the estimate, in practice, there is a limit (see discussion in section \ref{cap:persistant_wind_disturbances_experiment}). Figure \ref{fig:simulation_disturbance_rejection} shows a simulation of disturbance rejection with parameters tuned using the real UAV.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.99\textwidth]{fig/simulation4_disturbance_rejection.eps}
-\caption{Simulating of disturbance rejection (forward motion).}
+\caption{Simulation of disturbance rejection (forward motion).}
 \label{fig:simulation_disturbance_rejection}
 \end{figure}
 
 \subsection{Tracking constant setpoint}
 \label{cap:tracking_constant_trajectory}
 
-The first experiment was to test the UAV's capability of tracking the constant reference, i.e. hovering above one place. Statistically, we are interested in the standard deviation $\sigma$ and the maximum deviation $\Delta_{max}$. Figure \ref{fig:experiment_constant_trajectory} shows its performance in good light conditions with no wind disturbances. The aircraft was capable of tracking the reference with standard deviation $\sigma = 4.8\jed{cm}$ and maximum deviation $\Delta_{max} = 14.4\jed{cm}$.
+The first experiment was realized with the aim to test the UAV capability of tracking a constant reference, i.e. hovering above one place. Statistically, we are interested in the standard deviation $\sigma$ and the maximum deviation $\Delta_{max}$. Figure \ref{fig:experiment_constant_trajectory} shows its performance in good light conditions with no wind disturbances. The aircraft was capable of tracking the reference with standard deviation $\sigma = 4.8\jed{cm}$ and maximum deviation $\Delta_{max} = 14.4\jed{cm}$.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.99\textwidth]{fig/experiment6_constant_reference.eps}
-\caption{Experiment with tracking static trajectory (forward motion).}
+\caption{Experiment of tracking static trajectory (forward motion).}
 \label{fig:experiment_constant_trajectory}
 \end{figure}
 
 \subsection{Measuring of estimation drift}
 
-One could ask, what is the relevance of previously presented data, since the position is estimated onboard using only velocity data and the model. The truth is, that the position is not absolute and although the controller seems to stay around the setpoint, the absolute position in the space may drift away. In order to measure such drift we implemented the Whycon camera localization system \citep{faigl2013whycon} using calibrated camera. It was used to measure the absolute position of the UAV while conduction a flight. The figure \ref{fig:experiment_drift_constant} shows the position drift during 1 minute flight. The maximum measured deviation was $\approx 10\jed{cm}$. It can be seen, that the estimated position slowly drifts away from the absolute one, and then lately drifts back. Similar effect can be observed in figure \ref{fig:experiment_drift_sine} where the UAV is tracking a sine trajectory. In general, the drift is larger when the UAV is moving closer to \emph{px4flow's} saturation.
+One could ask, what is the relevance of previously presented data, since the position is estimated onboard using only velocity data and the model. The truth is that the position is not absolute and although the controller seems to stay around the setpoint, the absolute position in the space may drift away. In order to measure such drift we implemented the Whycon camera localization system \citep{krajnik14JINT, faigl2013whycon} using calibrated camera was employed. It was used to measure the absolute position of the UAV while conduction a flight. The figure \ref{fig:experiment_drift_constant} shows the position drift during 1 minute flight. The maximum measured deviation was $\approx 10\jed{cm}$. It can be seen, that the estimated position slowly drifts away from the absolute one, and then lately drifts back. Similar effect can be observed in figure \ref{fig:experiment_drift_sine}, where the UAV is tracking a sine trajectory. In general, the drift is larger when the UAV is moving closer to the saturation of the \emph{px4flow} sensor.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.99\textwidth]{fig/experiment5_drift_constant.eps}
-\caption{Experiment with measuring a position drift (forward motion).}
+\caption{Experiment of measuring a position drift (forward motion).}
 \label{fig:experiment_drift_constant}
 \end{figure}
 
-The signal noise from \emph{px4flow} is usually larger at higher velocities. At last, there are other conditions that need to be met to eliminate the position drift --- good light conditions and good vibration isolation of the sensor. Otherwise the drift is $\approx 10\jed{cm/min}$ or larger. Our observations correspond to those of creators of the sensor \citep{honegger2013open}.
+The signal noise from the \emph{px4flow} sensor is usually larger at higher velocities. At last, there are other conditions that need to be met to eliminate the position drift --- good light conditions and good vibration isolation of the sensor. Otherwise the drift is $\approx 10\jed{cm/min}$ or larger. Our observations correspond with results presented by authors of the system in \citep{honegger2013open}.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.99\textwidth]{fig/experiment5_drift_sine.eps}
-\caption{Experiment with measuring position drift while tracking a sine trajectory (forward motion).}
+\caption{Experiment conducted to measure a position drift while tracking a sine trajectory (forward motion).}
 \label{fig:experiment_drift_sine}
 \end{figure}
 
 \subsection{Tracking dynamic trajectory}
 \label{cap:dynamic_trajectory_tracking}
 
-Another experiment tested the system's capability of tracking dynamic trajectories. The first one tested the UAV to \emph{unit step} response. As it can be seen in figure \ref{fig:experiment_step}, the UAV does not overshoot the setpoint, but it rather makes a proaction which is a typical characteristic of the model predictive controller. The speed lies within the set boundaries due to input governor.
-
-Figure \ref{fig:experiment_sine_1} shows the performance during tracking of a circular trajectory. The trajectory was precomputed with constant speed $0.25\jed{ms^{-1}}$. Figure shows position and speed for both attitude axis. The experiment can bee seen in the compilation video which can be found at \url{http://youtu.be/lPy7w-GUbw4} or in the enclosed CD. The maximum deviation from the desired trajectory (forward motion) was $\Delta_{max} = 16.3\jed{cm}$, the standard deviation $\sigma = 4.3\jed{cm}$.
+Another experiment tested the system capability of tracking dynamic trajectories. In the first experiment, response of the UAV to a \emph{unit step} response was tested. As it can be seen in figure \ref{fig:experiment_step}, the UAV does not overshoot the setpoint, but it rather makes a proaction which is a typical characteristic of the model predictive controller. The speed lies within the set boundaries due to input governor. Figure \ref{fig:experiment_sine_1} shows the performance of the system during tracking a circular trajectory. The trajectory was precomputed with constant speed $0.25\jed{ms^{-1}}$. Figure shows position and speed for both attitude axis. The experiment can bee seen in the compilation video which can be found at \url{http://youtu.be/lPy7w-GUbw4} or in the enclosed CD (\texttt{video1.mp4}). The maximum deviation from the desired trajectory (forward motion) was $\Delta_{max} = 16.3\jed{cm}$ and the standard deviation $\sigma = 4.3\jed{cm}$.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.99\textwidth]{fig/experiment2_step.eps}
-\caption{Experiment with tracking the \emph{unit step} response.}
+\caption{Experiment of tracking the \emph{unit step} response.}
 \label{fig:experiment_step}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.99\textwidth]{fig/experiment1_sine.eps}
-\caption{Experiment with tracking circular trajectory. Amplitude $0.95\jed{m}$, period $20\jed{s}$, speed $0.25\jed{ms^{-1}}$.}
+\caption{Experiment of tracking circular trajectory. Amplitude $0.95\jed{m}$, period $20\jed{s}$, speed $0.25\jed{ms^{-1}}$.}
 \label{fig:experiment_sine_1}
 \end{figure}
 
@@ -101,12 +99,12 @@ Figure \ref{fig:experiment_sine_1} shows the performance during tracking of a ci
 \label{fig:vetrak1}
 \end{figure}
 
-Experiments were also conducted to test the disturbance rejection capability. Since we dealt with the real hardware where the dynamical model is only its approximation, we cannot suppose the same performance during the experiments as it was observer during simulations. It was mostly observed during tuning of the disturbance estimator. By decreasing the settling time of the estimated disturbance, the system become unstable due to oscillations being induced into the estimate which led to worse performance. We found sufficient parameters that allow to estimate usual disturbances, such as bad trimming or stabilization offset, in order of seconds.
+Different set of experiments was conducted to test the disturbance rejection capability. Since we dealt with the real hardware where the dynamical model is only an approximation of the real system, we cannot suppose the same performance during the experiments as it was observer in simulations. The difference was mostly observed during tuning of the disturbance estimator. By decreasing the settling time of the estimated disturbance, the system becomes unstable due to oscillations being induced into the estimate which led to worse performance. We found sufficient parameters that allows to estimate usual disturbances, such as bad trimming or stabilization offset, in order of seconds.
  
 \subsubsection{Persistent wind disturbances}
 \label{cap:persistant_wind_disturbances_experiment}
 
-The UAV was tested for its capability to reject wind disturbances by setting a $40\jed{W}$ fan pointed to the UAV (see figure \ref{fig:vetrak1}). To put into context, it is the same power as one of UAV's motors. The figure \ref{fig:experiment_steady_wind} shows the forward motion of the aircraft. The grey area indicates when the fan was turned on. The estimated disturbance settled in $\approx 10\jed{s}$ which allowed the UAV to eliminate the resulting \emph{steady state} error. Notice the non-zero disturbance when the fan is turned off --- caused by already mentioned trimming and stabilization offset.
+The UAV was tested for its capability to reject wind disturbances by using a $40\jed{W}$ fan pointed to the UAV (see figure \ref{fig:vetrak1}). To put it into context, it is the same power as one of UAV motors. The figure \ref{fig:experiment_steady_wind} shows the forward motion of the aircraft. The grey area indicates when the fan was turned on. The estimated disturbance settled in $\approx 10\jed{s}$ which allowed the UAV to eliminate the resulting \emph{steady state} error. Notice the non-zero disturbance when the fan is turned off, which is caused by already mentioned trimming and stabilization offset.
 
 \begin{figure}[h]
 \centering
@@ -134,14 +132,14 @@ The UAV was tested for its capability to reject wind disturbances by setting a $
         
     \end{scope}
 	\end{tikzpicture}
-\caption{Experiment with tracking constant setpoint while being under the influence of wind.}
+\caption{Experiment of tracking constant setpoint while being under the influence of wind.}
 \label{fig:experiment_steady_wind}
 \end{figure}
 
 \subsubsection{Momentary disturbances}
 \label{cap:momentary_disturbances}
 
-Following experiment, shown in the compilation video, aimed to test the system's capability of rejecting momentary disturbances. Figure \ref{fig:experiment_momentary_disturbances} shows a forward motion of the UAV while it is being repeatedly dragged by hand. These disturbances were short and sudden and their estimate has relatively short raise time, comparing to those in previous experiment. Gray areas denote the moments when the UAV was dragged away. One can spot overshoots in the position signal. They can be explained by the remaining disturbance in the estimate --- the controller accounted for a disturbance, that was not actually effecting the UAV at the moment. See Appendix \ref{ape:experiments} for additional data from experiments with disturbances.
+Following experiment, shown in the compilation video, aimed to test the system's capability of rejecting momentary disturbances. Figure \ref{fig:experiment_momentary_disturbances} shows a forward motion of the UAV, which is repeatedly dragged by hand. These disturbances were short and sudden, and their estimate has relatively short raise time, comparing to those in the previous experiment. Gray areas denote the moments when the UAV was dragged away. One can spot overshoots in the position signal. They can be explained by the remaining disturbance in the estimate. The controller accounted for a disturbance, that was not actually effecting the UAV at the moment (due to the settling time of the estimate). See Appendix \ref{ape:experiments} for additional data from experiments with disturbances.
 
 \begin{figure}[h]
 \centering
@@ -174,7 +172,7 @@ Following experiment, shown in the compilation video, aimed to test the system's
         
     \end{scope}
 	\end{tikzpicture}
-\caption{Experiment with tracking constant setpoint while being under the influence of momentary disturbances. The UAV was dragged by hand which is indicated by the gray areas.}
+\caption{Experiment of tracking constant setpoint while being under the influence of momentary disturbances. The UAV was dragged by hand which is indicated by the gray areas.}
 \label{fig:experiment_momentary_disturbances}
 \end{figure}
 
@@ -182,8 +180,7 @@ Following experiment, shown in the compilation video, aimed to test the system's
 
 \subsection{Outdoor experiment --- longer trajectory}
 
-Following experiment was the last experiment, conducted to present the UAV's capability of autonomous operation not only in indoor (laboratory) conditions, but also in a general outdoor area. The UAV was supposed to track a precomputed trajectory with 1 minute duration. Figure \ref{fig:experiment_venku_sipky} shows a photo that illustrates the course of the experiment\footnote{The photo was created by stitching multiple images from the video.} while figure \ref{fig:experiment_venku_plot} shows the plot of onboard data including desired and estimated position. The experiment was conducted under the influence of mild and steady breeze.
-
+The last experiment was conducted to present the UAV capability of autonomous operation not only in indoor (laboratory) conditions, but also in a general outdoor area. The UAV was supposed to track a precomputed trajectory with 1 minute duration. Figure \ref{fig:experiment_venku_sipky} shows a photo that illustrates the course of the experiment\footnote{The photo was created by stitching multiple images from the video.} while figure \ref{fig:experiment_venku_plot} shows the plot of onboard data including desired and estimated position. The experiment was conducted under the influence of mild and steady breeze. The video from the experiment can be found on url \url{http://youtu.be/iqgL1H_DCmU} or on the CD (\texttt{video2.mp4}).
 \begin{figure}[H]
 \centering
 
@@ -220,15 +217,15 @@ Following experiment was the last experiment, conducted to present the UAV's cap
 \begin{subfigure}[b]{0.5\textwidth}
 	\centering
 	\includegraphics[width=\textwidth]{fig/experiment7_3D.eps}
-	\caption{visualization of onboard experiment}
+	\caption{visualization of logged data}
 	\label{fig:experiment_venku_plot}
 \end{subfigure}
 
-\caption{Experiment with longer trajectory conducted outdoors.}
+\caption{Experiment with trajectory conducted outdoors. For detailed data see Apendix~\ref{ape:experiments}.}
 \label{fig:experiment_venku}
 \end{figure}
 
-Most of previously presented situations can be seen in the compilation video. It is accompanied by data logged onboard the UAV, render in the view (see figure \ref{fig:video1}). The estimated position is also fitted with the estimated force, acting on the UAV. The outdoor video is also accompanied with the position plot (figure \ref{fig:video2}).
+Most of previously presented situations can be seen in the compilation video. It is accompanied by data logged onboard the UAV, that are rendered in the video (see figure \ref{fig:video1}). The estimated position is also fitted with the estimated force acting on the UAV. The outdoor video is also accompanied with the position plot (figure \ref{fig:video2}).
 
 \begin{figure}[H]
 \centering
@@ -236,13 +233,13 @@ Most of previously presented situations can be seen in the compilation video. It
 \begin{subfigure}[b]{0.5\textwidth}
 	\centering
 	\includegraphics[width=0.9\textwidth]{fig/experiment1_video.jpg}
-	\caption{\url{https://youtu.be/lPy7w-GUbw4}}
+	\caption{\texttt{video1}: \url{https://youtu.be/lPy7w-GUbw4}}
 	\label{fig:video1}
 \end{subfigure}%
 \begin{subfigure}[b]{0.5\textwidth}
 	\centering
 	\includegraphics[width=0.9\textwidth]{fig/experiment2_video.jpg}
-	\caption{\url{https://youtu.be/iqgL1H_DCmU}}
+	\caption{\texttt{video2}: \url{https://youtu.be/iqgL1H_DCmU}}
 	\label{fig:video2}
 \end{subfigure}
 
@@ -252,7 +249,7 @@ Most of previously presented situations can be seen in the compilation video. It
 
 \subsection{Performance and comparison}
 
-Results were gathered from three experiments --- tracking constant trajectory (section \ref{cap:tracking_constant_trajectory}), tracking circular trajectory (section \ref{cap:dynamic_trajectory_tracking}) and the last experiment which tested tracking a longer trajectory in outdoor environment (see previous section). First two experiments were performed indoor and all of them were conducted under good lighting conditions.  Following table shows the statistical evaluation of trajectory tracking
+Results presented in this section were gathered from three experiments --- tracking constant trajectory (section \ref{cap:tracking_constant_trajectory}), tracking circular trajectory (section \ref{cap:dynamic_trajectory_tracking}), and the last experiment of tracking a longer trajectory in outdoor environment (see the previous section). The first two experiments were performed indoor and all of them were conducted under good lighting conditions. Table \ref{tab:compparison1} shows the statistical evaluation of trajectory tracking where $\sigma_x$, $\Delta_{x, max}$ and $\sigma_y$, $\Delta_{y, max}$ denote the standard and maximum deviation for the lateral and forward axis respectively, and $l$ indicates the time duration of the experiment. One can see that the performance of the system in the indoor environment is slightly better than in the outdoor environment, but overall the results are better when comparing to the previous work \citep{endrych2014}. Although the performance of tracking constant trajectory is similar, the results of tracking dynamical trajectory are in order of magnitude better in terms of the standard deviation. According to results of thesis \citep{endrych2014} it rarely went under 60\jed{cm}. 
 
 \begin{table}[h]
 \centering
@@ -260,17 +257,17 @@ Results were gathered from three experiments --- tracking constant trajectory (s
 \hline
  & $\sigma_x$ [cm] & $\Delta_{x, max}$ [cm] & $\sigma_y$ [cm] & $\Delta_{y, max}$ [cm] & $l$ [s]\\
 \hline
-\textbf{constant trajectory} & 4.0 & 3.3 & 15.1 & 11.8 & 184 \\
-\textbf{circular trajectory} & 4.3 & 3.9 & 14.9 & 8.5 & 92\\
-\textbf{outdoor experiment} & 8.7 & 7.0 & 23.5 & 21.6 & 55\\
+\textbf{constant trajectory} & 4.0 & 15.1 & 3.3 & 11.8 & 184 \\
+\textbf{circular trajectory} & 4.3 & 14.9 & 3.9 & 8.5 & 92\\
+\textbf{outdoor experiment} & 8.7 & 23.5 & 7.0 & 21.6 & 55\\
 \hline
 \end{tabular}
 \caption{Performance of the proposed solution.}
 \label{tab:compparison1}
 \end{table}
 
-where $\sigma_x$, $\Delta_{x, max}$ and $\sigma_y$, $\Delta_{y, max}$ denote the standard and maximum deviation for the lateral and forward axis respectively, and $l$ indicates the length of the experiment. One can see that the performance in the indoor environment is slightly better than outdoors, but overall the results are better when comparing to previous work \citep{endrych2014}. Although the performance of tracking constant trajectory is similar, the results of tracking dynamical trajectory are in order of magnitude better in terms of the standard deviation. In terms of maximum deviation, according to \citep{endrych2014} it rarely went under 60\jed{cm}.
+The result of the proposed system are similar to results of previously used PID controller, if tracking a constant setpoint. If tracking a dynamical trajectory, the MPC outperforms the PID controller significantly.
 
 \subsection{Summary}
 
-The last section of this thesis demonstrated the performance of the system in practice. The implemented Kalman filter was able to estimate external disturbances which has proven useful for offset-free tracking. The UAV was able to counteract wind disturbances with ease. Moreover, it was able to follow a desired trajectory with precision more than suitable for use in GPS-denied and indoor environment. Statistically, the results were significantly better then of the previous work. 
+The last section of this thesis demonstrated the performance of the system in practice. The implemented Kalman filter was able to estimate external disturbances, which significantly improved performance of the system during offset-free tracking. The UAV was able to effectively counteract wind disturbances. Moreover, it was able to follow a desired trajectory with precision suitable for use in GPS-denied and indoor environment. Statistically, the results were significantly better than in the previous work. 

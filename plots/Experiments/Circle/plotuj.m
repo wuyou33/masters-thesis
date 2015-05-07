@@ -83,7 +83,7 @@ pause(2);
 
 tightfig(hFig);
 
-stdx = std(a(from:to, 1) - a(from:to, 7))
-stdy = std(a(from:to, 2) - a(from:to, 8))
-maxx = max(abs(a(from:to, 1) - a(from:to, 7)))
-maxy = max(abs(a(from:to, 2) - a(from:to, 8)))
+stdx = std(a(from:to, 2) - a(from:to, 8))
+maxx = max(abs(a(from:to, 2) - a(from:to, 8)))
+stdy = std(a(from:to, 1) - a(from:to, 7))
+maxy = max(abs(a(from:to, 1) - a(from:to, 7)))

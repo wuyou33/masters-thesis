@@ -39,7 +39,7 @@ plot(time, a(from:to, 9).*mpcEnabled, 'r', 'LineWidth', 1.5);
 
 %% 
 
-stdx = std(a(from:to, 1))
-stdy = std(a(from:to, 2))
-maxx = max(abs(a(from:to, 1)))
-maxy = max(abs(a(from:to, 2)))
+stdx = std(a(from:to, 2))
+maxx = max(abs(a(from:to, 2)))
+stdy = std(a(from:to, 1))
+maxy = max(abs(a(from:to, 1)))

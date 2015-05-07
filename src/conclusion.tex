@@ -1,21 +1,23 @@
 \section{Conclusion}
 
-In this thesis, we developed a hardware and software solution that allows execution of the model predictive controller onboard of micro aerial vehicles. The dynamical model of the helicopter was derived and its parameters were numerically and experimentally identified. We designed a system including the Kalman filter as the state estimator and the quadratic MPC which optimizes control actions over the prediction horizon of 2.2\jed{s}. The proposed system was successfully implemented into the embedded hardware. The controller was verified by simulation and tested in various experiments. Many experiments were conducted both indoors and outdoors to test different scenarios including tracking various trajectories and disturbance rejection. The entire assignment of this thesis has been fulfilled successfully. Following tasks has been completed:
+In this thesis, we have developed a hardware and software solution that allows execution of the model predictive controller onboard of micro aerial vehicles. The dynamical model of the helicopter has been derived and its parameters have been numerically and experimentally identified. We have designed a system including the Kalman filter as the state estimator and the quadratic MPC which optimizes control actions over the prediction horizon of 2.2\jed{s}. The proposed system has been successfully implemented into the embedded hardware. The controller has been verified by numerical simulations and tested in various experiments. Many experiments have been conducted both indoors and outdoors to test different scenarios including tracking various trajectories and disturbance rejection. The entire assignment of this thesis has been fulfilled successfully. According to the assignment, following tasks have been completed:
 
 \begin{itemize}
-\item The dynamical system of the UAV was analyzed and its model was constructed.
-\item A Kalman filter was implemented to estimate states and disturbances.
-\item A model predictive controller was derived and implemented on the experimental micro aerial vehicle.
-\item The experimental aircraft was constructed including the custom control board, which was designed and manufactured for purpose of this thesis.
-\item Experiments were conducted that verified capabilities of the solution to follow dynamical trajectories in indoor and outdoor environment.
+\item The dynamical system of the UAV has been analyzed and its model was constructed.
+\item A Kalman filter has been implemented to estimate states and disturbances.
+\item A model predictive controller has been derived and implemented on the experimental micro aerial vehicle.
+\item The experimental aircraft has been constructed including the custom control board, which has been designed and manufactured for the purpose of this thesis.
+\item Experiments have been conducted that verified the capabilities of the solution to follow dynamical trajectories in indoor and outdoor environments.
 \end{itemize}
 
-This work created opportunities for other students to work on their theses \citep{klucka2015, fiedler2015}. One aimed to control a group of UAVs synchronously using the XBee modules, another developed a user interface for the ground station and dealt with a failure detection system based on the proposed estimator. The platform will continue to be used for a research of UAV swarms and formations within Multi-Robot System group of FEE CTU.
+This work also created opportunities for other students to work on their theses \citep{klucka2015, fiedler2015}. The first work aimed to control a group of UAVs synchronously using the XBee modules, in the second one, a user interface for the ground station was developed and a failure detection system based on the proposed estimator was designed. The platform proposed in this thesis will be further used for a research of UAV swarms and formations within the Multi-Robot System group of FEE CTU.
 
-The experimental platform was used during research of a visual feature tracking system \citep{chudoba2014surf}. The results with multirobotic formations were also published in \citep{saska_baca2014}. The last results were submitted to Autonomous Robots journal and are expected to come out in 2015 \citep{saska2015submitted}. 
+Finally, let us mention some contributions of the presented work beyond the assignment of this thesis and related publications, in which author of this thesis contributed as a co-author. The experimental platform was used during the research of a visual feature tracking system \citep{chudoba2014surf}. The results with multirobotic formations have been published in \citep{saska_baca2014}. The last results dealing with application of the proposed system in multi-robot scenarios have been submitted to Autonomous Robots journal \citep{saska2015submitted}. 
+
+Relevant information and results in the field of MAV control and multi-robot systems in general, which were achieved by other members of Multi-robot Systems group, can be found in \cite{Saska14:212936,Saska14:221382,Saska14:221385,Saska14:219889,Saska13:206002,Saska12:199007}.
 
 \subsection{Future work}
 
-During the development of this thesis, several ideas and needs emerged that specify our future work. Since the bottleneck of the system is its dependence on sensor data, additional onboard sensors should be mounted to increase the precision and robustness of estimated position. Barometer and magnetometer could be added to the custom control board and their data fused by the Kalman filter. The IMU, which is already present in the stabilization board, could be also used for the position estimation.
+During the development of this thesis, several ideas and needs emerged that specify our future work. Since the main bottleneck of the system is its dependence on sensor data, additional onboard sensors should be mounted to increase the precision and robustness of the estimated UAV position. Barometer and magnetometer could be added to the custom control board and their data fused by the Kalman filter. The IMU, which is already present in the stabilization board, could be also used for the position estimation.
 
 Regarding controllers, the MPC shall be implemented to control also the altitude, although there is not such need for precise trajectory tracking. Furthermore, an additional MPC could be added to allow optimal onboard trajectory planning. It would require to solve an optimization problem with more complex constraints. 
